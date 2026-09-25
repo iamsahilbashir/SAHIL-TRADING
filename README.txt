@@ -1,19 +1,34 @@
-ONLINE-READY SAHIL TRADING WEBSITE
+SAHIL TRADING PRO PLATFORM
+Original trading platform inspired by common charting/trading workflows.
 
-All four HTML pages are self-contained: no external CSS file is required.
-Upload ALL files together to your hosting:
-index.html
-lessons.html
-about.html
-contact.html
-robots.txt
-sitemap.xml
+Included:
+- Signup/login/logout
+- Individual virtual demo account
+- $10,000 starting balance
+- Watchlist and symbol search
+- Forex + XAU/USD
+- TradingView-hosted interactive chart
+- Timeframe/chart toolbar area
+- Indicator/drawing/alert entry points
+- Virtual BUY/SELL orders
+- Lots, leverage UI, SL/TP fields
+- Floating P/L, equity, positions and history
+- User-specific saved state
 
-BEFORE PUBLISHING:
-1. Replace YOUR-DOMAIN.com in robots.txt and sitemap.xml with your real domain.
-2. Replace YouTube/Instagram placeholder buttons with your real links.
-3. Connect the contact form to a form service if you want to receive messages.
-4. Upload the files to your hosting public folder.
-5. Submit sitemap.xml in Google Search Console after the site is live.
+IMPORTANT:
+This is a demo trading platform, not a real broker and does not place real orders.
+TradingView proprietary code/branding is not copied. The chart is an embedded TradingView widget.
+For production use, review TradingView's current widget/license/attribution requirements.
 
-The website is educational and does not provide financial advice.
+SERVER:
+Node.js backend required. GitHub Pages alone cannot run this project.
+1. Copy .env.example to .env
+2. Add Twelve Data API key and strong SESSION_SECRET
+3. npm install
+4. npm start
+
+PRODUCTION HARDENING:
+Use PostgreSQL/MySQL instead of users.json, HTTPS, secure production sessions,
+rate limiting, CSRF protection, email verification/password reset, backups, monitoring,
+and proper market-data licensing. Real-money trading would additionally require appropriate
+brokerage infrastructure and applicable regulatory/compliance work.

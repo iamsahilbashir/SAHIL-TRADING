@@ -257,7 +257,7 @@ wss.on("connection", c => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(
     "Sahil Trading Pro running on " + PORT
   );

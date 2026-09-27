@@ -157,89 +157,75 @@ app.post("/api/state", auth, (q, r) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-let feed;
 let clients = new Set();
 
 const send = o => {
-  let s = JSON.stringify(o);
+  const s = JSON.stringify(o);
 
-  for (let c of clients) {
+  for (const c of clients) {
     if (c.readyState === WebSocket.OPEN) {
       c.send(s);
     }
   }
 };
 
-function connect() {
+const symbols = [
+  "EUR/USD",
+  "GBP/USD",
+  "USD/JPY",
+  "AUD/USD",
+  "USD/CAD",
+  "XAU/USD"
+];
+
+let priceIndex = 0;
+
+async function updatePrice() {
   if (!KEY) {
     console.log("Twelve Data API key not configured.");
     return;
   }
 
+  const symbol = symbols[priceIndex];
+  priceIndex = (priceIndex + 1) % symbols.length;
+
   try {
-    feed = new WebSocket(
-      "wss://ws.twelvedata.com/v1/quotes/price?apikey=" +
-        encodeURIComponent(KEY)
-    );
+    const url =
+      "https://api.twelvedata.com/price?symbol=" +
+      encodeURIComponent(symbol) +
+      "&apikey=" +
+      encodeURIComponent(KEY);
 
-    feed.on("open", () => {
-      console.log("Twelve Data connected.");
+    const response = await fetch(url);
+    const data = await response.json();
 
-      feed.send(
-        JSON.stringify({
-          action: "subscribe",
-          params: {
-            symbols:
-              "EUR/USD,GBP/USD,USD/JPY,AUD/USD,USD/CAD,XAU/USD"
-          }
-        })
-      );
+    if (data?.price) {
+      send({
+        type: "price",
+        data: {
+          symbol,
+          price: Number(data.price)
+        }
+      });
 
       send({
         type: "status",
         connected: true
       });
-    });
 
-    feed.on("message", d => {
-      try {
-        send({
-          type: "price",
-          data: JSON.parse(d)
-        });
-      } catch {}
-    });
-
-    feed.on("error", err => {
-      console.log(
-        "Twelve Data WebSocket error:",
-        err.message
-      );
-    });
-
-    feed.on("close", () => {
-      console.log("Twelve Data disconnected.");
-
-      send({
-        type: "status",
-        connected: false
-      });
-
-      feed = null;
-
-      setTimeout(connect, 5000);
-    });
+      console.log(symbol, data.price);
+    } else {
+      console.log("Price error:", symbol, data);
+    }
   } catch (err) {
-    console.log(
-      "Twelve Data connection failed:",
-      err.message
-    );
+    console.log("Price request failed:", err.message);
 
-    setTimeout(connect, 5000);
+    send({
+      type: "status",
+      connected: false
+    });
   }
 }
-
-connect();
 
 wss.on("connection", c => {
   clients.add(c);
@@ -247,8 +233,7 @@ wss.on("connection", c => {
   c.send(
     JSON.stringify({
       type: "status",
-      connected:
-        !!(feed && feed.readyState === WebSocket.OPEN)
+      connected: true
     })
   );
 
@@ -256,6 +241,9 @@ wss.on("connection", c => {
     clients.delete(c);
   });
 });
+
+updatePrice();
+setInterval(updatePrice, 120000);
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(

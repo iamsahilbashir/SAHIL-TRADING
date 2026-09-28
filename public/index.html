@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -39,6 +40,7 @@ button{cursor:pointer}
   font-weight:800;
   color:#36e28a;
 }
+
 .brand img{
   width:40px;
   height:40px;
@@ -62,9 +64,10 @@ button{cursor:pointer}
   border:1px solid #24503d;
   background:#10221b;
   color:#fff;
-  padding:9px 13px;
+  padding:8px 12px;
   border-radius:8px;
 }
+
 .btn:hover{background:#163127}
 
 .green{
@@ -73,6 +76,7 @@ button{cursor:pointer}
   border:0;
   font-weight:700;
 }
+
 .green:hover{background:#50ee9c}
 
 .red{
@@ -104,9 +108,7 @@ button{cursor:pointer}
   color:#36e28a;
 }
 
-.field{
-  margin-bottom:13px;
-}
+.field{margin-bottom:13px}
 
 .field label{
   display:block;
@@ -176,12 +178,22 @@ button{cursor:pointer}
 }
 
 .panelHead{
-  padding:12px 14px;
+  padding:11px 13px;
   border-bottom:1px solid #19352a;
   font-weight:700;
   display:flex;
   justify-content:space-between;
   align-items:center;
+}
+
+.headBtns{
+  display:flex;
+  gap:5px;
+}
+
+.headBtns .btn{
+  padding:4px 8px;
+  font-size:12px;
 }
 
 .panelBody{
@@ -202,17 +214,11 @@ button{cursor:pointer}
   cursor:pointer;
 }
 
-.watchItem:hover{
-  background:#10231b;
-}
+.watchItem:hover{background:#10231b}
 
-.watchItem.active{
-  background:#123025;
-}
+.watchItem.active{background:#123025}
 
-.watchName{
-  font-weight:700;
-}
+.watchName{font-weight:700}
 
 .watchPrice{
   font-size:12px;
@@ -249,6 +255,12 @@ button{cursor:pointer}
   background:#163127;
 }
 
+.chartTools button.active{
+  background:#17864e;
+  border-color:#36e28a;
+  font-weight:700;
+}
+
 .tvWrap{
   width:100%;
   height:600px;
@@ -270,11 +282,17 @@ button{cursor:pointer}
 }
 
 .chartPanel.maximized .tvWrap{
-  height:calc(100vh - 105px);
+  height:calc(100vh - 108px);
 }
 
-.chartPanel.maximized .panelHead{
-  border-radius:0;
+.chartPanel.minimized .current,
+.chartPanel.minimized .chartTools,
+.chartPanel.minimized .tvWrap{
+  display:none;
+}
+
+.chartPanel.minimized{
+  height:auto;
 }
 
 .current{
@@ -301,9 +319,7 @@ button{cursor:pointer}
   gap:8px;
 }
 
-.order .full{
-  grid-column:1/-1;
-}
+.order .full{grid-column:1/-1}
 
 .order label{
   display:block;
@@ -347,6 +363,10 @@ button{cursor:pointer}
   font-weight:800;
 }
 
+.panel.collapsed .panelBody{
+  display:none;
+}
+
 .accountCompact .accountDetails{
   display:none;
 }
@@ -366,13 +386,9 @@ button{cursor:pointer}
   font-weight:700;
 }
 
-.section{
-  margin-top:12px;
-}
+.section{margin-top:12px}
 
-.tableWrap{
-  overflow:auto;
-}
+.tableWrap{overflow:auto}
 
 table{
   width:100%;
@@ -422,9 +438,19 @@ th{
   margin-top:7px;
 }
 
-.bottom{
-  margin-top:12px;
+.lineInfo{
+  margin-top:8px;
+  padding:8px;
+  background:#07100d;
+  border:1px solid #19352a;
+  border-radius:8px;
+  font-size:12px;
+  color:#9bb4aa;
 }
+
+.lineInfo b{color:#36e28a}
+
+.bottom{margin-top:12px}
 
 .modal{
   display:none;
@@ -440,6 +466,8 @@ th{
 .modalBox{
   width:100%;
   max-width:480px;
+  max-height:85vh;
+  overflow:auto;
   background:#0c1915;
   border:1px solid #25483a;
   border-radius:13px;
@@ -469,6 +497,7 @@ th{
   .grid{
     grid-template-columns:200px minmax(0,1fr);
   }
+
   .rightCol{
     grid-column:1/-1;
     display:grid;
@@ -478,30 +507,20 @@ th{
 }
 
 @media(max-width:750px){
-  .top{
-    padding:0 10px;
-  }
+  .top{padding:0 10px}
 
-  .brand{
-    font-size:16px;
-  }
+  .brand{font-size:16px}
 
   .brand img{
     width:34px;
     height:34px;
   }
 
-  .status{
-    display:none;
-  }
+  .status{display:none}
 
-  .app{
-    padding:7px;
-  }
+  .app{padding:7px}
 
-  .grid{
-    display:block;
-  }
+  .grid{display:block}
 
   .leftCol,
   .rightCol,
@@ -509,17 +528,11 @@ th{
     margin-bottom:8px;
   }
 
-  .leftCol{
-    display:none;
-  }
+  .leftCol{display:none}
 
-  .rightCol{
-    display:block;
-  }
+  .rightCol{display:block}
 
-  .tvWrap{
-    height:500px;
-  }
+  .tvWrap{height:500px}
 
   .chartTools{
     overflow-x:auto;
@@ -527,42 +540,43 @@ th{
     -webkit-overflow-scrolling:touch;
   }
 
-  .chartTools button{
-    flex:0 0 auto;
-  }
+  .chartTools button{flex:0 0 auto}
 
   .order{
     grid-template-columns:1fr 1fr;
   }
 
-  table{
-    min-width:700px;
+  table{min-width:700px}
+
+  .panelHead{
+    min-height:45px;
+  }
+
+  .headBtns .btn{
+    min-width:34px;
   }
 }
 
 @media(max-width:450px){
-  .auth{
-    padding:12px;
-  }
+  .auth{padding:12px}
 
-  .authBox{
-    padding:20px;
-  }
+  .authBox{padding:20px}
 
-  .tvWrap{
-    height:440px;
-  }
+  .tvWrap{height:440px}
 
-  .order{
-    grid-template-columns:1fr;
-  }
+  .order{grid-template-columns:1fr}
 
-  .order .full{
-    grid-column:auto;
-  }
+  .order .full{grid-column:auto}
 
   .orderBtns{
     grid-template-columns:1fr 1fr;
+  }
+
+  .brand span{
+    max-width:130px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
 }
 </style>
@@ -571,6 +585,7 @@ th{
 <body>
 
 <header class="top">
+
   <div class="brand">
     <img src="/profile.jpg" alt="Sahil">
     <span>SAHIL TRADING</span>
@@ -580,10 +595,14 @@ th{
     <span id="marketStatus" class="status">● MARKET OFFLINE</span>
     <button id="logout" class="btn red" style="display:none">Logout</button>
   </div>
+
 </header>
 
+
 <!-- AUTH -->
+
 <section id="auth" class="auth">
+
   <div class="authBox">
 
     <h2 id="authTitle">Create Account</h2>
@@ -603,154 +622,336 @@ th{
       <input id="pass" type="password" placeholder="Password">
     </div>
 
-    <button id="authBtn" class="btn green authBtn">Create Account</button>
+    <button id="authBtn" class="btn green authBtn">
+      Create Account
+    </button>
 
     <div id="switch" class="switch">
       Already have an account? Login
     </div>
 
     <div id="err" class="err"></div>
+
   </div>
+
 </section>
 
+
 <!-- APP -->
+
 <section id="app" class="app">
 
   <div class="grid">
 
-    <!-- LEFT -->
+    <!-- WATCHLIST -->
+
     <aside class="leftCol panel">
 
       <div class="panelHead">
-        Watchlist
-        <button id="addWatch" class="btn" style="padding:4px 7px">+</button>
+
+        <span>Watchlist</span>
+
+        <div class="headBtns">
+          <button id="addWatch" class="btn">+</button>
+        </div>
+
       </div>
 
       <div class="watchSearch">
-        <input id="symSearch" class="search" placeholder="Search symbol...">
+        <input
+          id="symSearch"
+          class="search"
+          placeholder="Search symbol..."
+        >
       </div>
 
       <div id="watchlist"></div>
 
     </aside>
 
-    <!-- CENTER -->
+
+    <!-- CHART -->
+
     <main class="chartPanel panel" id="chart">
 
       <div class="panelHead">
+
         <span>Trading Chart</span>
 
-        <div>
-          <button class="btn" onclick="toggleChartMax()">⛶</button>
+        <div class="headBtns">
+
+          <button
+            class="btn"
+            id="chartMinBtn"
+            onclick="toggleChartMin()"
+          >
+            −
+          </button>
+
+          <button
+            class="btn"
+            id="chartMaxBtn"
+            onclick="toggleChartMax()"
+          >
+            ⛶
+          </button>
+
         </div>
+
       </div>
 
+
       <div id="current" class="current">
-        <div class="currentSymbol" id="currentSymbol">
+
+        <div
+          class="currentSymbol"
+          id="currentSymbol"
+        >
           EUR/USD
         </div>
 
-        <div class="currentPrice" id="currentPrice">
+        <div
+          class="currentPrice"
+          id="currentPrice"
+        >
           --
         </div>
+
       </div>
+
 
       <div class="chartTools">
 
-        <button onclick="setTVInterval('1')">1m</button>
-        <button onclick="setTVInterval('5')">5m</button>
-        <button onclick="setTVInterval('15')">15m</button>
-        <button onclick="setTVInterval('30')">30m</button>
-        <button onclick="setTVInterval('60')">1H</button>
-        <button onclick="setTVInterval('240')">4H</button>
-        <button onclick="setTVInterval('D')">1D</button>
+        <button data-tf="1" onclick="setTVInterval('1')">
+          1m
+        </button>
 
-        <button onclick="openIndicators()">Indicators</button>
-        <button onclick="showAsianRange()">Asian Range</button>
-        <button onclick="showLongShortInfo()">Long/Short</button>
+        <button data-tf="5" onclick="setTVInterval('5')">
+          5m
+        </button>
 
-        <button onclick="toggleChartMax()">Maximize</button>
+        <button data-tf="15" onclick="setTVInterval('15')">
+          15m
+        </button>
+
+        <button data-tf="30" onclick="setTVInterval('30')">
+          30m
+        </button>
+
+        <button data-tf="60" onclick="setTVInterval('60')">
+          1H
+        </button>
+
+        <button data-tf="240" onclick="setTVInterval('240')">
+          4H
+        </button>
+
+        <button data-tf="D" onclick="setTVInterval('D')">
+          1D
+        </button>
+
+        <button onclick="openIndicators()">
+          Indicators
+        </button>
+
+        <button onclick="showAsianRange()">
+          Asian Range
+        </button>
+
+        <button onclick="showLongShortInfo()">
+          Long/Short
+        </button>
+
+        <button onclick="createTradeLines()">
+          Trade Lines
+        </button>
+
+        <button onclick="toggleChartMax()">
+          Maximize
+        </button>
 
       </div>
+
 
       <div id="tvbox" class="tvWrap"></div>
 
     </main>
 
+
     <!-- RIGHT -->
+
     <aside class="rightCol">
 
-      <!-- ORDER -->
-      <div class="panel">
+
+      <!-- ORDER TICKET -->
+
+      <div
+        class="panel"
+        id="orderPanel"
+      >
 
         <div class="panelHead">
-          Order Ticket
+
+          <span>Order Ticket</span>
+
+          <div class="headBtns">
+
+            <button
+              class="btn"
+              onclick="togglePanel('orderPanel')"
+            >
+              −
+            </button>
+
+          </div>
+
         </div>
+
 
         <div class="panelBody">
 
           <div class="order">
 
             <div class="full">
+
               <label>Symbol</label>
+
               <select id="orderSym"></select>
+
             </div>
 
+
             <div>
+
               <label>Lots</label>
-              <input id="lots" type="number" value="0.01" min="0.01" step="0.01">
+
+              <input
+                id="lots"
+                type="number"
+                value="0.01"
+                min="0.01"
+                step="0.01"
+              >
+
             </div>
 
+
             <div>
+
               <label>Leverage</label>
+
               <select id="leverage">
+
                 <option value="10">1:10</option>
                 <option value="20">1:20</option>
                 <option value="50">1:50</option>
                 <option value="100" selected>1:100</option>
                 <option value="200">1:200</option>
                 <option value="500">1:500</option>
+
               </select>
+
             </div>
 
+
             <div>
+
               <label>Stop Loss</label>
-              <input id="sl" type="number" step="any" placeholder="Optional">
+
+              <input
+                id="sl"
+                type="number"
+                step="any"
+                placeholder="Optional"
+              >
+
             </div>
 
+
             <div>
+
               <label>Take Profit</label>
-              <input id="tp" type="number" step="any" placeholder="Optional">
+
+              <input
+                id="tp"
+                type="number"
+                step="any"
+                placeholder="Optional"
+              >
+
             </div>
+
 
             <div class="full orderBtns">
-              <button id="buy" class="buy">BUY</button>
-              <button id="sell" class="sell">SELL</button>
+
+              <button id="buy" class="buy">
+                BUY
+              </button>
+
+              <button id="sell" class="sell">
+                SELL
+              </button>
+
             </div>
 
           </div>
 
+
+          <div class="lineInfo">
+
+            <b>Chart Lines:</b>
+            Open a position, then press
+            <b>Trade Lines</b> on the chart.
+            If supported by the TradingView chart API,
+            Entry/SL/TP lines can be moved directly.
+
+          </div>
+
         </div>
+
       </div>
 
+
       <!-- ACCOUNT -->
-      <div id="accountBox" class="panel section">
+
+      <div
+        id="accountBox"
+        class="panel section"
+      >
 
         <div class="panelHead">
-          Account
-          <button class="btn" onclick="toggleAccount()">−</button>
+
+          <span>Account</span>
+
+          <div class="headBtns">
+
+            <button
+              class="btn"
+              onclick="toggleAccount()"
+              id="accountToggle"
+            >
+              −
+            </button>
+
+          </div>
+
         </div>
+
 
         <div class="panelBody accountDetails">
 
           <div class="accountRow">
             <span>Balance</span>
-            <span id="balance" class="accountValue">$10,000.00</span>
+            <span id="balance" class="accountValue">
+              $10,000.00
+            </span>
           </div>
 
           <div class="accountRow">
             <span>Equity</span>
-            <span id="equity" class="accountValue">$10,000.00</span>
+            <span id="equity" class="accountValue">
+              $10,000.00
+            </span>
           </div>
 
           <div class="accountRow">
@@ -784,22 +985,31 @@ th{
           </div>
 
         </div>
+
       </div>
 
     </aside>
 
   </div>
 
+
   <!-- POSITIONS -->
+
   <div class="panel section">
 
     <div class="panelHead">
-      Open Positions
+
+      <span>Open Positions</span>
+
     </div>
 
+
     <div class="tableWrap">
+
       <table>
+
         <thead>
+
           <tr>
             <th>Symbol</th>
             <th>Side</th>
@@ -812,24 +1022,33 @@ th{
             <th>P/L</th>
             <th>Action</th>
           </tr>
+
         </thead>
 
         <tbody id="positions"></tbody>
+
       </table>
+
     </div>
 
   </div>
 
+
   <!-- HISTORY -->
+
   <div class="panel section">
 
     <div class="panelHead">
-      Trade History
+      <span>Trade History</span>
     </div>
 
+
     <div class="tableWrap">
+
       <table>
+
         <thead>
+
           <tr>
             <th>Symbol</th>
             <th>Side</th>
@@ -840,32 +1059,81 @@ th{
             <th>P/L</th>
             <th>Time</th>
           </tr>
+
         </thead>
 
         <tbody id="history"></tbody>
+
       </table>
+
     </div>
 
   </div>
 
+
   <!-- NOTES -->
-  <div class="panel section notes">
+
+  <div
+    class="panel section notes"
+    id="notesPanel"
+  >
 
     <div class="panelHead">
-      Trade Plan / Notes
+
+      <span>Trade Plan / Notes</span>
+
+      <div class="headBtns">
+
+        <button
+          class="btn"
+          onclick="togglePanel('notesPanel')"
+        >
+          −
+        </button>
+
+      </div>
+
     </div>
+
 
     <div class="panelBody">
 
-      <textarea id="notes" placeholder="Write your trade plan, analysis, entry rules, SL/TP plan, psychology notes..."></textarea>
+      <textarea
+        id="notes"
+        placeholder="Write your trade plan, analysis, entry rules, SL/TP plan, psychology notes..."
+      ></textarea>
+
 
       <div class="noteBtns">
-        <button id="saveNotes" class="btn green">Save Notes</button>
-        <button id="editNotes" class="btn">Edit</button>
-        <button id="deleteNotes" class="btn red">Delete</button>
+
+        <button
+          id="saveNotes"
+          class="btn green"
+        >
+          Save Notes
+        </button>
+
+        <button
+          id="editNotes"
+          class="btn"
+        >
+          Edit
+        </button>
+
+        <button
+          id="deleteNotes"
+          class="btn red"
+        >
+          Delete
+        </button>
+
       </div>
 
-      <div id="noteStatus" class="noteStatus"></div>
+
+      <div
+        id="noteStatus"
+        class="noteStatus"
+      ></div>
 
     </div>
 
@@ -873,26 +1141,39 @@ th{
 
 </section>
 
+
 <!-- MODAL -->
+
 <div id="modal" class="modal">
 
   <div class="modalBox">
 
-    <button class="closeModal" onclick="closeModal()">×</button>
+    <button
+      class="closeModal"
+      onclick="closeModal()"
+    >
+      ×
+    </button>
 
-    <h3 id="modalTitle">Information</h3>
+    <h3 id="modalTitle">
+      Information
+    </h3>
 
-    <div id="modalText" class="info"></div>
+    <div
+      id="modalText"
+      class="info"
+    ></div>
 
   </div>
 
 </div>
 
+
 <script>
 
-/* =========================
+/* =====================================================
    GLOBAL VARIABLES
-========================= */
+===================================================== */
 
 let signup=true;
 
@@ -919,14 +1200,21 @@ let tvInterval="15";
 
 let chartMax=false;
 
+let chartMin=false;
+
 let accountCompact=false;
 
+let tradeLineIds={};
 
-/* =========================
+let tradeLineBusy=false;
+
+
+/* =====================================================
    HELPERS
-========================= */
+===================================================== */
 
 const $=id=>document.getElementById(id);
+
 
 const tv={
   "EUR/USD":"OANDA:EURUSD",
@@ -938,9 +1226,9 @@ const tv={
 };
 
 
-/* =========================
-   SYMBOL NORMALIZATION
-========================= */
+/* =====================================================
+   NORMALIZE SYMBOL
+===================================================== */
 
 function normalizeSymbol(value){
 
@@ -953,6 +1241,7 @@ function normalizeSymbol(value){
     .replace(/-/g,"/");
 
   const map={
+
     EURUSD:"EUR/USD",
     "EUR/USD":"EUR/USD",
 
@@ -971,41 +1260,49 @@ function normalizeSymbol(value){
 
     USDCAD:"USD/CAD",
     "USD/CAD":"USD/CAD"
+
   };
 
   return map[s]||null;
 }
 
 
-/* =========================
+/* =====================================================
    AUTH MODE
-========================= */
+===================================================== */
 
 $("switch").onclick=()=>{
 
   signup=!signup;
 
   $("authTitle").textContent=
-    signup ? "Create Account":"Login";
+    signup
+    ?"Create Account"
+    :"Login";
 
   $("nameWrap").style.display=
-    signup ? "block":"none";
+    signup
+    ?"block"
+    :"none";
 
   $("authBtn").textContent=
-    signup ? "Create Account":"Login";
+    signup
+    ?"Create Account"
+    :"Login";
 
   $("switch").textContent=
     signup
-    ? "Already have an account? Login"
-    : "Don't have an account? Create one";
+    ?"Already have an account? Login"
+    :"Don't have an account? Create one";
 
   $("err").textContent="";
+
 };
 
 
-/* =========================
+/* =====================================================
    AUTH SUBMIT
-========================= */
+===================================================== */
 
 $("authBtn").onclick=async()=>{
 
@@ -1017,52 +1314,74 @@ $("authBtn").onclick=async()=>{
 
   $("err").textContent="";
 
+
   if(!email||!password){
 
-    $("err").textContent="Enter email and password.";
+    $("err").textContent=
+      "Enter email and password.";
 
     return;
   }
+
 
   if(signup&&!name){
 
-    $("err").textContent="Enter your name.";
+    $("err").textContent=
+      "Enter your name.";
 
     return;
   }
+
 
   try{
 
     const endpoint=
-      signup ? "/api/signup":"/api/login";
+      signup
+      ?"/api/signup"
+      :"/api/login";
 
-    const body=signup
-      ? {name,email,password}
-      : {email,password};
 
-    const r=await fetch(endpoint,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(body)
-    });
+    const body=
+      signup
+      ?{name,email,password}
+      :{email,password};
 
-    const data=await r.json().catch(()=>({}));
+
+    const r=await fetch(
+      endpoint,
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+
+    const data=
+      await r.json().catch(
+        ()=>({})
+      );
+
 
     if(!r.ok){
 
       $("err").textContent=
-        data.error||"Authentication failed.";
+        data.error||
+        "Authentication failed.";
 
       return;
     }
+
 
     $("auth").style.display="none";
 
     $("app").style.display="block";
 
     $("logout").style.display="block";
+
 
     await load();
 
@@ -1076,89 +1395,134 @@ $("authBtn").onclick=async()=>{
       "Connection error. Try again.";
 
     console.log(e);
+
   }
+
 };
 
 
-/* =========================
+/* =====================================================
    LOGOUT
-========================= */
+===================================================== */
 
 $("logout").onclick=async()=>{
 
   try{
-    await fetch("/api/logout",{
-      method:"POST"
-    });
+
+    await fetch(
+      "/api/logout",
+      {method:"POST"}
+    );
+
   }catch(e){}
 
   location.reload();
+
 };
 
 
-/* =========================
+/* =====================================================
    SAVE STATE
-========================= */
+===================================================== */
 
 async function save(){
 
   try{
 
-    await fetch("/api/state",{
+    await fetch(
+      "/api/state",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        body:JSON.stringify({
 
-      method:"POST",
+          balance,
 
-      headers:{
-        "Content-Type":"application/json"
-      },
+          positions,
 
-      body:JSON.stringify({
+          history,
 
-        balance,
-        positions,
-        history,
-        watchlist:watch,
-        notes:$("notes")?.value||""
+          watchlist:watch,
 
-      })
+          notes:
+            $("notes")?
+            $("notes").value:
+            ""
 
-    });
+        })
+      }
+    );
 
   }catch(e){
 
-    console.log("save error",e);
+    console.log(
+      "save error",
+      e
+    );
 
   }
+
 }
 
 
-/* =========================
+/* =====================================================
    LOAD STATE
-========================= */
+===================================================== */
 
 async function load(){
 
   try{
 
-    const r=await fetch("/api/me");
+    const r=
+      await fetch("/api/me");
 
     if(!r.ok)return;
 
-    const data=await r.json();
+
+    const data=
+      await r.json();
+
 
     if(typeof data.balance==="number")
       balance=data.balance;
 
+
     if(Array.isArray(data.positions))
       positions=data.positions;
+
 
     if(Array.isArray(data.history))
       history=data.history;
 
-    if(Array.isArray(data.watchlist)&&data.watchlist.length)
+
+    if(
+      Array.isArray(data.watchlist)&&
+      data.watchlist.length
+    )
       watch=data.watchlist;
 
-    loadNotes();
+
+    if(
+      typeof data.notes==="string"
+    ){
+
+      $("notes").value=
+        data.notes;
+
+      $("noteStatus").textContent=
+        data.notes
+        ?"Notes loaded."
+        :"";
+
+    }else{
+
+      loadNotes();
+
+    }
+
 
     renderWatchlist();
 
@@ -1170,43 +1534,70 @@ async function load(){
 
   }catch(e){
 
-    console.log("load error",e);
+    console.log(
+      "load error",
+      e
+    );
 
   }
+
 }
 
 
-/* =========================
+/* =====================================================
    WATCHLIST
-========================= */
+===================================================== */
 
 function renderWatchlist(){
 
-  const box=$("watchlist");
+  const box=
+    $("watchlist");
 
   box.innerHTML="";
 
+
   const search=
-    $("symSearch").value.trim().toUpperCase();
+    $("symSearch")
+      .value
+      .trim()
+      .toUpperCase();
+
 
   watch
-    .filter(s=>s.includes(search))
+    .filter(
+      s=>s.includes(search)
+    )
     .forEach(symbol=>{
 
-      const row=document.createElement("div");
+      const row=
+        document.createElement(
+          "div"
+        );
+
 
       row.className=
         "watchItem"+
-        (symbol===selected?" active":"");
+        (
+          symbol===selected
+          ?" active"
+          :""
+        );
+
 
       const price=
         prices[symbol]!==undefined
-        ? formatPrice(symbol,prices[symbol])
+        ?formatPrice(
+          symbol,
+          prices[symbol]
+        )
         :"--";
+
 
       row.innerHTML=`
 
-        <div onclick="selectSymbol('${symbol}')">
+        <div
+          onclick="selectSymbol('${symbol}')"
+        >
 
           <div class="watchName">
             ${symbol}
@@ -1227,9 +1618,11 @@ function renderWatchlist(){
 
       `;
 
+
       box.appendChild(row);
 
     });
+
 }
 
 
@@ -1239,26 +1632,34 @@ $("symSearch").addEventListener(
 );
 
 
-/* =========================
+/* =====================================================
    ADD WATCH
-========================= */
+===================================================== */
 
 $("addWatch").onclick=()=>{
 
-  const symbol=prompt(
-    "Enter symbol: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD or USD/CAD"
-  );
+  const symbol=
+    prompt(
+      "Enter symbol: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD or USD/CAD"
+    );
+
 
   if(!symbol)return;
 
-  const normalized=normalizeSymbol(symbol);
+
+  const normalized=
+    normalizeSymbol(symbol);
+
 
   if(!normalized){
 
-    alert("Supported symbols only.");
+    alert(
+      "Supported symbols only."
+    );
 
     return;
   }
+
 
   if(!watch.includes(normalized)){
 
@@ -1267,6 +1668,7 @@ $("addWatch").onclick=()=>{
     save();
 
   }
+
 
   selected=normalized;
 
@@ -1281,25 +1683,38 @@ $("addWatch").onclick=()=>{
 };
 
 
-/* =========================
+/* =====================================================
    REMOVE WATCH
-========================= */
+===================================================== */
 
-function removeWatch(symbol,event){
+function removeWatch(
+  symbol,
+  event
+){
 
-  if(event)event.stopPropagation();
+  if(event)
+    event.stopPropagation();
+
 
   if(watch.length<=1){
 
-    alert("At least one symbol must remain.");
+    alert(
+      "At least one symbol must remain."
+    );
 
     return;
   }
 
-  watch=watch.filter(x=>x!==symbol);
+
+  watch=
+    watch.filter(
+      x=>x!==symbol
+    );
+
 
   if(selected===symbol)
     selected=watch[0];
+
 
   save();
 
@@ -1310,12 +1725,13 @@ function removeWatch(symbol,event){
   updateCurrent();
 
   renderTV();
+
 }
 
 
-/* =========================
+/* =====================================================
    SELECT SYMBOL
-========================= */
+===================================================== */
 
 function selectSymbol(symbol){
 
@@ -1325,7 +1741,8 @@ function selectSymbol(symbol){
 
   fillOrderSymbols();
 
-  $("orderSym").value=symbol;
+  $("orderSym").value=
+    symbol;
 
   updateCurrent();
 
@@ -1334,35 +1751,46 @@ function selectSymbol(symbol){
 }
 
 
-/* =========================
+/* =====================================================
    ORDER SYMBOLS
-========================= */
+===================================================== */
 
 function fillOrderSymbols(){
 
-  const select=$("orderSym");
+  const select=
+    $("orderSym");
 
   select.innerHTML="";
 
+
   watch.forEach(symbol=>{
 
-    const option=document.createElement("option");
+    const option=
+      document.createElement(
+        "option"
+      );
 
     option.value=symbol;
 
     option.textContent=symbol;
 
-    select.appendChild(option);
+    select.appendChild(
+      option
+    );
 
   });
 
-  select.value=selected;
+
+  select.value=
+    selected;
+
 }
 
 
 $("orderSym").onchange=()=>{
 
-  selected=$("orderSym").value;
+  selected=
+    $("orderSym").value;
 
   updateCurrent();
 
@@ -1373,196 +1801,297 @@ $("orderSym").onchange=()=>{
 };
 
 
-/* =========================
+/* =====================================================
    PRICE FORMAT
-========================= */
+===================================================== */
 
-function formatPrice(symbol,price){
+function formatPrice(
+  symbol,
+  price
+){
 
-  if(price===undefined||price===null||
-     isNaN(price))return "--";
+  if(
+    price===undefined||
+    price===null||
+    isNaN(price)
+  )
+    return "--";
+
 
   if(symbol==="USD/JPY")
-    return Number(price).toFixed(3);
+    return Number(price)
+      .toFixed(3);
+
 
   if(symbol==="XAU/USD")
-    return Number(price).toFixed(2);
+    return Number(price)
+      .toFixed(2);
 
-  return Number(price).toFixed(5);
+
+  return Number(price)
+    .toFixed(5);
+
 }
 
 
-/* =========================
+/* =====================================================
    CURRENT PRICE
-========================= */
+===================================================== */
 
 function updateCurrent(){
 
-  $("currentSymbol").textContent=selected;
+  $("currentSymbol")
+    .textContent=
+      selected;
 
-  $("currentPrice").textContent=
-    prices[selected]!==undefined
-    ? formatPrice(selected,prices[selected])
-    : "--";
 
-  $("orderSym").value=selected;
+  $("currentPrice")
+    .textContent=
+      prices[selected]!==undefined
+      ?formatPrice(
+        selected,
+        prices[selected]
+      )
+      :"--";
+
+
+  $("orderSym").value=
+    selected;
 
 }
 
 
-/* =========================
+/* =====================================================
    PIP SIZE
-========================= */
+===================================================== */
 
 function pipSize(symbol){
 
   if(symbol==="USD/JPY")
     return 0.01;
 
-  /*
-    Gold convention used by this demo:
-    0.01 price movement = 1 pip
-  */
 
   if(symbol==="XAU/USD")
     return 0.01;
 
+
   return 0.0001;
+
 }
 
 
-/* =========================
+/* =====================================================
    PIPS
-========================= */
+===================================================== */
 
-function calculatePips(symbol,side,entry,current){
+function calculatePips(
+  symbol,
+  side,
+  entry,
+  current
+){
 
-  if(entry===undefined||
-     current===undefined||
-     isNaN(entry)||
-     isNaN(current))
+  if(
+    entry===undefined||
+    current===undefined||
+    isNaN(entry)||
+    isNaN(current)
+  )
     return 0;
+
 
   const diff=
     side==="BUY"
-    ? current-entry
-    : entry-current;
+    ?current-entry
+    :entry-current;
 
-  return diff/pipSize(symbol);
+
+  return diff/
+    pipSize(symbol);
+
 }
 
 
-/* =========================
+/* =====================================================
    P/L
-========================= */
+===================================================== */
 
-function calculatePL(symbol,side,entry,current,lots){
+function calculatePL(
+  symbol,
+  side,
+  entry,
+  current,
+  lots
+){
 
-  if(entry===undefined||
-     current===undefined)
+  if(
+    entry===undefined||
+    current===undefined
+  )
     return 0;
 
-  let multiplier=
+
+  const multiplier=
     symbol==="XAU/USD"
-    ? 100
-    : 100000;
+    ?100
+    :100000;
+
 
   const diff=
     side==="BUY"
-    ? current-entry
-    : entry-current;
+    ?current-entry
+    :entry-current;
 
-  return diff*lots*multiplier;
+
+  return diff*
+    lots*
+    multiplier;
+
 }
 
 
-/* =========================
+/* =====================================================
    OPEN TRADE
-========================= */
+===================================================== */
 
 async function openTrade(side){
 
-  const symbol=$("orderSym").value;
+  const symbol=
+    $("orderSym").value;
 
-  const price=prices[symbol];
 
-  const lots=Number($("lots").value);
+  const price=
+    prices[symbol];
 
-  const leverage=Number($("leverage").value);
+
+  const lots=
+    Number(
+      $("lots").value
+    );
+
+
+  const leverage=
+    Number(
+      $("leverage").value
+    );
+
 
   const sl=
     $("sl").value===""
-    ? null
-    : Number($("sl").value);
+    ?null
+    :Number($("sl").value);
+
 
   const tp=
     $("tp").value===""
-    ? null
-    : Number($("tp").value);
+    ?null
+    :Number($("tp").value);
 
-  if(!price){
 
-    alert("Live price is not available.");
+  if(price===undefined){
+
+    alert(
+      "Live price is not available."
+    );
 
     return;
   }
+
 
   if(!lots||lots<=0){
 
-    alert("Enter valid lot size.");
+    alert(
+      "Enter valid lot size."
+    );
 
     return;
   }
+
 
   if(sl!==null){
 
-    if(side==="BUY"&&sl>=price){
+    if(
+      side==="BUY"&&
+      sl>=price
+    ){
 
-      alert("BUY Stop Loss should be below entry.");
+      alert(
+        "BUY Stop Loss should be below entry."
+      );
+
+      return;
+    }
+
+
+    if(
+      side==="SELL"&&
+      sl<=price
+    ){
+
+      alert(
+        "SELL Stop Loss should be above entry."
+      );
 
       return;
     }
 
-    if(side==="SELL"&&sl<=price){
-
-      alert("SELL Stop Loss should be above entry.");
-
-      return;
-    }
   }
+
 
   if(tp!==null){
 
-    if(side==="BUY"&&tp<=price){
+    if(
+      side==="BUY"&&
+      tp<=price
+    ){
 
-      alert("BUY Take Profit should be above entry.");
+      alert(
+        "BUY Take Profit should be above entry."
+      );
+
+      return;
+    }
+
+
+    if(
+      side==="SELL"&&
+      tp>=price
+    ){
+
+      alert(
+        "SELL Take Profit should be below entry."
+      );
 
       return;
     }
 
-    if(side==="SELL"&&tp>=price){
-
-      alert("SELL Take Profit should be below entry.");
-
-      return;
-    }
   }
+
 
   const marginRequired=
     symbol==="XAU/USD"
-    ? price*lots*100/leverage
-    : price*lots*100000/leverage;
+    ?price*lots*100/leverage
+    :price*lots*100000/leverage;
 
-  if(marginRequired>freeMargin()){
 
-    alert("Not enough free margin.");
+  if(
+    marginRequired>
+    freeMargin()
+  ){
+
+    alert(
+      "Not enough free margin."
+    );
 
     return;
   }
 
+
   const trade={
 
-    id:Date.now()+Math.random(),
+    id:
+      Date.now()+
+      Math.random(),
 
     symbol,
 
@@ -1578,40 +2107,62 @@ async function openTrade(side){
 
     tp,
 
-    openTime:new Date().toISOString()
+    openTime:
+      new Date()
+      .toISOString()
 
   };
 
+
   positions.push(trade);
+
 
   await save();
 
+
   render();
+
+
+  setTimeout(
+    createTradeLines,
+    1000
+  );
 
 }
 
 
-/* =========================
+/* =====================================================
    CLOSE TRADE
-========================= */
+===================================================== */
 
 async function closeTrade(id){
 
   const index=
-    positions.findIndex(x=>x.id===id);
+    positions.findIndex(
+      x=>String(x.id)===String(id)
+    );
+
 
   if(index===-1)return;
 
-  const trade=positions[index];
 
-  const exit=prices[trade.symbol];
+  const trade=
+    positions[index];
+
+
+  const exit=
+    prices[trade.symbol];
+
 
   if(exit===undefined){
 
-    alert("Live price unavailable.");
+    alert(
+      "Live price unavailable."
+    );
 
     return;
   }
+
 
   const pips=
     calculatePips(
@@ -1620,6 +2171,7 @@ async function closeTrade(id){
       trade.entry,
       exit
     );
+
 
   const pl=
     calculatePL(
@@ -1630,7 +2182,9 @@ async function closeTrade(id){
       trade.lots
     );
 
+
   balance+=pl;
+
 
   history.unshift({
 
@@ -1642,211 +2196,307 @@ async function closeTrade(id){
 
     pl:Number(pl),
 
-    closeTime:new Date().toISOString()
+    closeTime:
+      new Date()
+      .toISOString()
 
   });
 
-  positions.splice(index,1);
+
+  positions.splice(
+    index,
+    1
+  );
+
+
+  removeTradeLines();
+
 
   await save();
 
   render();
+
 }
 
 
-/* =========================
+/* =====================================================
    BUY / SELL
-========================= */
+===================================================== */
 
-$("buy").onclick=()=>openTrade("BUY");
+$("buy").onclick=
+  ()=>openTrade("BUY");
 
-$("sell").onclick=()=>openTrade("SELL");
+$("sell").onclick=
+  ()=>openTrade("SELL");
 
 
-/* =========================
-   FREE MARGIN
-========================= */
+/* =====================================================
+   MARGIN
+===================================================== */
 
 function marginUsed(){
 
   let total=0;
 
+
   positions.forEach(p=>{
 
     const price=
-      prices[p.symbol]||p.entry;
+      prices[p.symbol]||
+      p.entry;
+
 
     const m=
       p.symbol==="XAU/USD"
-      ? price*p.lots*100/p.leverage
-      : price*p.lots*100000/p.leverage;
+      ?price*p.lots*100/p.leverage
+      :price*p.lots*100000/p.leverage;
+
 
     total+=m;
 
   });
 
+
   return total;
+
 }
+
 
 function floatingPL(){
 
   let total=0;
 
+
   positions.forEach(p=>{
 
-    const price=prices[p.symbol];
+    const price=
+      prices[p.symbol];
+
 
     if(price!==undefined){
 
-      total+=calculatePL(
-        p.symbol,
-        p.side,
-        p.entry,
-        price,
-        p.lots
-      );
+      total+=
+        calculatePL(
+          p.symbol,
+          p.side,
+          p.entry,
+          price,
+          p.lots
+        );
 
     }
 
   });
 
+
   return total;
+
 }
+
 
 function equity(){
 
-  return balance+floatingPL();
+  return balance+
+    floatingPL();
+
 }
+
 
 function freeMargin(){
 
-  return equity()-marginUsed();
+  return equity()-
+    marginUsed();
+
 }
 
 
-/* =========================
-   STOP / TP CHECK
-========================= */
+/* =====================================================
+   STOP / TP
+===================================================== */
 
 async function checkStops(){
 
-  let changed=false;
-
   const toClose=[];
+
 
   positions.forEach(p=>{
 
-    const price=prices[p.symbol];
+    const price=
+      prices[p.symbol];
 
-    if(price===undefined)return;
+
+    if(price===undefined)
+      return;
+
 
     if(p.side==="BUY"){
 
-      if(p.sl!==null&&price<=p.sl)
+      if(
+        p.sl!==null&&
+        price<=p.sl
+      )
         toClose.push(p.id);
 
-      else if(p.tp!==null&&price>=p.tp)
+      else if(
+        p.tp!==null&&
+        price>=p.tp
+      )
         toClose.push(p.id);
 
     }else{
 
-      if(p.sl!==null&&price>=p.sl)
+      if(
+        p.sl!==null&&
+        price>=p.sl
+      )
         toClose.push(p.id);
 
-      else if(p.tp!==null&&price<=p.tp)
+      else if(
+        p.tp!==null&&
+        price<=p.tp
+      )
         toClose.push(p.id);
 
     }
 
   });
 
-  for(const id of toClose){
+
+  for(
+    const id of toClose
+  ){
 
     await closeTrade(id);
 
-    changed=true;
-
   }
 
-  if(changed)render();
 }
 
 
-/* =========================
-   RENDER ACCOUNT
-========================= */
+/* =====================================================
+   MONEY
+===================================================== */
 
 function money(value){
 
   return "$"+
-    Number(value||0).toLocaleString(
-      "en-US",
-      {
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-      }
-    );
+    Number(value||0)
+      .toLocaleString(
+        "en-US",
+        {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }
+      );
+
 }
+
+
+/* =====================================================
+   ACCOUNT
+===================================================== */
 
 function renderAccount(){
 
-  const eq=equity();
+  const eq=
+    equity();
 
-  const margin=marginUsed();
+  const margin=
+    marginUsed();
 
-  const free=eq-margin;
+  const free=
+    eq-margin;
 
-  $("balance").textContent=money(balance);
 
-  $("equity").textContent=money(eq);
+  $("balance")
+    .textContent=
+      money(balance);
 
-  $("margin").textContent=money(margin);
 
-  $("freeMargin").textContent=money(free);
+  $("equity")
+    .textContent=
+      money(eq);
 
-  $("float").textContent=money(floatingPL());
 
-  if(margin>0)
-    $("marginLevel").textContent=
-      ((eq/margin)*100).toFixed(2)+"%";
-  else
-    $("marginLevel").textContent="∞";
+  $("margin")
+    .textContent=
+      money(margin);
 
-  $("accountLeverage").textContent=
-    "1:"+$("leverage").value;
+
+  $("freeMargin")
+    .textContent=
+      money(free);
+
+
+  $("float")
+    .textContent=
+      money(
+        floatingPL()
+      );
+
+
+  if(margin>0){
+
+    $("marginLevel")
+      .textContent=
+        ((eq/margin)*100)
+        .toFixed(2)+
+        "%";
+
+  }else{
+
+    $("marginLevel")
+      .textContent="∞";
+
+  }
+
+
+  $("accountLeverage")
+    .textContent=
+      "1:"+
+      $("leverage").value;
 
 }
 
 
-/* =========================
-   RENDER POSITIONS
-========================= */
+/* =====================================================
+   POSITIONS
+===================================================== */
 
 function renderPositions(){
 
-  const body=$("positions");
+  const body=
+    $("positions");
 
   body.innerHTML="";
+
 
   if(!positions.length){
 
     body.innerHTML=`
+
       <tr>
-        <td colspan="10" style="text-align:center;color:#71877e">
+        <td
+          colspan="10"
+          style="text-align:center;color:#71877e"
+        >
           No open positions
         </td>
       </tr>
+
     `;
 
     return;
   }
 
+
   positions.forEach(p=>{
 
     const current=
       prices[p.symbol]!==undefined
-      ? prices[p.symbol]
-      : p.entry;
+      ?prices[p.symbol]
+      :p.entry;
+
 
     const pips=
       calculatePips(
@@ -1855,6 +2505,7 @@ function renderPositions(){
         p.entry,
         current
       );
+
 
     const pl=
       calculatePL(
@@ -1865,102 +2516,190 @@ function renderPositions(){
         p.lots
       );
 
-    const tr=document.createElement("tr");
+
+    const tr=
+      document.createElement(
+        "tr"
+      );
+
 
     tr.innerHTML=`
 
       <td>${p.symbol}</td>
 
-      <td class="${p.side==="BUY"?"positive":"negative"}">
+      <td
+        class="${p.side==="BUY"
+          ?"positive"
+          :"negative"}"
+      >
         ${p.side}
       </td>
 
       <td>${p.lots}</td>
 
-      <td>${formatPrice(p.symbol,p.entry)}</td>
+      <td>
+        ${formatPrice(
+          p.symbol,
+          p.entry
+        )}
+      </td>
 
-      <td>${formatPrice(p.symbol,current)}</td>
+      <td>
+        ${formatPrice(
+          p.symbol,
+          current
+        )}
+      </td>
 
-      <td>${p.sl===null?"--":formatPrice(p.symbol,p.sl)}</td>
+      <td>
+        ${
+          p.sl===null
+          ?"--"
+          :formatPrice(
+            p.symbol,
+            p.sl
+          )
+        }
+      </td>
 
-      <td>${p.tp===null?"--":formatPrice(p.symbol,p.tp)}</td>
+      <td>
+        ${
+          p.tp===null
+          ?"--"
+          :formatPrice(
+            p.symbol,
+            p.tp
+          )
+        }
+      </td>
 
-      <td class="${pips>=0?"positive":"negative"}">
+      <td
+        class="${pips>=0
+          ?"positive"
+          :"negative"}"
+      >
         ${pips.toFixed(1)}
       </td>
 
-      <td class="${pl>=0?"positive":"negative"}">
+      <td
+        class="${pl>=0
+          ?"positive"
+          :"negative"}"
+      >
         ${money(pl)}
       </td>
 
       <td>
+
         <button
           class="tradeBtn"
           onclick="closeTrade('${p.id}')"
         >
           Close
         </button>
+
       </td>
 
     `;
 
+
     body.appendChild(tr);
 
   });
+
 }
 
 
-/* =========================
-   RENDER HISTORY
-========================= */
+/* =====================================================
+   HISTORY
+===================================================== */
 
 function renderHistory(){
 
-  const body=$("history");
+  const body=
+    $("history");
 
   body.innerHTML="";
+
 
   if(!history.length){
 
     body.innerHTML=`
+
       <tr>
-        <td colspan="8" style="text-align:center;color:#71877e">
+        <td
+          colspan="8"
+          style="text-align:center;color:#71877e"
+        >
           No trade history
         </td>
       </tr>
+
     `;
 
     return;
   }
 
+
   history.forEach(h=>{
 
-    const tr=document.createElement("tr");
+    const tr=
+      document.createElement(
+        "tr"
+      );
+
 
     const time=
       h.closeTime
-      ? new Date(h.closeTime).toLocaleString()
-      : "--";
+      ?new Date(
+        h.closeTime
+      ).toLocaleString()
+      :"--";
+
 
     tr.innerHTML=`
 
       <td>${h.symbol}</td>
 
-      <td class="${h.side==="BUY"?"positive":"negative"}">
+      <td
+        class="${h.side==="BUY"
+          ?"positive"
+          :"negative"}"
+      >
         ${h.side}
       </td>
 
       <td>${h.lots}</td>
 
-      <td>${formatPrice(h.symbol,h.entry)}</td>
-
-      <td>${formatPrice(h.symbol,h.exit)}</td>
-
-      <td class="${h.pips>=0?"positive":"negative"}">
-        ${Number(h.pips||0).toFixed(1)}
+      <td>
+        ${formatPrice(
+          h.symbol,
+          h.entry
+        )}
       </td>
 
-      <td class="${h.pl>=0?"positive":"negative"}">
+      <td>
+        ${formatPrice(
+          h.symbol,
+          h.exit
+        )}
+      </td>
+
+      <td
+        class="${h.pips>=0
+          ?"positive"
+          :"negative"}"
+      >
+        ${Number(
+          h.pips||0
+        ).toFixed(1)}
+      </td>
+
+      <td
+        class="${h.pl>=0
+          ?"positive"
+          :"negative"}"
+      >
         ${money(h.pl)}
       </td>
 
@@ -1968,15 +2707,17 @@ function renderHistory(){
 
     `;
 
+
     body.appendChild(tr);
 
   });
+
 }
 
 
-/* =========================
-   RENDER EVERYTHING
-========================= */
+/* =====================================================
+   RENDER
+===================================================== */
 
 function render(){
 
@@ -1993,20 +2734,25 @@ function render(){
 }
 
 
-/* =========================
+/* =====================================================
    TRADINGVIEW
-========================= */
+===================================================== */
 
 function renderTV(){
 
   if(!window.TradingView){
 
-    setTimeout(renderTV,300);
+    setTimeout(
+      renderTV,
+      300
+    );
 
     return;
   }
 
+
   $("tvbox").innerHTML="";
+
 
   tvWidget=
     new TradingView.widget({
@@ -2017,345 +2763,1013 @@ function renderTV(){
         tv[selected]||
         "OANDA:EURUSD",
 
-      interval:tvInterval,
+      interval:
+        tvInterval,
 
-      timezone:"Etc/UTC",
+      timezone:
+        "Etc/UTC",
 
-      theme:"dark",
+      theme:
+        "dark",
 
       style:"1",
 
       locale:"en",
 
-      enable_publishing:false,
+      enable_publishing:
+        false,
 
-      hide_top_toolbar:false,
+      hide_top_toolbar:
+        false,
 
-      hide_side_toolbar:false,
+      hide_side_toolbar:
+        false,
 
-      allow_symbol_change:true,
+      allow_symbol_change:
+        true,
 
-      save_image:true,
+      save_image:
+        true,
 
-      withdateranges:true,
+      withdateranges:
+        true,
 
-      details:false,
+      details:
+        false,
 
-      hotlist:false,
+      hotlist:
+        false,
 
-      calendar:false,
+      calendar:
+        false,
 
       studies:[
-
         "RSI@tv-basicstudies",
-
         "MACD@tv-basicstudies",
-
         "MASimple@tv-basicstudies"
-
       ],
 
-      container_id:"tvbox"
+      container_id:
+        "tvbox"
 
     });
+
+
+  setTimeout(
+    ()=>{
+      updateTFButtons();
+    },
+    700
+  );
+
+
+  /*
+    Try to create trade lines after
+    the chart is ready.
+  */
+
+  setTimeout(
+    ()=>{
+      createTradeLines();
+    },
+    1500
+  );
 
 }
 
 
-/* =========================
+/* =====================================================
    TIMEFRAME
-========================= */
+===================================================== */
 
 function setTVInterval(interval){
 
-  tvInterval=interval;
+  tvInterval=
+    interval;
+
+  updateTFButtons();
 
   renderTV();
 
 }
 
 
-/* =========================
+function updateTFButtons(){
+
+  document
+    .querySelectorAll(
+      ".chartTools button[data-tf]"
+    )
+    .forEach(btn=>{
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.tf===
+        String(tvInterval)
+      );
+
+    });
+
+}
+
+
+/* =====================================================
    INDICATORS
-========================= */
+===================================================== */
 
 function openIndicators(){
 
   showModal(
     "Indicators",
     `
-    <p>
-      TradingView chart ke <b>Indicators</b> button se
-      hundreds of available indicators open kar sakte ho.
-    </p>
+      <p>
+        TradingView chart ke
+        <b>Indicators</b> button se
+        indicators open kar sakte ho.
+      </p>
 
-    <p>
-      Default chart mein RSI, MACD aur Moving Average
-      already enabled hain.
-    </p>
+      <p>
+        Default:
+        <b>RSI, MACD aur Moving Average</b>
+        enabled hain.
+      </p>
 
-    <p>
-      Aap EMA, Bollinger Bands, Stochastic, ATR,
-      Volume aur doosre built-in indicators bhi add kar sakte ho.
-    </p>
+      <p>
+        EMA, Bollinger Bands, Stochastic,
+        ATR, Volume aur doosre supported
+        indicators bhi use kar sakte ho.
+      </p>
     `
   );
 
 }
 
 
-/* =========================
+/* =====================================================
    ASIAN RANGE
-========================= */
+===================================================== */
 
 function showAsianRange(){
 
   showModal(
     "Asian Range",
     `
-    <p>
-      Asian session range ko chart par manually mark
-      karne ke liye TradingView drawing tools use karo.
-    </p>
+      <p>
+        Asian session ka High aur Low
+        chart par mark karke breakout/
+        liquidity analysis kar sakte ho.
+      </p>
 
-    <p>
-      Common Asian session analysis mein session ka
-      High aur Low mark kiya jata hai.
-    </p>
-
-    <p>
-      TradingView ke built-in session indicators bhi
-      Indicators menu se search kiye ja sakte hain.
-    </p>
+      <p>
+        TradingView ke Indicators aur
+        drawing tools se session range
+        mark ki ja sakti hai.
+      </p>
     `
   );
 
 }
 
 
-/* =========================
-   LONG / SHORT INFO
-========================= */
+/* =====================================================
+   LONG SHORT
+===================================================== */
 
 function showLongShortInfo(){
 
   showModal(
-    "Long / Short Position",
+    "Long / Short",
     `
-    <p>
-      <b>Long / Buy:</b> Price increase expect karne par.
-    </p>
+      <p>
+        <b>Long / BUY:</b>
+        Price increase expect karne wali
+        demo position.
+      </p>
 
-    <p>
-      <b>Short / Sell:</b> Price decrease expect karne par.
-    </p>
+      <p>
+        <b>Short / SELL:</b>
+        Price decrease expect karne wali
+        demo position.
+      </p>
 
-    <p>
-      TradingView ke drawing toolbar mein
-      Long Position aur Short Position tools available
-      hon to unka use chart par risk/reward calculate
-      karne ke liye kar sakte ho.
-    </p>
-
-    <p>
-      Order Ticket ka BUY/SELL button actual demo
-      position open karta hai.
-    </p>
+      <p>
+        TradingView drawing toolbar mein
+        supported charts par
+        Long Position aur Short Position
+        tools available hote hain.
+      </p>
     `
   );
 
 }
 
 
-/* =========================
-   CHART MAXIMIZE
-========================= */
+/* =====================================================
+   TRADE LINES
+===================================================== */
 
-function toggleChartMax(){
+function getActiveTrade(){
 
-  chartMax=!chartMax;
+  if(!positions.length)
+    return null;
 
-  $("chart").classList.toggle(
-    "maximized",
-    chartMax
-  );
 
-  setTimeout(()=>{
+  const sameSymbol=
+    positions.filter(
+      p=>p.symbol===selected
+    );
+
+
+  if(sameSymbol.length)
+    return sameSymbol[
+      sameSymbol.length-1
+    ];
+
+
+  return positions[
+    positions.length-1
+  ];
+
+}
+
+
+function removeTradeLines(){
+
+  try{
+
+    if(
+      !tvWidget||
+      !tvWidget.activeChart
+    )
+      return;
+
+
+    const chart=
+      tvWidget.activeChart();
+
+
+    Object.keys(
+      tradeLineIds
+    ).forEach(key=>{
+
+      const id=
+        tradeLineIds[key];
+
+
+      if(id){
+
+        try{
+          chart.removeEntity(id);
+        }catch(e){}
+
+      }
+
+    });
+
+  }catch(e){}
+
+
+  tradeLineIds={};
+
+}
+
+
+async function createTradeLines(){
+
+  const trade=
+    getActiveTrade();
+
+
+  if(!trade)
+    return;
+
+
+  if(
+    !tvWidget||
+    !tvWidget.activeChart
+  )
+    return;
+
+
+  if(tradeLineBusy)
+    return;
+
+
+  tradeLineBusy=true;
+
+
+  try{
+
+    const chart=
+      tvWidget.activeChart();
+
+
+    removeTradeLines();
+
+
+    /*
+      Use current visible time so that
+      horizontal line has a valid chart point.
+    */
+
+    let time=
+      Math.floor(
+        Date.now()/1000
+      );
+
 
     try{
 
-      if(tvWidget&&tvWidget.resize)
-        tvWidget.resize();
+      const range=
+        chart.getVisibleRange();
+
+
+      if(range&&range.to)
+        time=
+          Math.floor(range.to);
 
     }catch(e){}
 
-  },100);
+
+    /*
+      ENTRY
+    */
+
+    if(trade.entry){
+
+      try{
+
+        tradeLineIds.entry=
+          await chart.createShape(
+            {
+              time,
+              price:Number(
+                trade.entry
+              )
+            },
+            {
+              shape:
+                "horizontal_line",
+
+              text:
+                "ENTRY",
+
+              lock:false,
+
+              disableSelection:false,
+
+              disableSave:true,
+
+              overrides:{
+                linecolor:
+                  "#36e28a",
+
+                linewidth:2,
+
+                showPrice:true
+              }
+            }
+          );
+
+      }catch(e){
+
+        console.log(
+          "Entry line unavailable",
+          e
+        );
+
+      }
+
+    }
+
+
+    /*
+      STOP LOSS
+    */
+
+    if(trade.sl!==null){
+
+      try{
+
+        tradeLineIds.sl=
+          await chart.createShape(
+            {
+              time,
+              price:Number(
+                trade.sl
+              )
+            },
+            {
+              shape:
+                "horizontal_line",
+
+              text:
+                "SL",
+
+              lock:false,
+
+              disableSelection:false,
+
+              disableSave:true,
+
+              overrides:{
+                linecolor:
+                  "#ff6673",
+
+                linewidth:2,
+
+                showPrice:true
+              }
+            }
+          );
+
+      }catch(e){
+
+        console.log(
+          "SL line unavailable",
+          e
+        );
+
+      }
+
+    }
+
+
+    /*
+      TAKE PROFIT
+    */
+
+    if(trade.tp!==null){
+
+      try{
+
+        tradeLineIds.tp=
+          await chart.createShape(
+            {
+              time,
+              price:Number(
+                trade.tp
+              )
+            },
+            {
+              shape:
+                "horizontal_line",
+
+              text:
+                "TP",
+
+              lock:false,
+
+              disableSelection:false,
+
+              disableSave:true,
+
+              overrides:{
+                linecolor:
+                  "#36e28a",
+
+                linewidth:2,
+
+                showPrice:true
+              }
+            }
+          );
+
+      }catch(e){
+
+        console.log(
+          "TP line unavailable",
+          e
+        );
+
+      }
+
+    }
+
+
+    /*
+      If the widget exposes drawing
+      events, moving a line will update
+      the corresponding trade field.
+    */
+
+    try{
+
+      if(
+        !tvWidget.__tradeEventAttached&&
+        tvWidget.subscribe
+      ){
+
+        tvWidget.__tradeEventAttached=
+          true;
+
+
+        tvWidget.subscribe(
+          "drawing_event",
+          (
+            id,
+            eventType
+          )=>{
+            syncTradeLine(
+              id
+            );
+          }
+        );
+
+      }
+
+    }catch(e){
+
+      console.log(
+        "Drawing event unavailable",
+        e
+      );
+
+    }
+
+  }catch(e){
+
+    console.log(
+      "Trade line error",
+      e
+    );
+
+  }
+
+
+  tradeLineBusy=false;
 
 }
 
 
-/* =========================
-   ACCOUNT COMPACT
-========================= */
+async function syncTradeLine(id){
 
-function toggleAccount(){
+  if(!id)return;
 
-  accountCompact=!accountCompact;
 
-  $("accountBox").classList.toggle(
-    "accountCompact",
-    accountCompact
+  const trade=
+    getActiveTrade();
+
+
+  if(!trade)return;
+
+
+  try{
+
+    const chart=
+      tvWidget.activeChart();
+
+
+    const shape=
+      chart.getShapeById(id);
+
+
+    if(!shape)return;
+
+
+    const points=
+      shape.getPoints();
+
+
+    if(
+      !points||
+      !points.length||
+      points[0].price===
+      undefined
+    )
+      return;
+
+
+    const price=
+      Number(
+        points[0].price
+      );
+
+
+    if(
+      id===tradeLineIds.entry
+    ){
+
+      /*
+        Entry is display-only for
+        the demo position.
+      */
+
+    }
+
+
+    if(
+      id===tradeLineIds.sl
+    ){
+
+      const valid=
+        trade.side==="BUY"
+        ?price<trade.entry
+        :price>trade.entry;
+
+
+      if(valid){
+
+        trade.sl=
+          price;
+
+        $("sl").value=
+          formatPrice(
+            trade.symbol,
+            price
+          );
+
+        await save();
+
+        render();
+
+      }
+
+    }
+
+
+    if(
+      id===tradeLineIds.tp
+    ){
+
+      const valid=
+        trade.side==="BUY"
+        ?price>trade.entry
+        :price<trade.entry;
+
+
+      if(valid){
+
+        trade.tp=
+          price;
+
+        $("tp").value=
+          formatPrice(
+            trade.symbol,
+            price
+          );
+
+        await save();
+
+        render();
+
+      }
+
+    }
+
+  }catch(e){
+
+    console.log(
+      "Line sync error",
+      e
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   CHART MAXIMIZE
+===================================================== */
+
+function toggleChartMax(){
+
+  chartMax=
+    !chartMax;
+
+
+  $("chart")
+    .classList.toggle(
+      "maximized",
+      chartMax
+    );
+
+
+  if(chartMax)
+    $("chartMaxBtn")
+      .textContent="×";
+  else
+    $("chartMaxBtn")
+      .textContent="⛶";
+
+
+  setTimeout(
+    ()=>{
+      try{
+
+        if(
+          tvWidget&&
+          tvWidget.resize
+        )
+          tvWidget.resize();
+
+      }catch(e){}
+    },
+    150
   );
 
 }
 
 
-/* =========================
-   MODAL
-========================= */
+/* =====================================================
+   CHART MINIMIZE
+===================================================== */
 
-function showModal(title,text){
+function toggleChartMin(){
 
-  $("modalTitle").textContent=title;
+  chartMin=
+    !chartMin;
 
-  $("modalText").innerHTML=text;
 
-  $("modal").style.display="flex";
+  $("chart")
+    .classList.toggle(
+      "minimized",
+      chartMin
+    );
+
+
+  $("chartMinBtn")
+    .textContent=
+      chartMin
+      ?"+"
+      :"−";
 
 }
+
+
+/* =====================================================
+   ACCOUNT MINIMIZE
+===================================================== */
+
+function toggleAccount(){
+
+  accountCompact=
+    !accountCompact;
+
+
+  $("accountBox")
+    .classList.toggle(
+      "accountCompact",
+      accountCompact
+    );
+
+
+  $("accountToggle")
+    .textContent=
+      accountCompact
+      ?"+"
+      :"−";
+
+}
+
+
+/* =====================================================
+   GENERIC PANEL TOGGLE
+===================================================== */
+
+function togglePanel(id){
+
+  const panel=
+    $(id);
+
+
+  if(!panel)return;
+
+
+  panel.classList.toggle(
+    "collapsed"
+  );
+
+
+  const button=
+    panel.querySelector(
+      ".headBtns .btn"
+    );
+
+
+  if(button){
+
+    button.textContent=
+      panel.classList.contains(
+        "collapsed"
+      )
+      ?"+"
+      :"−";
+
+  }
+
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+function showModal(
+  title,
+  text
+){
+
+  $("modalTitle")
+    .textContent=
+      title;
+
+
+  $("modalText")
+    .innerHTML=
+      text;
+
+
+  $("modal")
+    .style.display=
+      "flex";
+
+}
+
 
 function closeModal(){
 
-  $("modal").style.display="none";
+  $("modal")
+    .style.display=
+      "none";
 
 }
+
 
 $("modal").addEventListener(
   "click",
   e=>{
 
-    if(e.target===$("modal"))
+    if(
+      e.target===
+      $("modal")
+    )
       closeModal();
 
   }
 );
 
 
-/* =========================
+/* =====================================================
    NOTES
-========================= */
+===================================================== */
 
 function noteKey(){
 
   const email=
-    $("email").value.trim().toLowerCase();
+    $("email")
+      .value
+      .trim()
+      .toLowerCase();
 
-  return "sahil_trading_notes_"+email;
+
+  return
+    "sahil_trading_notes_"+
+    email;
+
 }
 
 
 function loadNotes(){
 
   const saved=
-    localStorage.getItem(noteKey());
+    localStorage.getItem(
+      noteKey()
+    );
+
 
   if(saved!==null){
 
-    $("notes").value=saved;
+    $("notes").value=
+      saved;
 
-    $("noteStatus").textContent=
-      "Notes loaded.";
+    $("noteStatus")
+      .textContent=
+        "Notes loaded.";
 
   }
 
 }
 
 
-$("saveNotes").onclick=async()=>{
+$("saveNotes").onclick=
+  async()=>{
 
-  const value=$("notes").value;
+    const value=
+      $("notes").value;
 
-  localStorage.setItem(
-    noteKey(),
-    value
-  );
 
-  try{
+    localStorage.setItem(
+      noteKey(),
+      value
+    );
+
+
     await save();
-  }catch(e){}
-
-  $("noteStatus").textContent=
-    "Notes saved.";
-
-};
 
 
-$("editNotes").onclick=()=>{
+    $("noteStatus")
+      .textContent=
+        "Notes saved.";
 
-  $("notes").focus();
+  };
 
-  $("noteStatus").textContent=
-    "Editing notes...";
 
-};
+$("editNotes").onclick=
+  ()=>{
+
+    $("notes").focus();
+
+    $("noteStatus")
+      .textContent=
+        "Editing notes...";
+
+  };
 
 
 function clearNotes(){
 
   $("notes").value="";
 
-  localStorage.removeItem(noteKey());
 
-  $("noteStatus").textContent=
-    "Notes deleted.";
+  localStorage.removeItem(
+    noteKey()
+  );
+
+
+  $("noteStatus")
+    .textContent=
+      "Notes deleted.";
+
 
   save();
 
 }
 
-$("deleteNotes").onclick=clearNotes;
+
+$("deleteNotes")
+  .onclick=
+    clearNotes;
 
 
-/* =========================
-   WEBSOCKET LIVE MARKET
-========================= */
+/* =====================================================
+   WEBSOCKET
+===================================================== */
 
 let ws;
 
+
 try{
 
-  ws=new WebSocket(
-    (location.protocol==="https:"
-      ?"wss://"
-      :"ws://")+
-    location.host
-  );
+  ws=
+    new WebSocket(
+      (
+        location.protocol===
+        "https:"
+        ?"wss://"
+        :"ws://"
+      )+
+      location.host
+    );
+
 
   ws.onopen=()=>{
 
-    $("marketStatus").textContent=
-      "● LIVE MARKET";
+    $("marketStatus")
+      .textContent=
+        "● LIVE MARKET";
 
   };
+
 
   ws.onmessage=e=>{
 
     try{
 
-      const m=JSON.parse(e.data);
+      const m=
+        JSON.parse(
+          e.data
+        );
 
-      if(m.type==="status"){
 
-        $("marketStatus").textContent=
-          m.connected
-          ?"● LIVE MARKET"
-          :"● MARKET OFFLINE";
+      if(
+        m.type===
+        "status"
+      ){
+
+        $("marketStatus")
+          .textContent=
+            m.connected
+            ?"● LIVE MARKET"
+            :"● MARKET OFFLINE";
 
       }
 
+
       if(
-        m.type==="price" &&
-        m.data?.symbol &&
+        m.type==="price"&&
+        m.data?.symbol&&
         m.data?.price
       ){
 
@@ -2364,12 +3778,16 @@ try{
             m.data.symbol
           );
 
+
         if(normalized){
 
           prices[normalized]=
-            Number(m.data.price);
+            Number(
+              m.data.price
+            );
 
         }
+
 
         checkStops();
 
@@ -2388,19 +3806,24 @@ try{
 
   };
 
+
   ws.onclose=()=>{
 
-    $("marketStatus").textContent=
-      "● MARKET OFFLINE";
+    $("marketStatus")
+      .textContent=
+        "● MARKET OFFLINE";
 
   };
+
 
   ws.onerror=()=>{
 
-    $("marketStatus").textContent=
-      "● MARKET OFFLINE";
+    $("marketStatus")
+      .textContent=
+        "● MARKET OFFLINE";
 
   };
+
 
 }catch(e){
 
@@ -2412,9 +3835,9 @@ try{
 }
 
 
-/* =========================
+/* =====================================================
    PERIODIC STOP CHECK
-========================= */
+===================================================== */
 
 setInterval(
   checkStops,
@@ -2422,45 +3845,60 @@ setInterval(
 );
 
 
-/* =========================
+/* =====================================================
    AUTO LOGIN
-========================= */
+===================================================== */
 
 fetch("/api/me")
-.then(r=>{
+.then(
+  r=>{
 
-  if(r.ok){
+    if(r.ok){
 
-    $("auth").style.display="none";
+      $("auth")
+        .style.display=
+          "none";
 
-    $("app").style.display="block";
 
-    $("logout").style.display="block";
+      $("app")
+        .style.display=
+          "block";
 
-    load().then(()=>{
 
-      render();
+      $("logout")
+        .style.display=
+          "block";
 
-      renderTV();
 
-    });
+      load().then(
+        ()=>{
+
+          render();
+
+          renderTV();
+
+        }
+      );
+
+    }
 
   }
+)
+.catch(
+  e=>{
 
-})
-.catch(e=>{
+    console.log(
+      "session check error",
+      e
+    );
 
-  console.log(
-    "session check error",
-    e
-  );
-
-});
+  }
+);
 
 
-/* =========================
+/* =====================================================
    INITIAL UI
-========================= */
+===================================================== */
 
 renderWatchlist();
 
@@ -2468,7 +3906,10 @@ fillOrderSymbols();
 
 render();
 
+updateTFButtons();
+
 </script>
 
 </body>
 </html>
+```

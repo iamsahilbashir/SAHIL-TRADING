@@ -1,40 +1,1213 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sahil Trading Pro</title>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sahil Trading Pro</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#060c0a;color:#e8fff1;font-family:Arial,sans-serif}button,input,select{font:inherit}.top{height:58px;background:#0a1511;border-bottom:1px solid #193328;display:flex;align-items:center;padding:0 14px;gap:15px}.logo{font-weight:900;font-size:22px}.logo i{font-style:normal;color:#36e28a}.search{flex:1;max-width:360px}.search input{width:100%;background:#101d17;border:1px solid #294536;border-radius:7px;color:white;padding:9px}.live{font-size:12px;color:#55eb9a}.auth{max-width:410px;margin:60px auto;padding:20px;background:#0c1712;border:1px solid #203b2e;border-radius:14px}.auth h2{margin-top:0}.auth input{width:100%;padding:11px;margin:6px 0 12px;background:#07110d;color:white;border:1px solid #284738;border-radius:7px}.primary{width:100%;padding:12px;background:#17864e;color:#fff;border:0;border-radius:7px;font-weight:bold}.err{color:#ff7c86;font-size:13px;margin-top:8px}.app{display:none}.layout{display:grid;grid-template-columns:220px 1fr 300px;height:calc(100vh - 58px)}.side,.right{background:#0a1511;border-right:1px solid #193328;padding:12px;overflow:auto}.right{border-right:0;border-left:1px solid #193328}.watch{padding:9px;border-radius:6px;cursor:pointer}.watch:hover,.watch.sel{background:#173426}.main{min-width:0;display:flex;flex-direction:column}.toolbar{height:46px;display:flex;gap:6px;align-items:center;padding:6px 9px;border-bottom:1px solid #193328;overflow:auto}.toolbar button,.toolbtn{background:#0d1b15;color:#cce5d7;border:1px solid #294638;border-radius:5px;padding:7px 9px;white-space:nowrap}.toolbar button:hover{background:#193426}.chart{flex:1;min-height:380px;padding:8px}.chart iframe{width:100%;height:100%;min-height:380px;border:0;border-radius:7px}.ticket,.box{background:#0c1914;border:1px solid #1d392b;border-radius:9px;padding:12px;margin-bottom:12px}.row{display:flex;gap:7px}.row>*{flex:1}.ticket input,.ticket select{width:100%;padding:9px;margin:4px 0 8px;background:#07110d;color:white;border:1px solid #284738;border-radius:6px}.buy,.sell{border:0;color:white;padding:11px;border-radius:6px;font-weight:bold}.buy{background:#14804a}.sell{background:#b73e4c}.muted{color:#8ca69a;font-size:12px}.stat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #183226;font-size:13px}.pos{padding:9px 0;border-bottom:1px solid #183226;font-size:12px}.green{color:#42e997}.red{color:#ff7882}.small{padding:6px 8px;background:#111f18;color:white;border:1px solid #294638;border-radius:5px;font-size:11px}.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center}.modal>div{width:min(500px,92%);background:#0c1914;border:1px solid #294638;border-radius:12px;padding:18px}.drawing{font-size:12px;color:#8fa99c;margin-top:10px}@media(max-width:950px){.layout{grid-template-columns:180px 1fr}.right{display:none}}@media(max-width:650px){.layout{grid-template-columns:1fr}.side{display:none}.top{gap:8px}.search{max-width:none}.chart iframe{min-height:430px}}
-</style></head><body>
-<header class="top"><div class="logo">SAHIL <i>TRADING</i></div><div class="search"><input id="symSearch" placeholder="Search symbol e.g. EUR/USD"></div><div id="marketStatus" class="live">● LIVE</div><button class="small" id="logout">Logout</button></header>
-<section id="auth" class="auth"><h2 id="authTitle">Sahil Trading Account</h2><div id="nameWrap"><input id="name" placeholder="Full name"></div><input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Password (6+ characters)"><button class="primary" id="authBtn">Create Demo Account</button><p id="switch" class="muted" style="cursor:pointer;text-align:center">Already have an account? Login</p><div id="err" class="err"></div></section>
-<section id="app" class="app"><div class="layout">
-<aside class="side"><div class="muted">WATCHLIST</div><div id="watchlist"></div><button class="toolbtn" style="width:100%;margin-top:10px" id="addWatch">+ Add symbol</button><div class="drawing">Click a symbol to change the chart. Use the chart's own drawing/indicator controls where available.</div></aside>
-<main class="main"><div class="toolbar"><button id="tf1">1m</button><button>5m</button><button>15m</button><button>1H</button><button>4H</button><button>1D</button><button id="ind">Indicators</button><button id="alert">🔔 Alert</button><button id="draw">✏️ Drawing</button></div><div class="chart" id="chart"></div></main>
-<aside class="right"><div class="box"><b id="current">EUR/USD</b><div id="currentPrice" style="font-size:25px;font-weight:800;margin:6px 0">—</div><div class="muted">Live demo quote</div></div>
-<div class="ticket"><b>Order</b><select id="orderSym" style="margin-top:8px"><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>XAU/USD</option><option>AUD/USD</option><option>USD/CAD</option></select><div class="row"><div><div class="muted">Lots</div><input id="lots" value=".10" type="number" min=".01" step=".01"></div><div><div class="muted">Leverage</div><select><option>30x</option><option>50x</option><option>100x</option></select></div></div><div class="row"><div><div class="muted">Stop Loss</div><input id="sl" placeholder="Optional"></div><div><div class="muted">Take Profit</div><input id="tp" placeholder="Optional"></div></div><div class="row"><button class="buy" id="buy">BUY</button><button class="sell" id="sell">SELL</button></div></div>
-<div class="box"><b>Account</b><div class="stat"><span>Balance</span><b id="balance">$10,000.00</b></div><div class="stat"><span>Equity</span><b id="equity">$10,000.00</b></div><div class="stat"><span>Floating P/L</span><b id="float">$0.00</b></div></div>
-<div class="box"><b>Open Positions</b><div id="positions"></div></div><div class="box"><b>Trade History</b><div id="history"></div></div>
-</aside></div></section>
-<div class="modal" id="modal"><div><h3 id="modalTitle">Tool</h3><p id="modalText" class="muted"></p><button class="primary" onclick="closeModal()">Close</button></div></div>
+*{box-sizing:border-box}
+body{margin:0;background:#060c0a;color:#e8fff1;font-family:Arial,sans-serif}
+button,input,select{font:inherit}
+
+.top{
+height:58px;background:#0a1511;border-bottom:1px solid #193328;
+display:flex;align-items:center;padding:0 14px;gap:15px
+}
+.logo{font-weight:900;font-size:22px}
+.logo i{font-style:normal;color:#36e28a}
+.search{flex:1;max-width:360px}
+.search input{
+width:100%;background:#101d17;border:1px solid #294536;
+border-radius:7px;color:white;padding:9px
+}
+.live{font-size:12px;color:#55eb9a}
+.auth{
+max-width:410px;margin:60px auto;padding:20px;background:#0c1712;
+border:1px solid #203b2e;border-radius:14px
+}
+.auth h2{margin-top:0}
+.auth input{
+width:100%;padding:11px;margin:6px 0 12px;background:#07110d;
+color:white;border:1px solid #284738;border-radius:7px
+}
+.primary{
+width:100%;padding:12px;background:#17864e;color:#fff;border:0;
+border-radius:7px;font-weight:bold
+}
+.err{color:#ff7c86;font-size:13px;margin-top:8px}
+.app{display:none}
+
+.layout{
+display:grid;grid-template-columns:220px 1fr 320px;
+height:calc(100vh - 58px)
+}
+.side,.right{
+background:#0a1511;border-right:1px solid #193328;
+padding:12px;overflow:auto
+}
+.right{border-right:0;border-left:1px solid #193328}
+
+.watch{padding:9px;border-radius:6px;cursor:pointer}
+.watch:hover,.watch.sel{background:#173426}
+
+.main{min-width:0;display:flex;flex-direction:column}
+
+.toolbar{
+height:46px;display:flex;gap:6px;align-items:center;
+padding:6px 9px;border-bottom:1px solid #193328;overflow:auto
+}
+.toolbar button,.toolbtn{
+background:#0d1b15;color:#cce5d7;border:1px solid #294638;
+border-radius:5px;padding:7px 9px;white-space:nowrap
+}
+.toolbar button:hover{background:#193426}
+
+.chart{flex:1;min-height:380px;padding:8px}
+.chart iframe{
+width:100%;height:100%;min-height:380px;border:0;border-radius:7px
+}
+
+.ticket,.box{
+background:#0c1914;border:1px solid #1d392b;border-radius:9px;
+padding:12px;margin-bottom:12px
+}
+.row{display:flex;gap:7px}
+.row>*{flex:1}
+
+.ticket input,.ticket select{
+width:100%;padding:9px;margin:4px 0 8px;background:#07110d;
+color:white;border:1px solid #284738;border-radius:6px
+}
+
+.buy,.sell{
+border:0;color:white;padding:11px;border-radius:6px;
+font-weight:bold;cursor:pointer
+}
+.buy{background:#14804a}
+.sell{background:#b73e4c}
+
+.muted{color:#8ca69a;font-size:12px}
+.stat{
+display:flex;justify-content:space-between;padding:7px 0;
+border-bottom:1px solid #183226;font-size:13px
+}
+.pos{
+padding:9px 0;border-bottom:1px solid #183226;font-size:12px
+}
+.green{color:#42e997}
+.red{color:#ff7882}
+
+.small{
+padding:6px 8px;background:#111f18;color:white;
+border:1px solid #294638;border-radius:5px;font-size:11px
+}
+
+.modal{
+position:fixed;inset:0;background:#0009;display:none;
+align-items:center;justify-content:center;z-index:20
+}
+.modal>div{
+width:min(500px,92%);background:#0c1914;border:1px solid #294638;
+border-radius:12px;padding:18px
+}
+
+.paper{
+display:inline-block;
+padding:4px 8px;
+border:1px solid #296244;
+border-radius:5px;
+font-size:11px;
+color:#55eb9a;
+margin-left:6px
+}
+
+@media(max-width:950px){
+.layout{grid-template-columns:180px 1fr}
+.right{display:block}
+}
+
+@media(max-width:750px){
+.layout{grid-template-columns:1fr}
+.side{display:none}
+.right{
+border-left:0;
+border-top:1px solid #193328;
+height:auto;
+max-height:none
+}
+.chart{min-height:420px}
+.chart iframe{min-height:420px}
+}
+
+@media(max-width:650px){
+.top{gap:7px;padding:0 8px}
+.logo{font-size:17px}
+.search{max-width:none}
+.live{font-size:10px}
+.chart{min-height:360px}
+.chart iframe{min-height:360px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+<div class="logo">SAHIL <i>TRADING</i></div>
+
+<div class="search">
+<input id="symSearch" placeholder="Search symbol e.g. EUR/USD">
+</div>
+
+<div id="marketStatus" class="live">● MARKET OFFLINE</div>
+
+<button class="small" id="logout">Logout</button>
+</header>
+
+<section id="auth" class="auth">
+
+<h2 id="authTitle">Sahil Trading Account</h2>
+
+<div id="nameWrap">
+<input id="name" placeholder="Full name">
+</div>
+
+<input id="email" type="email" placeholder="Email">
+
+<input id="pass" type="password"
+placeholder="Password (6+ characters)">
+
+<button class="primary" id="authBtn">
+Create Demo Account
+</button>
+
+<p id="switch" class="muted"
+style="cursor:pointer;text-align:center">
+Already have an account? Login
+</p>
+
+<div id="err" class="err"></div>
+
+</section>
+
+
+<section id="app" class="app">
+
+<div class="layout">
+
+<aside class="side">
+
+<div class="muted">WATCHLIST</div>
+
+<div id="watchlist"></div>
+
+<button class="toolbtn"
+style="width:100%;margin-top:10px"
+id="addWatch">
++ Add symbol
+</button>
+
+<div class="drawing">
+Demo market symbols. Prices are for paper trading only.
+</div>
+
+</aside>
+
+
+<main class="main">
+
+<div class="toolbar">
+
+<button id="tf1">1m</button>
+<button>5m</button>
+<button>15m</button>
+<button>1H</button>
+<button>4H</button>
+<button>1D</button>
+
+<button id="ind">Indicators</button>
+<button id="alert">🔔 Alert</button>
+<button id="draw">✏️ Drawing</button>
+
+</div>
+
+<div class="chart" id="chart"></div>
+
+</main>
+
+
+<aside class="right">
+
+<div class="box">
+
+<b id="current">EUR/USD</b>
+
+<span class="paper">PAPER TRADING</span>
+
+<div id="currentPrice"
+style="font-size:25px;font-weight:800;margin:8px 0">
+—
+</div>
+
+<div class="muted">
+Latest demo market quote
+</div>
+
+</div>
+
+
+<div class="ticket">
+
+<b>Order</b>
+
+<select id="orderSym" style="margin-top:8px">
+
+<option>EUR/USD</option>
+<option>GBP/USD</option>
+<option>USD/JPY</option>
+<option>XAU/USD</option>
+<option>AUD/USD</option>
+<option>USD/CAD</option>
+
+</select>
+
+
+<div class="row">
+
+<div>
+<div class="muted">Lots</div>
+
+<input id="lots"
+value=".10"
+type="number"
+min=".01"
+step=".01">
+</div>
+
+
+<div>
+
+<div class="muted">Leverage</div>
+
+<select id="leverage">
+
+<option value="30">30x</option>
+<option value="50">50x</option>
+<option value="100">100x</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<div>
+
+<div class="muted">Stop Loss</div>
+
+<input id="sl" placeholder="Optional">
+
+</div>
+
+
+<div>
+
+<div class="muted">Take Profit</div>
+
+<input id="tp" placeholder="Optional">
+
+</div>
+
+</div>
+
+
+<div class="row">
+
+<button class="buy" id="buy">BUY</button>
+
+<button class="sell" id="sell">SELL</button>
+
+</div>
+
+</div>
+
+
+<div class="box">
+
+<b>Paper Trading Account</b>
+
+<div class="stat">
+<span>Balance</span>
+<b id="balance">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Equity</span>
+<b id="equity">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Margin</span>
+<b id="margin">$0.00</b>
+</div>
+
+<div class="stat">
+<span>Free Margin</span>
+<b id="freeMargin">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Margin Level</span>
+<b id="marginLevel">∞</b>
+</div>
+
+<div class="stat">
+<span>Floating P/L</span>
+<b id="float">$0.00</b>
+</div>
+
+<div class="stat">
+<span>Spread</span>
+<b id="spread">—</b>
+</div>
+
+<div class="stat">
+<span>Leverage</span>
+<b id="accountLeverage">30x</b>
+</div>
+
+</div>
+
+
+<div class="box">
+
+<b>Open Positions</b>
+
+<div id="positions"></div>
+
+</div>
+
+
+<div class="box">
+
+<b>Trade History</b>
+
+<div id="history"></div>
+
+</div>
+
+</aside>
+
+</div>
+
+</section>
+
+
+<div class="modal" id="modal">
+
+<div>
+
+<h3 id="modalTitle">Tool</h3>
+
+<p id="modalText" class="muted"></p>
+
+<button class="primary" onclick="closeModal()">
+Close
+</button>
+
+</div>
+
+</div>
+
+
 <script>
-let signup=true,prices={},balance=10000,positions=[],history=[],watch=["EUR/USD","GBP/USD","USD/JPY","XAU/USD"],selected="EUR/USD";
-const $=x=>document.getElementById(x),tv={ "EUR/USD":"OANDA:EURUSD","GBP/USD":"OANDA:GBPUSD","USD/JPY":"OANDA:USDJPY","XAU/USD":"OANDA:XAUUSD","AUD/USD":"OANDA:AUDUSD","USD/CAD":"OANDA:USDCAD"};
-function show(m,t){$("modalTitle").textContent=m;$("modalText").textContent=t;$("modal").style.display="flex"}function closeModal(){$("modal").style.display="none"}
-$("switch").onclick=()=>{signup=!signup;$("nameWrap").style.display=signup?"block":"none";$("authTitle").textContent=signup?"Sahil Trading Account":"Login";$("authBtn").textContent=signup?"Create Demo Account":"Login";$("switch").textContent=signup?"Already have an account? Login":"New here? Create account"};
-$("authBtn").onclick=async()=>{let b={email:$("email").value,password:$("pass").value};if(signup)b.name=$("name").value;let r=await fetch(signup?"/api/signup":"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),j=await r.json();if(!r.ok)return $("err").textContent=j.error;load()};
-async function load(){let r=await fetch("/api/me");if(!r.ok)return;let u=await r.json();balance=u.balance;positions=u.positions||[];history=u.history||[];watch=u.watchlist||watch;$("auth").style.display="none";$("app").style.display="block";$("logout").onclick=async()=>{await fetch("/api/logout",{method:"POST"});location.reload()};renderWatch();selectSymbol(selected)}
-async function save(){fetch("/api/state",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({balance,positions,history,watchlist:watch})})}
-function renderWatch(){$("watchlist").innerHTML=watch.map(s=>`<div class="watch ${s===selected?"sel":""}" onclick="selectSymbol('${s}')"><b>${s}</b><br><span class="${(prices[s]||0)>=0?'green':''}">${prices[s]?fmt(s,prices[s]):"—"}</span></div>`).join("")}
-function fmt(s,p){return s==="XAU/USD"?p.toFixed(2):s==="USD/JPY"?p.toFixed(3):p.toFixed(5)}function money(x){return(x<0?"-":"")+"$"+Math.abs(x).toFixed(2)}
-function pnl(t){let p=prices[t.symbol];if(!p)return 0;return(p-t.entry)*(t.side==="BUY"?1:-1)*t.lot*(t.symbol==="XAU/USD"?100:100000)}
-function selectSymbol(s){if(!tv[s])s="EUR/USD";selected=s;$("current").textContent=s;$("orderSym").value=s;$("currentPrice").textContent=prices[s]?fmt(s,prices[s]):"—";$("chart").innerHTML=`<iframe src="https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(tv[s])}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0b1511&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1"></iframe>`;renderWatch();render()}
-$("orderSym").onchange=e=>selectSymbol(e.target.value);$("addWatch").onclick=()=>{let s=prompt("Symbol (EUR/USD, XAU/USD, GBP/USD, USD/JPY, AUD/USD, USD/CAD)");if(s&&tv[s.trim().toUpperCase()]){s=s.trim().toUpperCase();if(!watch.includes(s))watch.push(s);renderWatch();save()}};
-$("ind").onclick=()=>show("Indicators","Use the chart's Indicators menu to add supported studies such as moving averages, RSI and MACD. Availability and controls depend on the embedded chart.");
-$("draw").onclick=()=>show("Drawing tools","Use the chart toolbar for supported drawing tools such as trend lines and horizontal levels.");
-$("alert").onclick=()=>show("Price Alerts","This button is a demo placeholder for a Sahil Trading alert system. A production alert engine needs server-side storage and notifications.");
-$("tf1").onclick=()=>show("Timeframes","The embedded chart supports changing timeframes from its own toolbar.");
-$("symSearch").onkeydown=e=>{if(e.key==="Enter"){let s=e.target.value.trim().toUpperCase();if(tv[s])selectSymbol(s);else show("Symbol search","Supported demo symbols: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD, USD/CAD.")}}
-$("buy").onclick=()=>openTrade("BUY");$("sell").onclick=()=>openTrade("SELL");
-function openTrade(side){if(!prices[selected])return show("Market price","Waiting for live market data.");let lot=Math.max(.01,Number($("lots").value)||.1);positions.push({symbol:selected,side,lot,entry:prices[selected],sl:$("sl").value,tp:$("tp").value,time:new Date().toISOString()});render();save()}
-function closeTrade(i){let t=positions.splice(i,1)[0],p=pnl(t);balance+=p;history.push({...t,exit:prices[t.symbol],pnl:p,closed:new Date().toISOString()});render();save()}
-function render(){let f=positions.reduce((a,t)=>a+pnl(t),0);$("balance").textContent=money(balance);$("equity").textContent=money(balance+f);$("float").textContent=money(f);$("float").className=f>=0?"green":"red";$("currentPrice").textContent=prices[selected]?fmt(selected,prices[selected]):"—";$("positions").innerHTML=positions.map((t,i)=>`<div class="pos"><b>${t.symbol}</b> ${t.side} ${t.lot.toFixed(2)} lot<br>Entry ${fmt(t.symbol,t.entry)} · Live ${prices[t.symbol]?fmt(t.symbol,prices[t.symbol]):"—"}<br><span class="${pnl(t)>=0?"green":"red"}">${money(pnl(t))}</span> <button class="small" onclick="closeTrade(${i})">Close</button></div>`).join("")||'<div class="muted" style="margin-top:8px">No open positions</div>';$("history").innerHTML=history.slice().reverse().slice(0,15).map(t=>`<div class="pos">${t.symbol} ${t.side} · ${money(t.pnl)}</div>`).join("")||'<div class="muted" style="margin-top:8px">No trades yet</div>';renderWatch()}
-let ws;try{ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host);ws.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==="status")$("marketStatus").textContent=m.connected?"● LIVE MARKET":"● MARKET OFFLINE";if(m.type==="price"&&m.data?.symbol&&m.data?.price){prices[m.data.symbol]=Number(m.data.price);render()}}}catch{}
-fetch("/api/me").then(r=>r.ok&&load());
-</script></body></html>
+
+let signup=true;
+
+let prices={};
+
+let balance=10000;
+
+let positions=[];
+
+let history=[];
+
+let watch=[
+"EUR/USD",
+"GBP/USD",
+"USD/JPY",
+"XAU/USD"
+];
+
+let selected="EUR/USD";
+
+
+const $=x=>document.getElementById(x);
+
+
+const tv={
+"EUR/USD":"OANDA:EURUSD",
+"GBP/USD":"OANDA:GBPUSD",
+"USD/JPY":"OANDA:USDJPY",
+"XAU/USD":"OANDA:XAUUSD",
+"AUD/USD":"OANDA:AUDUSD",
+"USD/CAD":"OANDA:USDCAD"
+};
+
+
+function show(m,t){
+
+$("modalTitle").textContent=m;
+$("modalText").textContent=t;
+$("modal").style.display="flex";
+
+}
+
+
+function closeModal(){
+
+$("modal").style.display="none";
+
+}
+
+
+$("switch").onclick=()=>{
+
+signup=!signup;
+
+$("nameWrap").style.display=
+signup?"block":"none";
+
+$("authTitle").textContent=
+signup?"Sahil Trading Account":"Login";
+
+$("authBtn").textContent=
+signup?"Create Demo Account":"Login";
+
+$("switch").textContent=
+signup
+?"Already have an account? Login"
+:"New here? Create account";
+
+};
+
+
+$("authBtn").onclick=async()=>{
+
+let b={
+email:$("email").value,
+password:$("pass").value
+};
+
+if(signup)
+b.name=$("name").value;
+
+let r=await fetch(
+signup?"/api/signup":"/api/login",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(b)
+}
+);
+
+let j=await r.json();
+
+if(!r.ok)
+return $("err").textContent=j.error;
+
+load();
+
+};
+
+
+async function load(){
+
+let r=await fetch("/api/me");
+
+if(!r.ok)return;
+
+let u=await r.json();
+
+balance=u.balance;
+
+positions=u.positions||[];
+
+history=u.history||[];
+
+watch=u.watchlist||watch;
+
+$("auth").style.display="none";
+
+$("app").style.display="block";
+
+$("logout").onclick=async()=>{
+
+await fetch("/api/logout",{method:"POST"});
+
+location.reload();
+
+};
+
+renderWatch();
+
+selectSymbol(selected);
+
+}
+
+
+async function save(){
+
+fetch("/api/state",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+balance,
+positions,
+history,
+watchlist:watch
+})
+
+});
+
+}
+
+
+function renderWatch(){
+
+$("watchlist").innerHTML=
+
+watch.map(s=>`
+
+<div class="watch ${s===selected?"sel":""}"
+onclick="selectSymbol('${s}')">
+
+<b>${s}</b><br>
+
+<span class="green">
+
+${prices[s]?fmt(s,prices[s]):"—"}
+
+</span>
+
+</div>
+
+`).join("");
+
+}
+
+
+function fmt(s,p){
+
+if(s==="XAU/USD")
+return p.toFixed(2);
+
+if(s==="USD/JPY")
+return p.toFixed(3);
+
+return p.toFixed(5);
+
+}
+
+
+function money(x){
+
+return(x<0?"-":"")+"$"+
+Math.abs(x).toFixed(2);
+
+}
+
+
+function spreadValue(symbol){
+
+if(symbol==="XAU/USD")
+return 0.05;
+
+if(symbol==="USD/JPY")
+return 0.010;
+
+return 0.00010;
+
+}
+
+
+function pnl(t){
+
+let p=prices[t.symbol];
+
+if(!p)return 0;
+
+let spread=spreadValue(t.symbol);
+
+let current=
+t.side==="BUY"
+?p-spread/2
+:p+spread/2;
+
+let multiplier=
+t.symbol==="XAU/USD"
+?100
+:100000;
+
+return(
+(current-t.entry)*
+(t.side==="BUY"?1:-1)*
+t.lot*
+multiplier
+);
+
+}
+
+
+function marginFor(t){
+
+let multiplier=
+t.symbol==="XAU/USD"
+?100
+:100000;
+
+return(
+t.entry*
+t.lot*
+multiplier
+)/t.leverage;
+
+}
+
+
+function selectSymbol(s){
+
+if(!tv[s])
+s="EUR/USD";
+
+selected=s;
+
+$("current").textContent=s;
+
+$("orderSym").value=s;
+
+$("currentPrice").textContent=
+prices[s]?fmt(s,prices[s]):"—";
+
+$("chart").innerHTML=`
+
+<iframe
+src="https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(tv[s])}&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0b1511&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1">
+</iframe>
+
+`;
+
+renderWatch();
+
+render();
+
+}
+
+
+$("orderSym").onchange=e=>
+selectSymbol(e.target.value);
+
+
+$("addWatch").onclick=()=>{
+
+let s=prompt(
+"Symbol: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD, USD/CAD"
+);
+
+if(!s)return;
+
+s=s.trim().toUpperCase();
+
+if(tv[s]){
+
+if(!watch.includes(s))
+watch.push(s);
+
+renderWatch();
+
+save();
+
+}else{
+
+show(
+"Symbol not supported",
+"Use one of the available demo symbols."
+);
+
+}
+
+};
+
+
+$("ind").onclick=()=>show(
+"Indicators",
+"Use the chart's Indicators menu to add supported studies such as moving averages, RSI and MACD."
+);
+
+
+$("draw").onclick=()=>show(
+"Drawing Tools",
+"Use the chart toolbar for supported drawing tools."
+);
+
+
+$("alert").onclick=()=>show(
+"Price Alerts",
+"Demo alert system. Alerts are not connected to real-money trading."
+);
+
+
+$("tf1").onclick=()=>show(
+"Timeframes",
+"Use the chart toolbar to change the timeframe."
+);
+
+
+$("symSearch").onkeydown=e=>{
+
+if(e.key!=="Enter")
+return;
+
+let s=e.target.value
+.trim()
+.toUpperCase()
+.replace("-","/");
+
+if(tv[s]){
+
+selectSymbol(s);
+
+e.target.value="";
+
+}else{
+
+show(
+"Symbol Search",
+"Supported demo symbols: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD, USD/CAD."
+);
+
+}
+
+};
+
+
+$("buy").onclick=()=>
+openTrade("BUY");
+
+$("sell").onclick=()=>
+openTrade("SELL");
+
+
+function openTrade(side){
+
+if(!prices[selected]){
+
+return show(
+"Market Price",
+"Waiting for the latest demo market price."
+);
+
+}
+
+
+let lot=Math.max(
+0.01,
+Number($("lots").value)||0.1
+);
+
+
+let leverage=
+Number($("leverage").value)||30;
+
+
+let temp={
+symbol:selected,
+side:side,
+lot:lot,
+entry:prices[selected],
+leverage:leverage
+};
+
+
+let requiredMargin=
+marginFor(temp);
+
+
+let usedMargin=
+positions.reduce(
+(a,t)=>a+marginFor(t),
+0
+);
+
+
+let floating=
+positions.reduce(
+(a,t)=>a+pnl(t),
+0
+);
+
+
+let equity=
+balance+floating;
+
+
+let freeMargin=
+equity-usedMargin;
+
+
+if(requiredMargin>freeMargin){
+
+return show(
+"Order Rejected",
+"Not enough free margin for this demo order."
+);
+
+}
+
+
+positions.push({
+
+symbol:selected,
+side:side,
+lot:lot,
+entry:prices[selected],
+sl:$("sl").value,
+tp:$("tp").value,
+leverage:leverage,
+time:new Date().toISOString()
+
+});
+
+
+$("accountLeverage").textContent=
+leverage+"x";
+
+
+render();
+
+save();
+
+
+show(
+"Order Executed",
+side+" "+lot.toFixed(2)+
+" lot "+selected+
+" opened at "+fmt(selected,prices[selected])+
+" using "+leverage+"x demo leverage."
+);
+
+}
+
+
+function closeTrade(i){
+
+let t=positions.splice(i,1)[0];
+
+let p=pnl(t);
+
+balance+=p;
+
+history.push({
+
+...t,
+
+exit:prices[t.symbol],
+
+pnl:p,
+
+closed:new Date().toISOString()
+
+});
+
+render();
+
+save();
+
+}
+
+
+function checkStops(){
+
+for(let i=positions.length-1;i>=0;i--){
+
+let t=positions[i];
+
+let p=prices[t.symbol];
+
+if(!p)continue;
+
+let stop=Number(t.sl);
+
+let take=Number(t.tp);
+
+if(t.side==="BUY"){
+
+if(stop&&p<=stop){
+
+closeTrade(i);
+
+continue;
+
+}
+
+if(take&&p>=take){
+
+closeTrade(i);
+
+continue;
+
+}
+
+}else{
+
+if(stop&&p>=stop){
+
+closeTrade(i);
+
+continue;
+
+}
+
+if(take&&p<=take){
+
+closeTrade(i);
+
+continue;
+
+}
+
+}
+
+}
+
+}
+
+
+function render(){
+
+let floating=
+positions.reduce(
+(a,t)=>a+pnl(t),0
+);
+
+
+let usedMargin=
+positions.reduce(
+(a,t)=>a+marginFor(t),
+0
+);
+
+
+let equity=
+balance+floating;
+
+
+let freeMargin=
+equity-usedMargin;
+
+
+let marginLevel=
+usedMargin>0
+?(equity/usedMargin)*100
+:Infinity;
+
+
+$("balance").textContent=
+money(balance);
+
+$("equity").textContent=
+money(equity);
+
+$("margin").textContent=
+money(usedMargin);
+
+$("freeMargin").textContent=
+money(freeMargin);
+
+$("marginLevel").textContent=
+marginLevel===Infinity
+?"∞"
+:marginLevel.toFixed(2)+"%";
+
+$("float").textContent=
+money(floating);
+
+$("float").className=
+floating>=0?"green":"red";
+
+
+$("spread").textContent=
+prices[selected]
+?fmt(selected,spreadValue(selected))
+:"—";
+
+
+$("currentPrice").textContent=
+prices[selected]
+?fmt(selected,prices[selected])
+:"—";
+
+
+$("positions").innerHTML=
+
+positions.map((t,i)=>`
+
+<div class="pos">
+
+<b>${t.symbol}</b>
+${t.side}
+${t.lot.toFixed(2)} lot
+
+<br>
+
+Entry ${fmt(t.symbol,t.entry)}
+· Live
+${prices[t.symbol]
+?fmt(t.symbol,prices[t.symbol])
+:"—"}
+
+<br>
+
+Leverage ${t.leverage}x
+
+<br>
+
+<span class="${
+pnl(t)>=0?"green":"red"
+}">
+${money(pnl(t))}
+</span>
+
+<button
+class="small"
+onclick="closeTrade(${i})">
+Close
+</button>
+
+</div>
+
+`).join("")
+
+||`
+
+<div class="muted"
+style="margin-top:8px">
+No open positions
+</div>
+
+`;
+
+
+$("history").innerHTML=
+
+history
+.slice()
+.reverse()
+.slice(0,15)
+.map(t=>`
+
+<div class="pos">
+
+${t.symbol}
+${t.side}
+
+· ${money(t.pnl)}
+
+<br>
+
+<span class="muted">
+Closed ${new Date(t.closed).toLocaleString()}
+</span>
+
+</div>
+
+`).join("")
+
+||`
+
+<div class="muted"
+style="margin-top:8px">
+No trades yet
+</div>
+
+`;
+
+
+renderWatch();
+
+}
+
+
+let ws;
+
+try{
+
+ws=new WebSocket(
+
+(location.protocol==="https:"
+?"wss://"
+:"ws://")
++location.host
+
+);
+
+
+ws.onmessage=e=>{
+
+let m=JSON.parse(e.data);
+
+
+if(m.type==="status"){
+
+$("marketStatus").textContent=
+m.connected
+?"● LIVE MARKET"
+:"● MARKET OFFLINE";
+
+}
+
+
+if(
+m.type==="price" &&
+m.data?.symbol &&
+m.data?.price
+){
+
+prices[m.data.symbol]=
+Number(m.data.price);
+
+checkStops();
+
+render();
+
+}
+
+};
+
+}catch{}
+
+
+setInterval(
+checkStops,
+5000
+);
+
+
+fetch("/api/me")
+.then(r=>r.ok&&load());
+
+</script>
+
+</body>
+</html>

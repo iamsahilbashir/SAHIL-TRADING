@@ -53,30 +53,72 @@ if (!fs.existsSync(DB)) {
 
 const read = () => {
   try {
-    return JSON.parse(
-      fs.readFileSync(DB, "utf8")
+    const data = fs.readFileSync(
+      DB,
+      "utf8"
     );
-  } catch {
-    return { users: [] };
+
+    const parsed = JSON.parse(data);
+
+    if (
+      !parsed ||
+      !Array.isArray(parsed.users)
+    ) {
+      return {
+        users: []
+      };
+    }
+
+    return parsed;
+
+  } catch (err) {
+
+    console.log(
+      "Database read error:",
+      err.message
+    );
+
+    return {
+      users: []
+    };
   }
 };
 
 const write = data => {
-  fs.writeFileSync(
-    DB,
-    JSON.stringify(
-      data,
-      null,
-      2
-    )
-  );
+
+  try {
+
+    fs.writeFileSync(
+      DB,
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+
+    return true;
+
+  } catch (err) {
+
+    console.log(
+      "Database write error:",
+      err.message
+    );
+
+    return false;
+  }
 };
 
 // ===============================
 // MIDDLEWARE
 // ===============================
 
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "1mb"
+  })
+);
 
 app.set(
   "trust proxy",
@@ -95,6 +137,7 @@ app.use(
 
     cookie: {
       httpOnly: true,
+
       sameSite: "lax",
 
       // Keep user logged in for 30 days
@@ -112,7 +155,11 @@ app.use(
 // AUTH MIDDLEWARE
 // ===============================
 
-const auth = (req, res, next) => {
+const auth = (
+  req,
+  res,
+  next
+) => {
 
   if (req.session.user) {
     return next();
@@ -221,12 +268,26 @@ app.post(
           "GBP/USD",
           "USD/JPY",
           "XAU/USD"
-        ]
+        ],
+
+        // Persistent notes
+        notes: ""
       };
 
       db.users.push(user);
 
-      write(db);
+      const saved =
+        write(db);
+
+      if (!saved) {
+
+        return res
+          .status(500)
+          .json({
+            error:
+              "Account could not be saved."
+          });
+      }
 
       // Automatically login
       req.session.user =
@@ -252,6 +313,7 @@ app.post(
 
           res.json({
             ok: true,
+
             message:
               "Account created successfully."
           });
@@ -322,6 +384,54 @@ app.post(
           });
       }
 
+      // Make sure old accounts
+      // also have these fields
+      if (
+        typeof user.balance !==
+        "number"
+      ) {
+        user.balance = 10000;
+      }
+
+      if (
+        !Array.isArray(
+          user.positions
+        )
+      ) {
+        user.positions = [];
+      }
+
+      if (
+        !Array.isArray(
+          user.history
+        )
+      ) {
+        user.history = [];
+      }
+
+      if (
+        !Array.isArray(
+          user.watchlist
+        )
+      ) {
+        user.watchlist = [
+          "EUR/USD",
+          "GBP/USD",
+          "USD/JPY",
+          "XAU/USD"
+        ];
+      }
+
+      if (
+        typeof user.notes !==
+        "string"
+      ) {
+        user.notes = "";
+      }
+
+      // Save migrated user data
+      write(db);
+
       req.session.user =
         user.id;
 
@@ -345,6 +455,7 @@ app.post(
 
           res.json({
             ok: true,
+
             message:
               "Login successful."
           });
@@ -400,6 +511,7 @@ app.post(
 
         res.json({
           ok: true,
+
           message:
             "Logged out successfully."
         });
@@ -440,6 +552,51 @@ app.get(
         });
     }
 
+    // Make sure old accounts
+    // have all fields
+    if (
+      typeof user.balance !==
+      "number"
+    ) {
+      user.balance = 10000;
+    }
+
+    if (
+      !Array.isArray(
+        user.positions
+      )
+    ) {
+      user.positions = [];
+    }
+
+    if (
+      !Array.isArray(
+        user.history
+      )
+    ) {
+      user.history = [];
+    }
+
+    if (
+      !Array.isArray(
+        user.watchlist
+      )
+    ) {
+      user.watchlist = [
+        "EUR/USD",
+        "GBP/USD",
+        "USD/JPY",
+        "XAU/USD"
+      ];
+    }
+
+    if (
+      typeof user.notes !==
+      "string"
+    ) {
+      user.notes = "";
+    }
+
     res.json({
 
       name:
@@ -452,13 +609,16 @@ app.get(
         user.balance,
 
       positions:
-        user.positions || [],
+        user.positions,
 
       history:
-        user.history || [],
+        user.history,
 
       watchlist:
-        user.watchlist || []
+        user.watchlist,
+
+      notes:
+        user.notes
     });
   }
 );
@@ -472,46 +632,144 @@ app.post(
   auth,
   (req, res) => {
 
-    const db = read();
+    try {
 
-    const user =
-      db.users.find(
-        u =>
-          u.id ===
-          req.session.user
+      const db = read();
+
+      const user =
+        db.users.find(
+          u =>
+            u.id ===
+            req.session.user
+        );
+
+      if (!user) {
+
+        return res
+          .status(401)
+          .json({
+            error:
+              "User not found."
+          });
+      }
+
+      const body =
+        req.body || {};
+
+      // =========================
+      // BALANCE
+      // =========================
+
+      if (
+        body.balance !== undefined
+      ) {
+
+        const newBalance =
+          Number(
+            body.balance
+          );
+
+        if (
+          Number.isFinite(
+            newBalance
+          )
+        ) {
+
+          user.balance =
+            newBalance;
+        }
+      }
+
+      // =========================
+      // OPEN POSITIONS
+      // =========================
+
+      if (
+        Array.isArray(
+          body.positions
+        )
+      ) {
+
+        user.positions =
+          body.positions;
+      }
+
+      // =========================
+      // TRADE HISTORY
+      // =========================
+
+      if (
+        Array.isArray(
+          body.history
+        )
+      ) {
+
+        user.history =
+          body.history;
+      }
+
+      // =========================
+      // WATCHLIST
+      // =========================
+
+      if (
+        Array.isArray(
+          body.watchlist
+        )
+      ) {
+
+        user.watchlist =
+          body.watchlist;
+      }
+
+      // =========================
+      // NOTES
+      // =========================
+
+      if (
+        typeof body.notes ===
+        "string"
+      ) {
+
+        user.notes =
+          body.notes;
+      }
+
+      // =========================
+      // SAVE EVERYTHING
+      // =========================
+
+      const saved =
+        write(db);
+
+      if (!saved) {
+
+        return res
+          .status(500)
+          .json({
+            error:
+              "User state could not be saved."
+          });
+      }
+
+      res.json({
+        ok: true
+      });
+
+    } catch (err) {
+
+      console.log(
+        "State save error:",
+        err.message
       );
 
-    if (!user) {
-
-      return res
-        .status(401)
+      res
+        .status(500)
         .json({
           error:
-            "User not found."
+            "Unable to save account state."
         });
     }
-
-    const body =
-      req.body || {};
-
-    user.balance =
-      Number(body.balance);
-
-    user.positions =
-      body.positions || [];
-
-    user.history =
-      body.history || [];
-
-    user.watchlist =
-      body.watchlist ||
-      user.watchlist;
-
-    write(db);
-
-    res.json({
-      ok: true
-    });
   }
 );
 
@@ -612,6 +870,21 @@ async function updatePrice(
 
       const price =
         Number(data.price);
+
+      if (
+        !Number.isFinite(
+          price
+        )
+      ) {
+
+        console.log(
+          "Invalid price:",
+          symbol,
+          data.price
+        );
+
+        return;
+      }
 
       latestPrices[symbol] =
         price;
@@ -758,6 +1031,17 @@ wss.on(
 
         console.log(
           "WebSocket client disconnected."
+        );
+      }
+    );
+
+    client.on(
+      "error",
+      err => {
+
+        console.log(
+          "WebSocket client error:",
+          err.message
         );
       }
     );

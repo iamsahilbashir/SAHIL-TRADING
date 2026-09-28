@@ -11,38 +11,77 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// ===============================
+// BASIC SETUP
+// ===============================
+
+const __dirname = path.dirname(
+  fileURLToPath(import.meta.url)
+);
+
 const app = express();
+
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
 
-const PORT = process.env.PORT || 3000;
-const KEY = process.env.TWELVE_DATA_API_KEY;
-const DB = path.join(__dirname, "users.json");
+const wss = new WebSocketServer({
+  server
+});
 
-// ---------------- DATABASE ----------------
+const PORT =
+  process.env.PORT || 3000;
+
+const KEY =
+  process.env.TWELVE_DATA_API_KEY;
+
+const DB =
+  path.join(__dirname, "users.json");
+
+// ===============================
+// DATABASE
+// ===============================
 
 if (!fs.existsSync(DB)) {
   fs.writeFileSync(
     DB,
-    JSON.stringify({ users: [] }, null, 2)
+    JSON.stringify(
+      { users: [] },
+      null,
+      2
+    )
   );
 }
 
-const read = () =>
-  JSON.parse(fs.readFileSync(DB, "utf8"));
+const read = () => {
+  try {
+    return JSON.parse(
+      fs.readFileSync(DB, "utf8")
+    );
+  } catch {
+    return { users: [] };
+  }
+};
 
-const write = (x) =>
+const write = data => {
   fs.writeFileSync(
     DB,
-    JSON.stringify(x, null, 2)
+    JSON.stringify(
+      data,
+      null,
+      2
+    )
   );
+};
 
-// ---------------- MIDDLEWARE ----------------
+// ===============================
+// MIDDLEWARE
+// ===============================
 
 app.use(express.json());
 
-app.set("trust proxy", 1);
+app.set(
+  "trust proxy",
+  1
+);
 
 app.use(
   session({
@@ -58,336 +97,427 @@ app.use(
       httpOnly: true,
       sameSite: "lax",
 
-      // Stay logged in for 30 days
-      maxAge: 1000 * 60 * 60 * 24 * 30
+      // Keep user logged in for 30 days
+      maxAge:
+        1000 *
+        60 *
+        60 *
+        24 *
+        30
     }
   })
 );
 
-// ---------------- AUTH ----------------
+// ===============================
+// AUTH MIDDLEWARE
+// ===============================
 
-const auth = (q, r, n) => {
-  if (q.session.user) {
-    return n();
+const auth = (req, res, next) => {
+
+  if (req.session.user) {
+    return next();
   }
 
-  return r
+  return res
     .status(401)
     .json({
-      error: "Login required"
+      error:
+        "Login required"
     });
 };
 
-// ---------------- SIGN UP ----------------
+// ===============================
+// CREATE ACCOUNT
+// ===============================
 
-app.post("/api/signup", async (q, r) => {
-  try {
-    let {
-      name,
-      email,
-      password
-    } = q.body || {};
+app.post(
+  "/api/signup",
+  async (req, res) => {
 
-    let d = read();
+    try {
 
-    let e = String(email || "")
-      .trim()
-      .toLowerCase();
+      let {
+        name,
+        email,
+        password
+      } = req.body || {};
 
-    name = String(name || "").trim();
-    password = String(password || "");
+      name =
+        String(name || "")
+          .trim();
 
-    if (
-      !name ||
-      !e ||
-      !password ||
-      password.length < 6
-    ) {
-      return r
-        .status(400)
-        .json({
-          error:
-            "Enter name, email and 6+ character password."
-        });
-    }
+      email =
+        String(email || "")
+          .trim()
+          .toLowerCase();
 
-    // Check duplicate account
-    if (
-      d.users.some(
-        u => u.email === e
-      )
-    ) {
-      return r
-        .status(409)
-        .json({
-          error:
-            "Email already registered. Please login."
-        });
-    }
+      password =
+        String(password || "");
 
-    // Secure password hash
-    const hashedPassword =
-      await bcrypt.hash(password, 12);
+      const db = read();
 
-    const u = {
-      id: crypto.randomUUID(),
+      // Basic validation
+      if (
+        !name ||
+        !email ||
+        !password ||
+        password.length < 6
+      ) {
 
-      name,
-
-      email: e,
-
-      password: hashedPassword,
-
-      balance: 10000,
-
-      positions: [],
-
-      history: [],
-
-      watchlist: [
-        "EUR/USD",
-        "GBP/USD",
-        "USD/JPY",
-        "XAU/USD"
-      ]
-    };
-
-    d.users.push(u);
-
-    write(d);
-
-    // Automatically login after signup
-    q.session.user = u.id;
-
-    q.session.save(err => {
-      if (err) {
-        console.log(
-          "Session save error:",
-          err.message
-        );
-
-        return r
-          .status(500)
+        return res
+          .status(400)
           .json({
             error:
-              "Account created but login session failed."
+              "Enter name, email and 6+ character password."
           });
       }
 
-      r.json({
-        ok: true,
-        message:
-          "Account created successfully."
-      });
-    });
-
-  } catch (err) {
-    console.log(
-      "Signup error:",
-      err.message
-    );
-
-    r
-      .status(500)
-      .json({
-        error:
-          "Unable to create account."
-      });
-  }
-});
-
-// ---------------- LOGIN ----------------
-
-app.post("/api/login", async (q, r) => {
-  try {
-    let {
-      email,
-      password
-    } = q.body || {};
-
-    let d = read();
-
-    let e = String(email || "")
-      .trim()
-      .toLowerCase();
-
-    password = String(password || "");
-
-    let u = d.users.find(
-      x => x.email === e
-    );
-
-    if (
-      !u ||
-      !(await bcrypt.compare(
-        password,
-        u.password
-      ))
-    ) {
-      return r
-        .status(401)
-        .json({
-          error:
-            "Invalid email or password."
-        });
-    }
-
-    // Create login session
-    q.session.user = u.id;
-
-    q.session.save(err => {
-      if (err) {
-        console.log(
-          "Session save error:",
-          err.message
+      // Check duplicate email
+      const exists =
+        db.users.some(
+          user =>
+            user.email === email
         );
 
-        return r
-          .status(500)
+      if (exists) {
+
+        return res
+          .status(409)
           .json({
             error:
-              "Login session could not be saved."
+              "Email already registered. Please login."
           });
       }
 
-      r.json({
-        ok: true,
-        message:
-          "Login successful."
-      });
-    });
+      // Secure password hash
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          12
+        );
 
-  } catch (err) {
-    console.log(
-      "Login error:",
-      err.message
-    );
+      const user = {
 
-    r
-      .status(500)
-      .json({
-        error:
-          "Unable to login."
-      });
-  }
-});
+        id:
+          crypto.randomUUID(),
 
-// ---------------- LOGOUT ----------------
+        name,
 
-app.post("/api/logout", (q, r) => {
-  q.session.destroy(err => {
+        email,
 
-    if (err) {
+        password:
+          hashedPassword,
+
+        // Demo account balance
+        balance:
+          10000,
+
+        positions: [],
+
+        history: [],
+
+        watchlist: [
+          "EUR/USD",
+          "GBP/USD",
+          "USD/JPY",
+          "XAU/USD"
+        ]
+      };
+
+      db.users.push(user);
+
+      write(db);
+
+      // Automatically login
+      req.session.user =
+        user.id;
+
+      req.session.save(
+        err => {
+
+          if (err) {
+
+            console.log(
+              "Session save error:",
+              err.message
+            );
+
+            return res
+              .status(500)
+              .json({
+                error:
+                  "Account created but login session failed."
+              });
+          }
+
+          res.json({
+            ok: true,
+            message:
+              "Account created successfully."
+          });
+        }
+      );
+
+    } catch (err) {
+
       console.log(
-        "Logout error:",
+        "Signup error:",
         err.message
       );
 
-      return r
+      res
         .status(500)
         .json({
           error:
-            "Logout failed."
+            "Unable to create account."
+        });
+    }
+  }
+);
+
+// ===============================
+// LOGIN
+// ===============================
+
+app.post(
+  "/api/login",
+  async (req, res) => {
+
+    try {
+
+      let {
+        email,
+        password
+      } = req.body || {};
+
+      email =
+        String(email || "")
+          .trim()
+          .toLowerCase();
+
+      password =
+        String(password || "");
+
+      const db = read();
+
+      const user =
+        db.users.find(
+          u =>
+            u.email === email
+        );
+
+      if (
+        !user ||
+        !(await bcrypt.compare(
+          password,
+          user.password
+        ))
+      ) {
+
+        return res
+          .status(401)
+          .json({
+            error:
+              "Invalid email or password."
+          });
+      }
+
+      req.session.user =
+        user.id;
+
+      req.session.save(
+        err => {
+
+          if (err) {
+
+            console.log(
+              "Session save error:",
+              err.message
+            );
+
+            return res
+              .status(500)
+              .json({
+                error:
+                  "Login session could not be saved."
+              });
+          }
+
+          res.json({
+            ok: true,
+            message:
+              "Login successful."
+          });
+        }
+      );
+
+    } catch (err) {
+
+      console.log(
+        "Login error:",
+        err.message
+      );
+
+      res
+        .status(500)
+        .json({
+          error:
+            "Unable to login."
+        });
+    }
+  }
+);
+
+// ===============================
+// LOGOUT
+// ===============================
+
+app.post(
+  "/api/logout",
+  (req, res) => {
+
+    req.session.destroy(
+      err => {
+
+        if (err) {
+
+          console.log(
+            "Logout error:",
+            err.message
+          );
+
+          return res
+            .status(500)
+            .json({
+              error:
+                "Logout failed."
+            });
+        }
+
+        res.clearCookie(
+          "connect.sid"
+        );
+
+        res.json({
+          ok: true,
+          message:
+            "Logged out successfully."
+        });
+      }
+    );
+  }
+);
+
+// ===============================
+// CURRENT USER
+// ===============================
+
+app.get(
+  "/api/me",
+  auth,
+  (req, res) => {
+
+    const db = read();
+
+    const user =
+      db.users.find(
+        u =>
+          u.id ===
+          req.session.user
+      );
+
+    if (!user) {
+
+      req.session.destroy(
+        () => {}
+      );
+
+      return res
+        .status(401)
+        .json({
+          error:
+            "User account not found."
         });
     }
 
-    // Remove session cookie
-    r.clearCookie("connect.sid");
+    res.json({
 
-    r.json({
-      ok: true,
-      message:
-        "Logged out successfully."
+      name:
+        user.name,
+
+      email:
+        user.email,
+
+      balance:
+        user.balance,
+
+      positions:
+        user.positions || [],
+
+      history:
+        user.history || [],
+
+      watchlist:
+        user.watchlist || []
     });
-  });
-});
-
-// ---------------- CURRENT USER ----------------
-
-app.get("/api/me", auth, (q, r) => {
-
-  let d = read();
-
-  let u = d.users.find(
-    x =>
-      x.id ===
-      q.session.user
-  );
-
-  if (!u) {
-
-    q.session.destroy(() => {});
-
-    return r
-      .status(401)
-      .json({
-        error:
-          "User account not found."
-      });
   }
+);
 
-  r.json({
-    name: u.name,
+// ===============================
+// SAVE USER STATE
+// ===============================
 
-    email: u.email,
+app.post(
+  "/api/state",
+  auth,
+  (req, res) => {
 
-    balance: u.balance,
+    const db = read();
 
-    positions:
-      u.positions || [],
+    const user =
+      db.users.find(
+        u =>
+          u.id ===
+          req.session.user
+      );
 
-    history:
-      u.history || [],
+    if (!user) {
 
-    watchlist:
-      u.watchlist || []
-  });
-});
+      return res
+        .status(401)
+        .json({
+          error:
+            "User not found."
+        });
+    }
 
-// ---------------- SAVE ACCOUNT STATE ----------------
+    const body =
+      req.body || {};
 
-app.post("/api/state", auth, (q, r) => {
+    user.balance =
+      Number(body.balance);
 
-  let d = read();
+    user.positions =
+      body.positions || [];
 
-  let u = d.users.find(
-    x =>
-      x.id ===
-      q.session.user
-  );
+    user.history =
+      body.history || [];
 
-  let b = q.body || {};
+    user.watchlist =
+      body.watchlist ||
+      user.watchlist;
 
-  if (!u) {
-    return r
-      .status(401)
-      .json({
-        error:
-          "User not found"
-      });
+    write(db);
+
+    res.json({
+      ok: true
+    });
   }
+);
 
-  u.balance =
-    Number(b.balance);
-
-  u.positions =
-    b.positions || [];
-
-  u.history =
-    b.history || [];
-
-  u.watchlist =
-    b.watchlist ||
-    u.watchlist;
-
-  write(d);
-
-  r.json({
-    ok: true
-  });
-});
-
-// ---------------- WEBSITE ----------------
+// ===============================
+// PUBLIC WEBSITE
+// ===============================
 
 app.use(
   express.static(
@@ -398,38 +528,59 @@ app.use(
   )
 );
 
-// ---------------- MARKET DATA ----------------
+// ===============================
+// MARKET DATA
+// ===============================
 
-let clients = new Set();
+let clients =
+  new Set();
 
-const send = o => {
+let latestPrices =
+  {};
 
-  const s =
-    JSON.stringify(o);
+// Send message to connected users
+const send = data => {
 
-  for (const c of clients) {
+  const message =
+    JSON.stringify(data);
+
+  for (
+    const client of clients
+  ) {
 
     if (
-      c.readyState ===
+      client.readyState ===
       WebSocket.OPEN
     ) {
-      c.send(s);
+
+      client.send(message);
     }
   }
 };
 
+// Demo market symbols
 const symbols = [
+
   "EUR/USD",
+
   "GBP/USD",
+
   "USD/JPY",
+
   "AUD/USD",
+
   "USD/CAD",
+
   "XAU/USD"
 ];
 
-let priceIndex = 0;
+// ===============================
+// GET ONE PRICE
+// ===============================
 
-async function updatePrice() {
+async function updatePrice(
+  symbol
+) {
 
   if (!KEY) {
 
@@ -439,13 +590,6 @@ async function updatePrice() {
 
     return;
   }
-
-  const symbol =
-    symbols[priceIndex];
-
-  priceIndex =
-    (priceIndex + 1) %
-    symbols.length;
 
   try {
 
@@ -461,28 +605,34 @@ async function updatePrice() {
     const data =
       await response.json();
 
-    if (data?.price) {
+    if (
+      data &&
+      data.price
+    ) {
 
+      const price =
+        Number(data.price);
+
+      latestPrices[symbol] =
+        price;
+
+      // Send new price
       send({
-        type: "price",
+
+        type:
+          "price",
 
         data: {
+
           symbol,
 
-          price:
-            Number(data.price)
+          price
         }
-      });
-
-      send({
-        type: "status",
-
-        connected: true
       });
 
       console.log(
         symbol,
-        data.price
+        price
       );
 
     } else {
@@ -498,52 +648,138 @@ async function updatePrice() {
 
     console.log(
       "Price request failed:",
+      symbol,
       err.message
     );
-
-    send({
-      type: "status",
-
-      connected: false
-    });
   }
 }
 
-// ---------------- WEBSOCKET ----------------
+// ===============================
+// UPDATE ALL PRICES
+// ===============================
+
+async function updateAllPrices() {
+
+  console.log(
+    "Updating all market prices..."
+  );
+
+  // Get all 6 symbols
+  // together
+  await Promise.all(
+    symbols.map(
+      symbol =>
+        updatePrice(symbol)
+    )
+  );
+
+  // Market status
+  send({
+
+    type:
+      "status",
+
+    connected:
+      Object.keys(
+        latestPrices
+      ).length > 0
+  });
+
+  console.log(
+    "Market price update complete."
+  );
+}
+
+// ===============================
+// WEBSOCKET CONNECTION
+// ===============================
 
 wss.on(
   "connection",
-  c => {
+  client => {
 
-    clients.add(c);
+    clients.add(client);
 
-    c.send(
+    console.log(
+      "WebSocket client connected."
+    );
+
+    // Send already available
+    // prices immediately
+    for (
+      const symbol of symbols
+    ) {
+
+      if (
+        latestPrices[symbol]
+      ) {
+
+        client.send(
+          JSON.stringify({
+
+            type:
+              "price",
+
+            data: {
+
+              symbol,
+
+              price:
+                latestPrices[
+                  symbol
+                ]
+            }
+          })
+        );
+      }
+    }
+
+    // Send market status
+    client.send(
       JSON.stringify({
-        type: "status",
 
-        connected: true
+        type:
+          "status",
+
+        connected:
+          Object.keys(
+            latestPrices
+          ).length > 0
       })
     );
 
-    c.on(
+    client.on(
       "close",
       () => {
-        clients.delete(c);
+
+        clients.delete(
+          client
+        );
+
+        console.log(
+          "WebSocket client disconnected."
+        );
       }
     );
   }
 );
 
-// First price request
-updatePrice();
+// ===============================
+// START MARKET DATA
+// ===============================
 
-// Next request every 2 minutes
+// Get all prices immediately
+updateAllPrices();
+
+// Refresh every 12 minutes
 setInterval(
-  updatePrice,
-  120000
+  updateAllPrices,
+  12 * 60 * 1000
 );
 
-// ---------------- START SERVER ----------------
+// ===============================
+// START SERVER
+// ===============================
 
 server.listen(
   PORT,
@@ -551,7 +787,7 @@ server.listen(
   () => {
 
     console.log(
-      "Sahil Trading Pro running on " +
+      "Sahil Trading Pro running on port " +
       PORT
     );
   }

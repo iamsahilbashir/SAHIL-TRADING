@@ -3,567 +3,493 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
 <title>Sahil Trading Pro</title>
 
 <style>
-*{box-sizing:border-box}
-
-html,body{
-margin:0;
-width:100%;
-height:100%;
-background:#060c0a;
-color:#e8fff1;
-font-family:Arial,sans-serif;
-overflow:hidden
+*{
+  box-sizing:border-box;
 }
 
-button,input,select,textarea{font:inherit}
+html,body{
+  margin:0;
+  height:100%;
+  background:#060c0a;
+  color:#e8fff1;
+  font-family:Arial,sans-serif;
+}
 
-button{cursor:pointer}
+button,input,select,textarea{
+  font:inherit;
+}
 
+button{
+  cursor:pointer;
+}
+
+/* TOP BAR */
 .top{
-height:58px;
-background:#0a1511;
-border-bottom:1px solid #193328;
-display:flex;
-align-items:center;
-padding:0 14px;
-gap:15px;
-position:relative;
-z-index:100
+  height:58px;
+  background:#0a1511;
+  border-bottom:1px solid #193328;
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  gap:12px;
+  position:relative;
+  z-index:50;
 }
 
 .brand{
-display:flex;
-align-items:center;
-gap:9px;
-flex-shrink:0
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:max-content;
 }
 
 .brand img{
-width:40px;
-height:40px;
-border-radius:50%;
-object-fit:cover;
-border:2px solid #36e28a
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #36e28a;
 }
 
 .logo{
-font-weight:900;
-font-size:22px
+  font-weight:900;
+  font-size:21px;
 }
 
 .logo i{
-font-style:normal;
-color:#36e28a
+  font-style:normal;
+  color:#36e28a;
 }
 
 .search{
-flex:1;
-max-width:360px
+  flex:1;
+  max-width:360px;
 }
 
 .search input{
-width:100%;
-background:#101d17;
-border:1px solid #294536;
-border-radius:7px;
-color:white;
-padding:9px
+  width:100%;
+  background:#101d17;
+  border:1px solid #294536;
+  border-radius:7px;
+  color:white;
+  padding:9px;
+  outline:none;
 }
 
 .live{
-font-size:12px;
-color:#55eb9a;
-white-space:nowrap
+  font-size:12px;
+  color:#55eb9a;
+  white-space:nowrap;
 }
 
+.small,
+.toolbtn,
+.toolbar button{
+  background:#0d1b15;
+  color:#d8eee3;
+  border:1px solid #294638;
+  border-radius:6px;
+  padding:7px 9px;
+}
+
+.small:hover,
+.toolbtn:hover,
+.toolbar button:hover{
+  background:#193426;
+}
+
+/* AUTH */
 .auth{
-max-width:410px;
-margin:60px auto;
-padding:20px;
-background:#0c1712;
-border:1px solid #203b2e;
-border-radius:14px
+  max-width:410px;
+  margin:60px auto;
+  padding:20px;
+  background:#0c1712;
+  border:1px solid #203b2e;
+  border-radius:14px;
 }
 
-.auth h2{margin-top:0}
+.auth h2{
+  margin-top:0;
+}
 
 .auth input{
-width:100%;
-padding:11px;
-margin:6px 0 12px;
-background:#07110d;
-color:white;
-border:1px solid #284738;
-border-radius:7px
+  width:100%;
+  padding:11px;
+  margin:6px 0 12px;
+  background:#07110d;
+  color:white;
+  border:1px solid #284738;
+  border-radius:7px;
+  outline:none;
 }
 
 .primary{
-width:100%;
-padding:12px;
-background:#17864e;
-color:#fff;
-border:0;
-border-radius:7px;
-font-weight:bold
+  width:100%;
+  padding:12px;
+  background:#17864e;
+  color:#fff;
+  border:0;
+  border-radius:7px;
+  font-weight:bold;
 }
 
 .err{
-color:#ff7c86;
-font-size:13px;
-margin-top:8px
+  color:#ff7c86;
+  font-size:13px;
+  margin-top:8px;
 }
 
+/* APP */
 .app{
-display:none;
-height:calc(100vh - 58px)
+  display:none;
+  height:calc(100vh - 58px);
 }
 
 .layout{
-display:grid;
-grid-template-columns:220px minmax(0,1fr) 320px;
-height:100%;
-min-height:0
+  display:grid;
+  grid-template-columns:215px minmax(0,1fr) 330px;
+  height:100%;
 }
 
-.side,.right{
-background:#0a1511;
-border-right:1px solid #193328;
-padding:12px;
-overflow:auto;
-min-height:0
+.side,
+.right{
+  background:#0a1511;
+  padding:10px;
+  overflow:auto;
+}
+
+.side{
+  border-right:1px solid #193328;
 }
 
 .right{
-border-right:0;
-border-left:1px solid #193328;
-position:relative
+  border-left:1px solid #193328;
 }
 
 .watch{
-padding:9px;
-border-radius:6px;
-cursor:pointer
+  padding:9px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
 .watch:hover,
 .watch.sel{
-background:#173426
+  background:#173426;
 }
 
+/* MAIN */
 .main{
-min-width:0;
-min-height:0;
-display:flex;
-flex-direction:column;
-position:relative;
-background:#060c0a
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  position:relative;
 }
 
 .toolbar{
-min-height:46px;
-height:46px;
-display:flex;
-gap:6px;
-align-items:center;
-padding:6px 9px;
-border-bottom:1px solid #193328;
-overflow:auto;
-flex-shrink:0;
-background:#08110d
+  min-height:48px;
+  display:flex;
+  gap:6px;
+  align-items:center;
+  padding:6px 8px;
+  border-bottom:1px solid #193328;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
 
-.toolbar button,
-.toolbtn{
-background:#0d1b15;
-color:#cce5d7;
-border:1px solid #294638;
-border-radius:5px;
-padding:7px 9px;
-white-space:nowrap
-}
-
-.toolbar button:hover,
-.toolbtn:hover{
-background:#193426
-}
-
-.toolbar button.active{
-background:#17864e;
-border-color:#36e28a;
-color:#fff
+.toolbar::-webkit-scrollbar{
+  display:none;
 }
 
 .chart{
-flex:1;
-min-height:0;
-padding:8px;
-position:relative;
-overflow:hidden
+  position:relative;
+  flex:1;
+  min-height:360px;
+  padding:7px;
 }
 
-#tvChart{
-width:100%;
-height:100%;
-min-height:0;
-border:0;
-border-radius:7px;
-overflow:hidden;
-background:#060c0a
+.tvbox{
+  width:100%;
+  height:100%;
+  min-height:360px;
+  border-radius:7px;
+  overflow:hidden;
+  background:#050a08;
 }
 
-#tvChart .tradingview-widget-container,
-#tvChart .tradingview-widget-container__widget{
-width:100%;
-height:100%
+.tvbox iframe{
+  width:100%;
+  height:100%;
+  border:0;
 }
 
-#tvChart iframe{
-border-radius:7px
-}
-
+/* RIGHT PANEL */
 .ticket,
 .box{
-background:#0c1914;
-border:1px solid #1d392b;
-border-radius:9px;
-padding:12px;
-margin-bottom:12px
-}
-
-.box-head{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:8px;
-margin-bottom:8px
+  background:#0c1914;
+  border:1px solid #1d392b;
+  border-radius:9px;
+  padding:11px;
+  margin-bottom:10px;
 }
 
 .row{
-display:flex;
-gap:7px
+  display:flex;
+  gap:7px;
 }
 
-.row>*{flex:1}
+.row>*{
+  flex:1;
+}
 
 .ticket input,
 .ticket select,
-.note-box textarea{
-width:100%;
-padding:9px;
-margin:4px 0 8px;
-background:#07110d;
-color:white;
-border:1px solid #284738;
-border-radius:6px;
-outline:none
-}
-
-.ticket input:focus,
-.ticket select:focus,
-.note-box textarea:focus{
-border-color:#36e28a
+.notes textarea{
+  width:100%;
+  padding:9px;
+  margin:4px 0 8px;
+  background:#07110d;
+  color:white;
+  border:1px solid #284738;
+  border-radius:6px;
+  outline:none;
 }
 
 .buy,
 .sell{
-border:0;
-color:white;
-padding:11px;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer
+  border:0;
+  color:white;
+  padding:11px;
+  border-radius:6px;
+  font-weight:bold;
 }
 
-.buy{background:#14804a}
-.sell{background:#b73e4c}
+.buy{
+  background:#14804a;
+}
 
-.buy:hover{background:#19a15e}
-.sell:hover{background:#d34a59}
+.sell{
+  background:#b73e4c;
+}
 
 .muted{
-color:#8ca69a;
-font-size:12px
+  color:#8ca69a;
+  font-size:12px;
 }
 
 .stat{
-display:flex;
-justify-content:space-between;
-padding:7px 0;
-border-bottom:1px solid #183226;
-font-size:13px
-}
-
-.stat:last-child{
-border-bottom:0
+  display:flex;
+  justify-content:space-between;
+  padding:7px 0;
+  border-bottom:1px solid #183226;
+  font-size:13px;
 }
 
 .pos{
-padding:9px 0;
-border-bottom:1px solid #183226;
-font-size:12px
+  padding:9px 0;
+  border-bottom:1px solid #183226;
+  font-size:12px;
 }
 
-.pos:last-child{
-border-bottom:0
+.green{
+  color:#42e997;
 }
 
-.green{color:#42e997}
-.red{color:#ff7882}
-
-.small{
-padding:6px 8px;
-background:#111f18;
-color:white;
-border:1px solid #294638;
-border-radius:5px;
-font-size:11px
-}
-
-.small:hover{
-background:#193426
-}
-
-.iconbtn{
-padding:5px 7px;
-background:#111f18;
-color:#d8f4e5;
-border:1px solid #294638;
-border-radius:5px;
-font-size:12px
-}
-
-.iconbtn:hover{
-background:#193426
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:#000b;
-display:none;
-align-items:center;
-justify-content:center;
-z-index:500
-}
-
-.modal>div{
-width:min(520px,92%);
-max-height:85vh;
-overflow:auto;
-background:#0c1914;
-border:1px solid #294638;
-border-radius:12px;
-padding:18px
+.red{
+  color:#ff7882;
 }
 
 .paper{
-display:inline-block;
-padding:4px 8px;
-border:1px solid #296244;
-border-radius:5px;
-font-size:11px;
-color:#55eb9a;
-margin-left:6px
+  display:inline-block;
+  padding:4px 7px;
+  border:1px solid #296244;
+  border-radius:5px;
+  font-size:10px;
+  color:#55eb9a;
+  margin-left:5px;
 }
 
-.note-box textarea{
-height:150px;
-resize:vertical;
-line-height:1.45
+.notes textarea{
+  min-height:105px;
+  resize:vertical;
 }
 
 .note-actions{
-display:flex;
-gap:7px;
-margin-top:4px
+  display:flex;
+  gap:6px;
 }
 
 .note-actions button{
-flex:1
+  flex:1;
 }
 
-.note-saved{
-font-size:11px;
-color:#55eb9a;
-margin-top:7px;
-min-height:14px
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:7px;
 }
 
-.pip{
-font-weight:bold;
-font-size:12px
+.modal{
+  position:fixed;
+  inset:0;
+  background:#000b;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
 }
 
+.modal>div{
+  width:min(500px,92%);
+  background:#0c1914;
+  border:1px solid #294638;
+  border-radius:12px;
+  padding:18px;
+}
+
+.overlayBadge{
+  position:absolute;
+  left:16px;
+  top:16px;
+  z-index:3;
+  background:#0b1511dd;
+  border:1px solid #294638;
+  border-radius:7px;
+  padding:6px 9px;
+  font-size:11px;
+  pointer-events:none;
+}
+
+/* MOBILE */
+@media(max-width:1050px){
+
+  .layout{
+    grid-template-columns:175px minmax(0,1fr) 285px;
+  }
+
+  .logo{
+    font-size:18px;
+  }
+}
+
+@media(max-width:800px){
+
+  .app{
+    height:auto;
+    min-height:calc(100vh - 58px);
+  }
+
+  .layout{
+    display:flex;
+    flex-direction:column;
+  }
+
+  .side{
+    display:none;
+  }
+
+  .main{
+    height:64vh;
+    min-height:440px;
+  }
+
+  .right{
+    border-left:0;
+    border-top:1px solid #193328;
+    max-height:none;
+  }
+
+  .chart{
+    min-height:390px;
+    padding:4px;
+  }
+
+  .tvbox{
+    min-height:390px;
+  }
+
+  .toolbar{
+    min-height:50px;
+    padding:5px;
+  }
+
+  .top{
+    position:sticky;
+    top:0;
+    z-index:90;
+  }
+
+  .search{
+    max-width:none;
+  }
+
+  .live{
+    font-size:10px;
+  }
+
+  .right{
+    padding:9px;
+  }
+}
+
+@media(max-width:520px){
+
+  .brand img{
+    width:34px;
+    height:34px;
+  }
+
+  .logo{
+    font-size:15px;
+  }
+
+  .top{
+    gap:6px;
+    padding:0 7px;
+  }
+
+  .top .small{
+    padding:6px;
+  }
+
+  .main{
+    height:60vh;
+    min-height:400px;
+  }
+
+  .chart,
+  .tvbox{
+    min-height:350px;
+  }
+
+  .toolbar button{
+    padding:7px 8px;
+    font-size:12px;
+  }
+
+  .row{
+    gap:5px;
+  }
+}
+
+/* FULLSCREEN CHART */
 .chart-fullscreen{
-position:fixed !important;
-inset:58px 0 0 0 !important;
-z-index:400 !important;
-width:100vw !important;
-height:calc(100vh - 58px) !important;
-background:#060c0a !important
+  position:fixed !important;
+  inset:58px 0 0 0 !important;
+  width:100vw !important;
+  height:calc(100vh - 58px) !important;
+  z-index:80 !important;
+  background:#060c0a !important;
+  padding:4px !important;
 }
 
-.chart-fullscreen .chart{
-padding:5px
-}
-
-.chart-fullscreen .toolbar{
-height:48px
-}
-
-.right.compact .account-content{
-display:none
-}
-
-.right.compact .box{
-margin-bottom:7px
-}
-
-.account-toggle{
-float:right
-}
-
-.range-info{
-padding:9px;
-border:1px solid #234535;
-border-radius:7px;
-background:#08120e;
-margin-top:8px
-}
-
-.range-line{
-display:flex;
-justify-content:space-between;
-padding:4px 0;
-font-size:12px
-}
-
-.range-title{
-font-weight:bold;
-margin-bottom:5px
-}
-
-.fullscreen-exit{
-display:none
-}
-
-.chart-fullscreen .fullscreen-exit{
-display:inline-block
-}
-
-@media(max-width:1100px){
-.layout{
-grid-template-columns:190px minmax(0,1fr) 285px
-}
-}
-
-@media(max-width:950px){
-.layout{
-grid-template-columns:180px minmax(0,1fr)
-}
-
-.right{
-position:absolute;
-right:0;
-top:58px;
-height:calc(100vh - 58px);
-width:310px;
-z-index:80;
-box-shadow:-10px 0 30px #0007
-}
-}
-
-@media(max-width:750px){
-.top{
-height:58px
-}
-
-.layout{
-grid-template-columns:1fr
-}
-
-.side{
-display:none
-}
-
-.right{
-position:fixed;
-top:58px;
-right:0;
-bottom:0;
-width:min(330px,92vw);
-height:auto;
-border-left:1px solid #193328;
-z-index:150
-}
-
-.chart{
-padding:4px
-}
-
-#tvChart{
-border-radius:5px
-}
-
-.toolbar{
-padding:5px;
-gap:5px
-}
-
-.toolbar button,
-.toolbtn{
-padding:7px 8px
-}
-}
-
-@media(max-width:650px){
-.top{
-gap:7px;
-padding:0 8px
-}
-
-.brand{
-gap:6px
-}
-
-.brand img{
-width:34px;
-height:34px
-}
-
-.logo{
-font-size:16px
-}
-
-.search{
-max-width:none;
-min-width:70px
-}
-
-.search input{
-padding:8px;
-font-size:12px
-}
-
-.live{
-font-size:9px
-}
-
-.top .small{
-padding:5px 6px
-}
-
-.chart{
-padding:3px
-}
-
-.toolbar{
-height:44px;
-min-height:44px
-}
+/* ACCOUNT COMPACT */
+.account-hidden{
+  display:none !important;
 }
 </style>
 </head>
@@ -572,456 +498,503 @@ min-height:44px
 
 <header class="top">
 
-<div class="brand">
-<img src="/profile.jpg" alt="Sahil">
-<div class="logo">SAHIL <i>TRADING</i></div>
-</div>
+  <div class="brand">
+    <img src="/profile.jpg" alt="Sahil">
+    <div class="logo">
+      SAHIL <i>TRADING</i>
+    </div>
+  </div>
 
-<div class="search">
-<input id="symSearch" placeholder="Search symbol e.g. EURUSD">
-</div>
+  <div class="search">
+    <input
+      id="symSearch"
+      placeholder="Search symbol e.g. EUR/USD"
+      autocomplete="off">
+  </div>
 
-<div id="marketStatus" class="live">
-● MARKET OFFLINE
-</div>
+  <div id="marketStatus" class="live">
+    ● MARKET OFFLINE
+  </div>
 
-<button class="small" id="logout">Logout</button>
+  <button class="small" id="logout">
+    Logout
+  </button>
 
 </header>
 
 
 <section id="auth" class="auth">
 
-<h2 id="authTitle">Sahil Trading Account</h2>
+  <h2 id="authTitle">
+    Sahil Trading Account
+  </h2>
 
-<div id="nameWrap">
-<input id="name" placeholder="Full name">
-</div>
+  <div id="nameWrap">
+    <input
+      id="name"
+      placeholder="Full name">
+  </div>
 
-<input id="email" type="email" placeholder="Email">
+  <input
+    id="email"
+    type="email"
+    placeholder="Email">
 
-<input
-id="pass"
-type="password"
-placeholder="Password (6+ characters)"
->
+  <input
+    id="pass"
+    type="password"
+    placeholder="Password (6+ characters)">
 
-<button class="primary" id="authBtn">
-Create Demo Account
-</button>
+  <button class="primary" id="authBtn">
+    Create Demo Account
+  </button>
 
-<p
-id="switch"
-class="muted"
-style="cursor:pointer;text-align:center"
->
-Already have an account? Login
-</p>
+  <p
+    id="switch"
+    class="muted"
+    style="cursor:pointer;text-align:center">
 
-<div id="err" class="err"></div>
+    Already have an account? Login
+
+  </p>
+
+  <div id="err" class="err"></div>
 
 </section>
 
 
 <section id="app" class="app">
 
-<div class="layout" id="layout">
+<div class="layout">
 
 
+<!-- LEFT SIDEBAR -->
 <aside class="side">
 
-<div class="muted">
-WATCHLIST
-</div>
+  <div class="muted">
+    WATCHLIST
+  </div>
 
-<div id="watchlist"></div>
+  <div id="watchlist"></div>
 
-<button
-class="toolbtn"
-style="width:100%;margin-top:10px"
-id="addWatch"
->
-+ Add symbol
-</button>
+  <button
+    class="toolbtn"
+    style="width:100%;margin-top:10px"
+    id="addWatch">
 
-<div class="muted" style="margin-top:15px">
-Demo market symbols. Prices are for paper trading only.
-</div>
+    + Add symbol
+
+  </button>
+
+  <div
+    class="box"
+    style="margin-top:10px">
+
+    <div class="muted">
+      Chart Tools
+    </div>
+
+    <div
+      style="font-size:12px;line-height:1.55;margin-top:5px">
+
+      TradingView chart provides drawing tools such as
+      trendline, horizontal line, vertical line, rectangle,
+      Fibonacci and measurement tools where supported.
+
+    </div>
+
+  </div>
 
 </aside>
 
 
-<main class="main" id="mainChart">
+<!-- MAIN CHART -->
+<main class="main">
 
-<div class="toolbar">
+  <div class="toolbar">
 
-<button class="tf-btn" data-tf="1">1m</button>
-<button class="tf-btn" data-tf="5">5m</button>
-<button class="tf-btn active" data-tf="15">15m</button>
-<button class="tf-btn" data-tf="60">1H</button>
-<button class="tf-btn" data-tf="240">4H</button>
-<button class="tf-btn" data-tf="D">1D</button>
+    <button onclick="setTVInterval('1')">
+      1m
+    </button>
 
-<button id="ind">
-Indicators
-</button>
+    <button onclick="setTVInterval('5')">
+      5m
+    </button>
 
-<button id="alert">
-🔔 Alert
-</button>
+    <button onclick="setTVInterval('15')">
+      15m
+    </button>
 
-<button id="draw">
-✏️ Drawing
-</button>
+    <button onclick="setTVInterval('60')">
+      1H
+    </button>
 
-<button id="chartMax">
-⛶ Maximize
-</button>
+    <button onclick="setTVInterval('240')">
+      4H
+    </button>
 
-<button
-id="chartMin"
-style="display:none"
->
-↙ Restore
-</button>
+    <button onclick="setTVInterval('D')">
+      1D
+    </button>
 
-<button id="noteOpen">
-📝 Notes
-</button>
+    <button onclick="openIndicators()">
+      Indicators
+    </button>
 
-</div>
+    <button onclick="showAsianRange()">
+      Asian Range
+    </button>
 
-<div class="chart" id="chart">
+    <button onclick="toggleChartMax()">
+      ⛶ Maximize
+    </button>
 
-<div id="tvChart"></div>
+  </div>
 
-</div>
+
+  <div
+    class="chart"
+    id="chart">
+
+    <div class="overlayBadge">
+      TradingView Chart • Live Market Feed
+    </div>
+
+    <div
+      id="tvbox"
+      class="tvbox">
+    </div>
+
+  </div>
 
 </main>
 
 
-<aside class="right" id="rightPanel">
+<!-- RIGHT PANEL -->
+<aside class="right">
 
 
-<div class="box">
+  <!-- CURRENT SYMBOL -->
+  <div class="box">
 
-<div class="box-head">
+    <div class="section-head">
 
-<div>
-<b id="current">EUR/USD</b>
+      <div>
 
-<span class="paper">
-PAPER TRADING
-</span>
-</div>
+        <b id="current">
+          EUR/USD
+        </b>
 
-<button
-class="iconbtn"
-id="balanceToggle"
-title="Minimize account panel"
->
-−
-</button>
+        <span class="paper">
+          PAPER
+        </span>
 
-</div>
+      </div>
 
-<div class="account-content">
+      <button
+        class="small"
+        onclick="toggleAccount()">
 
-<div
-id="currentPrice"
-style="font-size:25px;font-weight:800;margin:8px 0"
->
-—
-</div>
+        Account ▾
 
-<div class="muted">
-Latest demo market quote
-</div>
+      </button>
 
-</div>
+    </div>
 
-</div>
 
+    <div
+      id="currentPrice"
+      style="font-size:25px;font-weight:800;margin:8px 0">
 
-<div class="ticket">
+      —
 
-<b>Order</b>
+    </div>
 
-<select id="orderSym" style="margin-top:8px">
+    <div class="muted">
+      Latest demo market quote
+    </div>
 
-<option>EUR/USD</option>
-<option>GBP/USD</option>
-<option>USD/JPY</option>
-<option>XAU/USD</option>
-<option>AUD/USD</option>
-<option>USD/CAD</option>
+  </div>
 
-</select>
 
+  <!-- ORDER TICKET -->
+  <div class="ticket">
 
-<div class="row">
+    <b>
+      Order
+    </b>
 
-<div>
+    <select
+      id="orderSym"
+      style="margin-top:8px">
 
-<div class="muted">
-Lots
-</div>
+      <option>EUR/USD</option>
+      <option>GBP/USD</option>
+      <option>USD/JPY</option>
+      <option>XAU/USD</option>
+      <option>AUD/USD</option>
+      <option>USD/CAD</option>
 
-<input
-id="lots"
-value=".10"
-type="number"
-min=".01"
-step=".01"
->
+    </select>
 
-</div>
 
+    <div class="row">
 
-<div>
+      <div>
 
-<div class="muted">
-Leverage
-</div>
+        <div class="muted">
+          Lots
+        </div>
 
-<select id="leverage">
+        <input
+          id="lots"
+          value=".10"
+          type="number"
+          min=".01"
+          step=".01">
 
-<option value="30">30x</option>
-<option value="50">50x</option>
-<option value="100">100x</option>
+      </div>
 
-</select>
 
-</div>
+      <div>
 
-</div>
+        <div class="muted">
+          Leverage
+        </div>
 
+        <select id="leverage">
 
-<div class="row">
+          <option value="30">
+            30x
+          </option>
 
-<div>
+          <option value="50">
+            50x
+          </option>
 
-<div class="muted">
-Stop Loss
-</div>
+          <option value="100">
+            100x
+          </option>
 
-<input
-id="sl"
-placeholder="Optional"
->
+        </select>
 
-</div>
+      </div>
 
+    </div>
 
-<div>
 
-<div class="muted">
-Take Profit
-</div>
+    <div class="row">
 
-<input
-id="tp"
-placeholder="Optional"
->
+      <div>
 
-</div>
+        <div class="muted">
+          Stop Loss
+        </div>
 
-</div>
+        <input
+          id="sl"
+          placeholder="Optional">
 
+      </div>
 
-<div class="row">
 
-<button class="buy" id="buy">
-BUY
-</button>
+      <div>
 
-<button class="sell" id="sell">
-SELL
-</button>
+        <div class="muted">
+          Take Profit
+        </div>
 
-</div>
+        <input
+          id="tp"
+          placeholder="Optional">
 
-</div>
+      </div>
 
+    </div>
 
-<div class="box">
 
-<div class="box-head">
+    <div class="row">
 
-<b>
-Paper Trading Account
-</b>
+      <button
+        class="buy"
+        id="buy">
 
-<button
-class="iconbtn"
-onclick="toggleAccountPanel()"
->
-−
-</button>
+        BUY
 
-</div>
+      </button>
 
-<div class="account-content">
+      <button
+        class="sell"
+        id="sell">
 
-<div class="stat">
-<span>Balance</span>
-<b id="balance">$10,000.00</b>
-</div>
+        SELL
 
-<div class="stat">
-<span>Equity</span>
-<b id="equity">$10,000.00</b>
-</div>
+      </button>
 
-<div class="stat">
-<span>Margin</span>
-<b id="margin">$0.00</b>
-</div>
+    </div>
 
-<div class="stat">
-<span>Free Margin</span>
-<b id="freeMargin">$10,000.00</b>
-</div>
+  </div>
 
-<div class="stat">
-<span>Margin Level</span>
-<b id="marginLevel">∞</b>
-</div>
 
-<div class="stat">
-<span>Floating P/L</span>
-<b id="float">$0.00</b>
-</div>
+  <!-- ACCOUNT -->
+  <div
+    id="accountBox"
+    class="box">
 
-<div class="stat">
-<span>Spread</span>
-<b id="spread">—</b>
-</div>
+    <b>
+      Paper Trading Account
+    </b>
 
-<div class="stat">
-<span>Leverage</span>
-<b id="accountLeverage">30x</b>
-</div>
 
-</div>
+    <div class="stat">
+      <span>Balance</span>
+      <b id="balance">$10,000.00</b>
+    </div>
 
-</div>
 
+    <div class="stat">
+      <span>Equity</span>
+      <b id="equity">$10,000.00</b>
+    </div>
 
-<div class="box">
 
-<div class="box-head">
+    <div class="stat">
+      <span>Margin</span>
+      <b id="margin">$0.00</b>
+    </div>
 
-<b>
-Open Positions
-</b>
 
-<span class="muted">
-Live
-</span>
+    <div class="stat">
+      <span>Free Margin</span>
+      <b id="freeMargin">$10,000.00</b>
+    </div>
 
-</div>
 
-<div id="positions"></div>
+    <div class="stat">
+      <span>Margin Level</span>
+      <b id="marginLevel">∞</b>
+    </div>
 
-</div>
 
+    <div class="stat">
+      <span>Floating P/L</span>
+      <b id="float">$0.00</b>
+    </div>
 
-<div class="box">
 
-<div class="box-head">
+    <div class="stat">
+      <span>Spread</span>
+      <b id="spread">—</b>
+    </div>
 
-<b>
-Trade History
-</b>
 
-</div>
+    <div class="stat">
+      <span>Leverage</span>
+      <b id="accountLeverage">30x</b>
+    </div>
 
-<div id="history"></div>
+  </div>
 
-</div>
 
+  <!-- OPEN POSITIONS -->
+  <div class="box">
 
-<div class="box note-box" id="notesBox">
+    <div class="section-head">
 
-<div class="box-head">
+      <b>
+        Open Positions
+      </b>
 
-<b>
-📝 Trade Notes / Plan
-</b>
+      <button
+        class="small"
+        onclick="showLongShortInfo()">
 
-<button
-class="iconbtn"
-id="clearNote"
->
-Clear
-</button>
+        Long/Short
 
-</div>
+      </button>
 
-<textarea
-id="tradeNotes"
-placeholder="Write your trade plan here...
+    </div>
 
-Example:
-EUR/USD
-Entry:
-SL:
-TP:
-Reason:
-Market structure:
-Risk:
-"
-></textarea>
+    <div id="positions"></div>
 
-<div class="note-actions">
+  </div>
 
-<button
-class="toolbtn"
-id="saveNote"
->
-💾 Save Note
-</button>
 
-<button
-class="toolbtn"
-id="newNote"
->
-＋ New
-</button>
+  <!-- HISTORY -->
+  <div class="box">
 
-</div>
+    <b>
+      Trade History
+    </b>
 
-<div id="noteSaved" class="note-saved"></div>
+    <div id="history"></div>
 
-</div>
+  </div>
 
 
-<div class="box">
+  <!-- NOTES -->
+  <div class="box notes">
 
-<div class="range-info">
+    <div class="section-head">
 
-<div class="range-title">
-Asian Range
-</div>
+      <b>
+        Trade Plan / Notes
+      </b>
 
-<div class="range-line">
-<span>Status</span>
-<b id="asianStatus">Manual TradingView indicator</b>
-</div>
+      <button
+        class="small"
+        onclick="clearNotes()">
 
-<div class="range-line">
-<span>Chart</span>
-<span>Use Indicators / scripts</span>
-</div>
+        Clear
 
-<div class="muted" style="margin-top:6px">
-TradingView community indicators such as FXN Asian Session Range can be added from the chart's Indicators search. Custom Pine scripts cannot be injected automatically into the public widget.
-</div>
+      </button>
 
-</div>
+    </div>
 
-</div>
+
+    <textarea
+      id="notes"
+      placeholder="Write your setup, entry reason, SL/TP, risk and observations...">
+    </textarea>
+
+
+    <div class="note-actions">
+
+      <button
+        class="small"
+        id="saveNotes">
+
+        Save
+
+      </button>
+
+      <button
+        class="small"
+        id="editNotes">
+
+        Edit
+
+      </button>
+
+      <button
+        class="small"
+        id="deleteNotes">
+
+        Delete
+
+      </button>
+
+    </div>
+
+
+    <div
+      id="noteStatus"
+      class="muted"
+      style="margin-top:7px">
+
+    </div>
+
+  </div>
 
 </aside>
 
@@ -1030,1362 +1003,33 @@ TradingView community indicators such as FXN Asian Session Range can be added fr
 </section>
 
 
-<div class="modal" id="modal">
-
-<div>
-
-<h3 id="modalTitle">
-Tool
-</h3>
-
-<p id="modalText" class="muted"></p>
-
-<button
-class="primary"
-onclick="closeModal()"
->
-Close
-</button>
-
-</div>
-
-</div>
-
-
-<script>
-
-let signup=true;
-
-let prices={};
-
-let balance=10000;
-
-let positions=[];
-
-let history=[];
-
-let watch=[
-"EUR/USD",
-"GBP/USD",
-"USD/JPY",
-"XAU/USD"
-];
-
-let selected="EUR/USD";
-
-let tvInterval="15";
-
-let currentUserEmail="";
-
-let notes=[];
-
-let noteIndex=0;
-
-
-const $=x=>document.getElementById(x);
-
-
-const tv={
-"EUR/USD":"OANDA:EURUSD",
-"GBP/USD":"OANDA:GBPUSD",
-"USD/JPY":"OANDA:USDJPY",
-"XAU/USD":"OANDA:XAUUSD",
-"AUD/USD":"OANDA:AUDUSD",
-"USD/CAD":"OANDA:USDCAD"
-};
-
-
-function normalizeSymbol(value){
-
-if(!value)return "";
-
-let s=String(value)
-.trim()
-.toUpperCase()
-.replace(/\s+/g,"")
-.replace(/_/g,"/")
-.replace(/-/g,"/");
-
-if(tv[s])return s;
-
-let clean=s.replace(/\//g,"");
-
-const pairs={
-
-"EURUSD":"EUR/USD",
-"GBPUSD":"GBP/USD",
-"USDJPY":"USD/JPY",
-"XAUUSD":"XAU/USD",
-"AUDUSD":"AUD/USD",
-"USDCAD":"USD/CAD"
-
-};
-
-if(pairs[clean])
-return pairs[clean];
-
-if(clean.length===6){
-
-let candidate=
-clean.slice(0,3)+"/"+clean.slice(3);
-
-if(tv[candidate])
-return candidate;
-
-}
-
-if(clean==="GOLD")
-return "XAU/USD";
-
-return "";
-
-}
-
-
-function show(m,t){
-
-$("modalTitle").textContent=m;
-
-$("modalText").textContent=t;
-
-$("modal").style.display="flex";
-
-}
-
-
-function closeModal(){
-
-$("modal").style.display="none";
-
-}
-
-
-$("switch").onclick=()=>{
-
-signup=!signup;
-
-$("nameWrap").style.display=
-signup?"block":"none";
-
-$("authTitle").textContent=
-signup
-?"Sahil Trading Account"
-:"Login";
-
-$("authBtn").textContent=
-signup
-?"Create Demo Account"
-:"Login";
-
-$("switch").textContent=
-signup
-?"Already have an account? Login"
-:"New here? Create account";
-
-};
-
-
-$("authBtn").onclick=async()=>{
-
-let b={
-email:$("email").value.trim(),
-password:$("pass").value
-};
-
-if(signup)
-b.name=$("name").value.trim();
-
-try{
-
-let r=await fetch(
-signup?"/api/signup":"/api/login",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(b)
-}
-);
-
-let j=await r.json();
-
-if(!r.ok)
-return $("err").textContent=j.error||"Something went wrong";
-
-load();
-
-}catch(e){
-
-$("err").textContent="Server connection error.";
-
-}
-
-};
-
-
-async function load(){
-
-let r=await fetch("/api/me");
-
-if(!r.ok)
-return;
-
-let u=await r.json();
-
-balance=Number(u.balance)||10000;
-
-positions=u.positions||[];
-
-history=u.history||[];
-
-watch=u.watchlist||watch;
-
-currentUserEmail=u.email||$("email").value.trim()||"";
-
-
-$("auth").style.display="none";
-
-$("app").style.display="block";
-
-
-$("logout").onclick=async()=>{
-
-await fetch(
-"/api/logout",
-{method:"POST"}
-);
-
-location.reload();
-
-};
-
-
-loadNotes();
-
-renderWatch();
-
-selectSymbol(selected);
-
-}
-
-
-async function save(){
-
-try{
-
-await fetch(
-"/api/state",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-balance,
-positions,
-history,
-watchlist:watch,
-notes
-})
-}
-);
-
-}catch(e){
-
-console.log("Save error",e);
-
-}
-
-}
-
-
-function notesKey(){
-
-return "sahil_trading_notes_"+(
-currentUserEmail||"guest"
-);
-
-}
-
-
-function loadNotes(){
-
-try{
-
-let stored=
-localStorage.getItem(notesKey());
-
-if(stored){
-
-notes=JSON.parse(stored)||[];
-
-}else{
-
-notes=[];
-
-}
-
-}catch(e){
-
-notes=[];
-
-}
-
-if(notes.length){
-
-noteIndex=0;
-
-$("tradeNotes").value=
-notes[0]?.text||"";
-
-$("noteSaved").textContent=
-notes[0]?.saved
-?"Saved "+new Date(notes[0].saved).toLocaleString()
-:"";
-
-}else{
-
-$("tradeNotes").value="";
-
-$("noteSaved").textContent="";
-
-}
-
-}
-
-
-function saveNote(){
-
-let text=$("tradeNotes").value.trim();
-
-if(!text){
-
-$("noteSaved").textContent=
-"Write something first.";
-
-return;
-
-}
-
-let note={
-id:Date.now(),
-text:text,
-symbol:selected,
-saved:new Date().toISOString()
-};
-
-if(notes[noteIndex]){
-
-notes[noteIndex]={
-...notes[noteIndex],
-...note
-};
-
-}else{
-
-notes.unshift(note);
-
-noteIndex=0;
-
-}
-
-try{
-
-localStorage.setItem(
-notesKey(),
-JSON.stringify(notes)
-);
-
-}catch(e){}
-
-save();
-
-$("noteSaved").textContent=
-"Saved "+new Date(note.saved).toLocaleString();
-
-}
-
-
-$("saveNote").onclick=saveNote;
-
-
-$("newNote").onclick=()=>{
-
-$("tradeNotes").value="";
-
-$("noteSaved").textContent="";
-
-notes.unshift({
-id:Date.now(),
-text:"",
-symbol:selected,
-saved:null
-});
-
-noteIndex=0;
-
-};
-
-
-$("clearNote").onclick=()=>{
-
-$("tradeNotes").value="";
-
-$("noteSaved").textContent="";
-
-if(notes[noteIndex]){
-
-notes[noteIndex].text="";
-
-notes[noteIndex].saved=null;
-
-try{
-
-localStorage.setItem(
-notesKey(),
-JSON.stringify(notes)
-);
-
-}catch(e){}
-
-save();
-
-}
-
-};
-
-
-function renderWatch(){
-
-$("watchlist").innerHTML=
-
-watch.map(s=>`
-
+<!-- MODAL -->
 <div
-class="watch ${s===selected?"sel":""}"
-onclick="selectSymbol('${s}')"
->
+  class="modal"
+  id="modal">
 
-<b>${s}</b><br>
+  <div>
 
-<span class="green">
+    <h3 id="modalTitle">
+      Tool
+    </h3>
 
-${prices[s]?fmt(s,prices[s]):"—"}
+    <p
+      id="modalText"
+      class="muted">
+    </p>
 
-</span>
+    <button
+      class="primary"
+      onclick="closeModal()">
+
+      Close
+
+    </button>
+
+  </div>
 
 </div>
 
-`).join("");
 
-}
-
-
-function fmt(s,p){
-
-if(!Number.isFinite(Number(p)))
-return "—";
-
-p=Number(p);
-
-if(s==="XAU/USD")
-return p.toFixed(2);
-
-if(s==="USD/JPY")
-return p.toFixed(3);
-
-return p.toFixed(5);
-
-}
-
-
-function money(x){
-
-return(x<0?"-":"")+"$"+
-Math.abs(Number(x)||0).toFixed(2);
-
-}
-
-
-function pipSize(symbol){
-
-if(symbol==="USD/JPY")
-return 0.01;
-
-if(symbol==="XAU/USD")
-return 0.01;
-
-return 0.0001;
-
-}
-
-
-function pipsBetween(symbol,from,to){
-
-let size=pipSize(symbol);
-
-return(
-(Number(to)-Number(from))/size
-);
-
-}
-
-
-function tradePips(t){
-
-if(!prices[t.symbol])
-return 0;
-
-let p=prices[t.symbol];
-
-let raw=
-t.side==="BUY"
-?p-t.entry
-:t.entry-p;
-
-return raw/pipSize(t.symbol);
-
-}
-
-
-function formatPips(value){
-
-let n=Number(value)||0;
-
-return(
-n>0?"+":""
-)+n.toFixed(1)+" pips";
-
-}
-
-
-function spreadValue(symbol){
-
-if(symbol==="XAU/USD")
-return 0.05;
-
-if(symbol==="USD/JPY")
-return 0.010;
-
-return 0.00010;
-
-}
-
-
-function pnl(t){
-
-let p=prices[t.symbol];
-
-if(!p)
-return 0;
-
-let spread=
-spreadValue(t.symbol);
-
-let current=
-t.side==="BUY"
-?p-spread/2
-:p+spread/2;
-
-let multiplier=
-t.symbol==="XAU/USD"
-?100
-:100000;
-
-return(
-(current-t.entry)*
-(t.side==="BUY"?1:-1)*
-t.lot*
-multiplier
-);
-
-}
-
-
-function marginFor(t){
-
-let multiplier=
-t.symbol==="XAU/USD"
-?100
-:100000;
-
-return(
-t.entry*
-t.lot*
-multiplier
-)/t.leverage;
-
-}
-
-
-function renderTradingView(){
-
-let container=$("tvChart");
-
-container.innerHTML="";
-
-let widget=document.createElement("div");
-
-widget.className=
-"tradingview-widget-container";
-
-widget.style.width="100%";
-
-widget.style.height="100%";
-
-let inner=document.createElement("div");
-
-inner.className=
-"tradingview-widget-container__widget";
-
-inner.style.width="100%";
-
-inner.style.height="100%";
-
-widget.appendChild(inner);
-
-container.appendChild(widget);
-
-
-let script=document.createElement("script");
-
-script.type="text/javascript";
-
-script.src=
-"https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-
-script.async=true;
-
-
-let config={
-
-"autosize":true,
-
-"symbol":tv[selected],
-
-"interval":tvInterval,
-
-"timezone":"Etc/UTC",
-
-"theme":"dark",
-
-"style":"1",
-
-"withdateranges":true,
-
-"hide_side_toolbar":false,
-
-"allow_symbol_change":true,
-
-"save_image":true,
-
-"calendar":false,
-
-"details":false,
-
-"hide_volume":false,
-
-"hotlist":false,
-
-"hide_top_toolbar":false,
-
-"show_popup_button":true,
-
-"popup_width":"1000",
-
-"popup_height":"650",
-
-"locale":"en",
-
-"studies":[
-"RSI@tv-basicstudies",
-"MACD@tv-basicstudies",
-"MASimple@tv-basicstudies"
-],
-
-"support_host":"https://www.tradingview.com"
-
-};
-
-
-script.innerHTML=
-JSON.stringify(config);
-
-widget.appendChild(script);
-
-}
-
-
-function selectSymbol(s){
-
-s=normalizeSymbol(s);
-
-if(!s)
-s="EUR/USD";
-
-if(!tv[s])
-s="EUR/USD";
-
-selected=s;
-
-$("current").textContent=s;
-
-$("orderSym").value=s;
-
-$("currentPrice").textContent=
-prices[s]
-?fmt(s,prices[s])
-:"—";
-
-renderTradingView();
-
-renderWatch();
-
-render();
-
-}
-
-
-$("orderSym").onchange=e=>
-selectSymbol(e.target.value);
-
-
-$("addWatch").onclick=()=>{
-
-let raw=prompt(
-"Symbol: EURUSD, GBPUSD, USDJPY, XAUUSD, AUDUSD, USDCAD"
-);
-
-if(!raw)
-return;
-
-let s=normalizeSymbol(raw);
-
-if(s){
-
-if(!watch.includes(s))
-watch.push(s);
-
-selectSymbol(s);
-
-renderWatch();
-
-save();
-
-}else{
-
-show(
-"Symbol not supported",
-"Try EURUSD, GBPUSD, USDJPY, XAUUSD, AUDUSD or USDCAD."
-);
-
-}
-
-};
-
-
-$("ind").onclick=()=>show(
-"Indicators",
-"TradingView Advanced Chart has its Indicators menu available. RSI, MACD and Moving Average are loaded by default. You can open Indicators inside the chart to search the other supported built-in studies."
-);
-
-
-$("draw").onclick=()=>show(
-"Drawing Tools",
-"Open the drawing toolbar on the left side of the chart. TradingView supports Fib Retracement, Long Position, Short Position, Trendline, Horizontal Line, Rectangle, Text and many other drawing tools."
-);
-
-
-$("alert").onclick=()=>show(
-"Price Alerts",
-"TradingView's chart alert tools are available inside the chart. Your demo BUY/SELL system remains separate from real-money alerts."
-);
-
-
-function setTimeframe(tf){
-
-tvInterval=String(tf);
-
-document.querySelectorAll(".tf-btn")
-.forEach(btn=>{
-btn.classList.toggle(
-"active",
-String(btn.dataset.tf)===String(tf)
-);
-});
-
-renderTradingView();
-
-}
-
-
-document.querySelectorAll(".tf-btn")
-.forEach(btn=>{
-
-btn.onclick=()=>{
-
-setTimeframe(btn.dataset.tf);
-
-};
-
-});
-
-
-$("symSearch").onkeydown=e=>{
-
-if(e.key!=="Enter")
-return;
-
-let s=normalizeSymbol(e.target.value);
-
-if(s){
-
-selectSymbol(s);
-
-e.target.value="";
-
-}else{
-
-show(
-"Symbol Search",
-"Try EURUSD, GBPUSD, USDJPY, XAUUSD, AUDUSD or USDCAD."
-);
-
-}
-
-};
-
-
-$("buy").onclick=()=>
-openTrade("BUY");
-
-$("sell").onclick=()=>
-openTrade("SELL");
-
-
-function openTrade(side){
-
-if(!prices[selected])
-return show(
-"Market Price",
-"Waiting for the latest demo market price."
-);
-
-
-let lot=
-Math.max(
-0.01,
-Number($("lots").value)||0.1
-);
-
-
-let leverage=
-Number($("leverage").value)||30;
-
-
-let temp={
-symbol:selected,
-side:side,
-lot:lot,
-entry:prices[selected],
-leverage:leverage
-};
-
-
-let requiredMargin=
-marginFor(temp);
-
-
-let usedMargin=
-positions.reduce(
-(a,t)=>a+marginFor(t),
-0
-);
-
-
-let floating=
-positions.reduce(
-(a,t)=>a+pnl(t),
-0
-);
-
-
-let equity=
-balance+floating;
-
-
-let freeMargin=
-equity-usedMargin;
-
-
-if(requiredMargin>freeMargin)
-return show(
-"Order Rejected",
-"Not enough free margin for this demo order."
-);
-
-
-positions.push({
-
-symbol:selected,
-side:side,
-lot:lot,
-entry:prices[selected],
-sl:$("sl").value,
-tp:$("tp").value,
-leverage:leverage,
-time:new Date().toISOString()
-
-});
-
-
-$("accountLeverage").textContent=
-leverage+"x";
-
-render();
-
-save();
-
-show(
-"Order Executed",
-side+" "+lot.toFixed(2)+
-" lot "+selected+
-" opened at "+fmt(selected,prices[selected])+
-" using "+leverage+"x demo leverage."
-);
-
-}
-
-
-function closeTrade(i){
-
-let t=positions.splice(i,1)[0];
-
-let p=pnl(t);
-
-let exitPrice=
-prices[t.symbol]||t.entry;
-
-let finalPips=
-pipsBetween(
-t.symbol,
-t.entry,
-exitPrice
-);
-
-if(t.side==="SELL")
-finalPips=-finalPips;
-
-balance+=p;
-
-history.push({
-...t,
-exit:exitPrice,
-pnl:p,
-pips:finalPips,
-closed:new Date().toISOString()
-});
-
-render();
-
-save();
-
-}
-
-
-function checkStops(){
-
-for(
-let i=positions.length-1;
-i>=0;
-i--
-){
-
-let t=positions[i];
-
-let p=prices[t.symbol];
-
-if(!p)
-continue;
-
-let stop=Number(t.sl);
-
-let take=Number(t.tp);
-
-
-if(t.side==="BUY"){
-
-if(stop&&p<=stop){
-closeTrade(i);
-continue;
-}
-
-if(take&&p>=take){
-closeTrade(i);
-continue;
-}
-
-}else{
-
-if(stop&&p>=stop){
-closeTrade(i);
-continue;
-}
-
-if(take&&p<=take){
-closeTrade(i);
-continue;
-}
-
-}
-
-}
-
-}
-
-
-function render(){
-
-let floating=
-positions.reduce(
-(a,t)=>a+pnl(t),
-0
-);
-
-
-let usedMargin=
-positions.reduce(
-(a,t)=>a+marginFor(t),
-0
-);
-
-
-let equity=
-balance+floating;
-
-
-let freeMargin=
-equity-usedMargin;
-
-
-let marginLevel=
-usedMargin>0
-?(equity/usedMargin)*100
-:Infinity;
-
-
-$("balance").textContent=
-money(balance);
-
-$("equity").textContent=
-money(equity);
-
-$("margin").textContent=
-money(usedMargin);
-
-$("freeMargin").textContent=
-money(freeMargin);
-
-$("marginLevel").textContent=
-marginLevel===Infinity
-?"∞"
-:marginLevel.toFixed(2)+"%";
-
-
-$("float").textContent=
-money(floating);
-
-$("float").className=
-floating>=0
-?"green"
-:"red";
-
-
-$("spread").textContent=
-prices[selected]
-?fmt(selected,spreadValue(selected))
-:"—";
-
-
-$("currentPrice").textContent=
-prices[selected]
-?fmt(selected,prices[selected])
-:"—";
-
-
-$("positions").innerHTML=
-
-positions.map((t,i)=>`
-
-<div class="pos">
-
-<b>${t.symbol}</b>
-· ${t.side}
-· ${t.lot.toFixed(2)} lot
-
-<br>
-
-Entry ${fmt(t.symbol,t.entry)}
-· Live
-${prices[t.symbol]
-?fmt(t.symbol,prices[t.symbol])
-:"—"}
-
-<br>
-
-Leverage ${t.leverage}x
-
-<br>
-
-<span class="pip ${
-tradePips(t)>=0
-?"green"
-:"red"
-}">
-${formatPips(tradePips(t))}
-</span>
-
-<br>
-
-<span class="${
-pnl(t)>=0
-?"green"
-:"red"
-}">
-${money(pnl(t))}
-</span>
-
-<button
-class="small"
-onclick="closeTrade(${i})"
->
-Close
-</button>
-
-</div>
-
-`).join("")
-
-||
-
-`<div
-class="muted"
-style="margin-top:8px"
->
-No open positions
-</div>`;
-
-
-$("history").innerHTML=
-
-history
-.slice()
-.reverse()
-.slice(0,15)
-.map(t=>`
-
-<div class="pos">
-
-<b>${t.symbol}</b>
-· ${t.side}
-· ${money(t.pnl)}
-
-<br>
-
-<span class="${
-Number(t.pips)>=0
-?"green"
-:"red"
-}">
-${formatPips(t.pips)}
-</span>
-
-<br>
-
-<span class="muted">
-Entry ${fmt(t.symbol,t.entry)}
-→ Exit ${fmt(t.symbol,t.exit)}
-</span>
-
-<br>
-
-<span class="muted">
-Closed ${new Date(t.closed).toLocaleString()}
-</span>
-
-</div>
-
-`).join("")
-
-||
-
-`<div
-class="muted"
-style="margin-top:8px"
->
-No trades yet
-</div>`;
-
-
-renderWatch();
-
-}
-
-
-function toggleAccountPanel(){
-
-$("rightPanel")
-.classList.toggle("compact");
-
-}
-
-
-$("balanceToggle").onclick=toggleAccountPanel;
-
-
-$("chartMax").onclick=()=>{
-
-$("mainChart")
-.classList.add("chart-fullscreen");
-
-$("chartMax").style.display="none";
-
-$("chartMin").style.display="inline-block";
-
-};
-
-
-$("chartMin").onclick=()=>{
-
-$("mainChart")
-.classList.remove("chart-fullscreen");
-
-$("chartMax").style.display="inline-block";
-
-$("chartMin").style.display="none";
-
-};
-
-
-document.addEventListener(
-"keydown",
-e=>{
-
-if(e.key==="Escape"){
-
-$("mainChart")
-.classList.remove("chart-fullscreen");
-
-$("chartMax").style.display="inline-block";
-
-$("chartMin").style.display="none";
-
-}
-
-}
-);
-
-
-let ws;
-
-try{
-
-ws=new WebSocket(
-(location.protocol==="https:"
-?"wss://"
-:"ws://")
-+location.host
-);
-
-
-ws.onmessage=e=>{
-
-try{
-
-let m=JSON.parse(e.data);
-
-
-if(m.type==="status"){
-
-$("marketStatus").textContent=
-m.connected
-?"● LIVE MARKET"
-:"● MARKET OFFLINE";
-
-}
-
-
-if(
-m.type==="price" &&
-m.data?.symbol &&
-m.data?.price
-){
-
-let normalized=
-normalizeSymbol(m.data.symbol);
-
-if(normalized)
-prices[normalized]=
-Number(m.data.price);
-
-checkStops();
-
-render();
-
-}
-
-}catch(err){
-
-console.log("Market message error",err);
-
-}
-
-};
-
-ws.onerror=e=>{
-console.log("WebSocket error",e);
-};
-
-ws.onclose=()=>{
-
-$("marketStatus").textContent=
-"● MARKET OFFLINE";
-
-};
-
-}catch(e){
-
-console.log("WebSocket error",e);
-
-}
-
-
-setInterval(
-checkStops,
-5000
-);
-
-
-window.addEventListener(
-"resize",
-()=>{
-
-if($("mainChart").classList.contains("chart-fullscreen")){
-
-$("mainChart").style.height=
-"calc(100vh - 58px)";
-
-}
-
-}
-);
-
-
-fetch("/api/me")
-.then(r=>r.ok&&load());
-
-</script>
-
-</body>
-</html>
+<script src="https://s3.tradingview.com/tv.js"></script>

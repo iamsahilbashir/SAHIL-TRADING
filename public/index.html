@@ -1,52 +1,44 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SAHIL TRADING</title>
 
-<title>Sahil Trading Pro</title>
+<script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
-
-html,body{
+*{box-sizing:border-box}
+body{
   margin:0;
-  height:100%;
-  background:#060c0a;
-  color:#e8fff1;
-  font-family:Arial,sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#07100d;
+  color:#fff;
 }
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
 
-button,input,select,textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-/* TOP BAR */
 .top{
-  height:58px;
-  background:#0a1511;
-  border-bottom:1px solid #193328;
+  height:64px;
   display:flex;
   align-items:center;
-  padding:0 12px;
-  gap:12px;
-  position:relative;
+  justify-content:space-between;
+  padding:0 18px;
+  background:#0b1713;
+  border-bottom:1px solid #19352a;
+  position:sticky;
+  top:0;
   z-index:50;
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap:8px;
-  min-width:max-content;
+  gap:10px;
+  font-size:20px;
+  font-weight:800;
+  color:#36e28a;
 }
-
 .brand img{
   width:40px;
   height:40px;
@@ -55,441 +47,523 @@ button{
   border:2px solid #36e28a;
 }
 
-.logo{
-  font-weight:900;
-  font-size:21px;
+.topRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-.logo i{
-  font-style:normal;
+.status{
+  color:#36e28a;
+  font-size:13px;
+}
+
+.btn{
+  border:1px solid #24503d;
+  background:#10221b;
+  color:#fff;
+  padding:9px 13px;
+  border-radius:8px;
+}
+.btn:hover{background:#163127}
+
+.green{
+  background:#36e28a;
+  color:#06120d;
+  border:0;
+  font-weight:700;
+}
+.green:hover{background:#50ee9c}
+
+.red{
+  background:#d94b5b;
+  color:white;
+  border:0;
+}
+
+.auth{
+  min-height:calc(100vh - 64px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+}
+
+.authBox{
+  width:100%;
+  max-width:420px;
+  background:#0c1915;
+  border:1px solid #1e3b2f;
+  border-radius:16px;
+  padding:28px;
+  box-shadow:0 15px 45px rgba(0,0,0,.35);
+}
+
+.authBox h2{
+  margin-top:0;
   color:#36e28a;
 }
 
+.field{
+  margin-bottom:13px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  color:#9bb4aa;
+  margin-bottom:6px;
+}
+
+.field input,
+.field select,
+.field textarea,
 .search{
-  flex:1;
-  max-width:360px;
-}
-
-.search input{
   width:100%;
-  background:#101d17;
-  border:1px solid #294536;
-  border-radius:7px;
-  color:white;
-  padding:9px;
-  outline:none;
-}
-
-.live{
-  font-size:12px;
-  color:#55eb9a;
-  white-space:nowrap;
-}
-
-.small,
-.toolbtn,
-.toolbar button{
-  background:#0d1b15;
-  color:#d8eee3;
-  border:1px solid #294638;
-  border-radius:6px;
-  padding:7px 9px;
-}
-
-.small:hover,
-.toolbtn:hover,
-.toolbar button:hover{
-  background:#193426;
-}
-
-/* AUTH */
-.auth{
-  max-width:410px;
-  margin:60px auto;
-  padding:20px;
-  background:#0c1712;
-  border:1px solid #203b2e;
-  border-radius:14px;
-}
-
-.auth h2{
-  margin-top:0;
-}
-
-.auth input{
-  width:100%;
-  padding:11px;
-  margin:6px 0 12px;
-  background:#07110d;
-  color:white;
-  border:1px solid #284738;
-  border-radius:7px;
-  outline:none;
-}
-
-.primary{
-  width:100%;
-  padding:12px;
-  background:#17864e;
+  background:#07100d;
   color:#fff;
-  border:0;
-  border-radius:7px;
-  font-weight:bold;
+  border:1px solid #25483a;
+  border-radius:8px;
+  padding:11px;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.search:focus{
+  border-color:#36e28a;
+}
+
+.authBtn{
+  width:100%;
+  margin-top:8px;
+  padding:12px;
+}
+
+.switch{
+  text-align:center;
+  margin-top:15px;
+  color:#36e28a;
+  cursor:pointer;
+  font-size:14px;
 }
 
 .err{
-  color:#ff7c86;
+  color:#ff6c78;
+  min-height:20px;
   font-size:13px;
-  margin-top:8px;
+  margin-top:7px;
 }
 
-/* APP */
 .app{
   display:none;
-  height:calc(100vh - 58px);
+  padding:14px;
 }
 
-.layout{
+.grid{
   display:grid;
-  grid-template-columns:215px minmax(0,1fr) 330px;
-  height:100%;
+  grid-template-columns:230px minmax(0,1fr) 290px;
+  gap:12px;
+  align-items:start;
 }
 
-.side,
-.right{
-  background:#0a1511;
+.panel{
+  background:#0b1713;
+  border:1px solid #1b362b;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.panelHead{
+  padding:12px 14px;
+  border-bottom:1px solid #19352a;
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.panelBody{
+  padding:12px;
+}
+
+.watchSearch{
   padding:10px;
-  overflow:auto;
+  border-bottom:1px solid #19352a;
 }
 
-.side{
-  border-right:1px solid #193328;
-}
-
-.right{
-  border-left:1px solid #193328;
-}
-
-.watch{
-  padding:9px;
-  border-radius:6px;
+.watchItem{
+  padding:12px;
+  border-bottom:1px solid #14291f;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   cursor:pointer;
 }
 
-.watch:hover,
-.watch.sel{
-  background:#173426;
+.watchItem:hover{
+  background:#10231b;
 }
 
-/* MAIN */
-.main{
+.watchItem.active{
+  background:#123025;
+}
+
+.watchName{
+  font-weight:700;
+}
+
+.watchPrice{
+  font-size:12px;
+  color:#a9beb6;
+}
+
+.removeWatch{
+  color:#ff6874;
+  margin-left:7px;
+}
+
+.chartPanel{
   min-width:0;
-  display:flex;
-  flex-direction:column;
-  position:relative;
 }
 
-.toolbar{
-  min-height:48px;
+.chartTools{
   display:flex;
+  flex-wrap:wrap;
   gap:6px;
-  align-items:center;
-  padding:6px 8px;
-  border-bottom:1px solid #193328;
-  overflow-x:auto;
-  scrollbar-width:none;
+  padding:8px;
+  border-bottom:1px solid #19352a;
 }
 
-.toolbar::-webkit-scrollbar{
-  display:none;
-}
-
-.chart{
-  position:relative;
-  flex:1;
-  min-height:360px;
-  padding:7px;
-}
-
-.tvbox{
-  width:100%;
-  height:100%;
-  min-height:360px;
+.chartTools button{
+  padding:7px 9px;
   border-radius:7px;
-  overflow:hidden;
+  border:1px solid #264c3b;
+  background:#10221b;
+  color:#fff;
+  font-size:12px;
+}
+
+.chartTools button:hover{
+  background:#163127;
+}
+
+.tvWrap{
+  width:100%;
+  height:600px;
+  position:relative;
   background:#050a08;
 }
 
-.tvbox iframe{
+#tvbox{
   width:100%;
   height:100%;
-  border:0;
 }
 
-/* RIGHT PANEL */
-.ticket,
-.box{
-  background:#0c1914;
-  border:1px solid #1d392b;
-  border-radius:9px;
-  padding:11px;
-  margin-bottom:10px;
+.chartPanel.maximized{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  background:#050a08;
+  border-radius:0;
 }
 
-.row{
+.chartPanel.maximized .tvWrap{
+  height:calc(100vh - 105px);
+}
+
+.chartPanel.maximized .panelHead{
+  border-radius:0;
+}
+
+.current{
+  padding:10px 14px;
   display:flex;
-  gap:7px;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #19352a;
 }
 
-.row>*{
-  flex:1;
+.currentSymbol{
+  font-size:18px;
+  font-weight:800;
 }
 
-.ticket input,
-.ticket select,
-.notes textarea{
+.currentPrice{
+  color:#36e28a;
+  font-weight:800;
+}
+
+.order{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.order .full{
+  grid-column:1/-1;
+}
+
+.order label{
+  display:block;
+  font-size:12px;
+  color:#9bb4aa;
+  margin-bottom:5px;
+}
+
+.order input,
+.order select{
   width:100%;
+  background:#07100d;
+  border:1px solid #25483a;
+  color:#fff;
+  border-radius:7px;
   padding:9px;
-  margin:4px 0 8px;
-  background:#07110d;
-  color:white;
-  border:1px solid #284738;
-  border-radius:6px;
-  outline:none;
 }
 
-.buy,
-.sell{
-  border:0;
-  color:white;
-  padding:11px;
-  border-radius:6px;
-  font-weight:bold;
+.orderBtns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:5px;
 }
 
 .buy{
-  background:#14804a;
+  background:#168f55;
+  border:0;
+  color:white;
+  padding:11px;
+  border-radius:8px;
+  font-weight:800;
 }
 
 .sell{
-  background:#b73e4c;
+  background:#b73849;
+  border:0;
+  color:white;
+  padding:11px;
+  border-radius:8px;
+  font-weight:800;
 }
 
-.muted{
-  color:#8ca69a;
-  font-size:12px;
+.accountCompact .accountDetails{
+  display:none;
 }
 
-.stat{
+.accountRow{
   display:flex;
   justify-content:space-between;
   padding:7px 0;
-  border-bottom:1px solid #183226;
+  border-bottom:1px solid #14291f;
   font-size:13px;
 }
 
-.pos{
-  padding:9px 0;
-  border-bottom:1px solid #183226;
+.accountRow:last-child{border-bottom:0}
+
+.accountValue{
+  color:#36e28a;
+  font-weight:700;
+}
+
+.section{
+  margin-top:12px;
+}
+
+.tableWrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
+
+th,td{
+  padding:9px;
+  border-bottom:1px solid #183128;
+  text-align:left;
   font-size:12px;
 }
 
-.green{
-  color:#42e997;
+th{
+  color:#8fa9a0;
+  font-weight:600;
 }
 
-.red{
-  color:#ff7882;
-}
+.positive{color:#36e28a}
+.negative{color:#ff6673}
 
-.paper{
-  display:inline-block;
-  padding:4px 7px;
-  border:1px solid #296244;
-  border-radius:5px;
-  font-size:10px;
-  color:#55eb9a;
-  margin-left:5px;
+.tradeBtn{
+  padding:5px 8px;
+  border:0;
+  border-radius:6px;
+  background:#b73849;
+  color:#fff;
+  font-size:11px;
 }
 
 .notes textarea{
-  min-height:105px;
+  min-height:150px;
   resize:vertical;
 }
 
-.note-actions{
+.noteBtns{
   display:flex;
-  gap:6px;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:8px;
 }
 
-.note-actions button{
-  flex:1;
+.noteStatus{
+  color:#7f9b91;
+  font-size:12px;
+  margin-top:7px;
 }
 
-.section-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:7px;
+.bottom{
+  margin-top:12px;
 }
 
 .modal{
+  display:none;
   position:fixed;
   inset:0;
-  background:#000b;
-  display:none;
+  background:rgba(0,0,0,.72);
+  z-index:2000;
   align-items:center;
   justify-content:center;
-  z-index:100;
+  padding:20px;
 }
 
-.modal>div{
-  width:min(500px,92%);
-  background:#0c1914;
-  border:1px solid #294638;
-  border-radius:12px;
-  padding:18px;
+.modalBox{
+  width:100%;
+  max-width:480px;
+  background:#0c1915;
+  border:1px solid #25483a;
+  border-radius:13px;
+  padding:20px;
 }
 
-.overlayBadge{
-  position:absolute;
-  left:16px;
-  top:16px;
-  z-index:3;
-  background:#0b1511dd;
-  border:1px solid #294638;
-  border-radius:7px;
-  padding:6px 9px;
-  font-size:11px;
-  pointer-events:none;
+.modalBox h3{
+  color:#36e28a;
+  margin-top:0;
 }
 
-/* MOBILE */
-@media(max-width:1050px){
+.closeModal{
+  float:right;
+  background:none;
+  border:0;
+  color:#fff;
+  font-size:20px;
+}
 
-  .layout{
-    grid-template-columns:175px minmax(0,1fr) 285px;
+.info{
+  color:#a9beb6;
+  line-height:1.6;
+  font-size:14px;
+}
+
+@media(max-width:1100px){
+  .grid{
+    grid-template-columns:200px minmax(0,1fr);
   }
-
-  .logo{
-    font-size:18px;
+  .rightCol{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
   }
 }
 
-@media(max-width:800px){
-
-  .app{
-    height:auto;
-    min-height:calc(100vh - 58px);
-  }
-
-  .layout{
-    display:flex;
-    flex-direction:column;
-  }
-
-  .side{
-    display:none;
-  }
-
-  .main{
-    height:64vh;
-    min-height:440px;
-  }
-
-  .right{
-    border-left:0;
-    border-top:1px solid #193328;
-    max-height:none;
-  }
-
-  .chart{
-    min-height:390px;
-    padding:4px;
-  }
-
-  .tvbox{
-    min-height:390px;
-  }
-
-  .toolbar{
-    min-height:50px;
-    padding:5px;
-  }
-
+@media(max-width:750px){
   .top{
-    position:sticky;
-    top:0;
-    z-index:90;
+    padding:0 10px;
   }
 
-  .search{
-    max-width:none;
+  .brand{
+    font-size:16px;
   }
-
-  .live{
-    font-size:10px;
-  }
-
-  .right{
-    padding:9px;
-  }
-}
-
-@media(max-width:520px){
 
   .brand img{
     width:34px;
     height:34px;
   }
 
-  .logo{
-    font-size:15px;
+  .status{
+    display:none;
   }
 
-  .top{
-    gap:6px;
-    padding:0 7px;
+  .app{
+    padding:7px;
   }
 
-  .top .small{
-    padding:6px;
+  .grid{
+    display:block;
   }
 
-  .main{
-    height:60vh;
-    min-height:400px;
+  .leftCol,
+  .rightCol,
+  .chartPanel{
+    margin-bottom:8px;
   }
 
-  .chart,
-  .tvbox{
-    min-height:350px;
+  .leftCol{
+    display:none;
   }
 
-  .toolbar button{
-    padding:7px 8px;
-    font-size:12px;
+  .rightCol{
+    display:block;
   }
 
-  .row{
-    gap:5px;
+  .tvWrap{
+    height:500px;
+  }
+
+  .chartTools{
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .chartTools button{
+    flex:0 0 auto;
+  }
+
+  .order{
+    grid-template-columns:1fr 1fr;
+  }
+
+  table{
+    min-width:700px;
   }
 }
 
-/* FULLSCREEN CHART */
-.chart-fullscreen{
-  position:fixed !important;
-  inset:58px 0 0 0 !important;
-  width:100vw !important;
-  height:calc(100vh - 58px) !important;
-  z-index:80 !important;
-  background:#060c0a !important;
-  padding:4px !important;
-}
+@media(max-width:450px){
+  .auth{
+    padding:12px;
+  }
 
-/* ACCOUNT COMPACT */
-.account-hidden{
-  display:none !important;
+  .authBox{
+    padding:20px;
+  }
+
+  .tvWrap{
+    height:440px;
+  }
+
+  .order{
+    grid-template-columns:1fr;
+  }
+
+  .order .full{
+    grid-column:auto;
+  }
+
+  .orderBtns{
+    grid-template-columns:1fr 1fr;
+  }
 }
 </style>
 </head>
@@ -497,539 +571,1904 @@ button{
 <body>
 
 <header class="top">
-
   <div class="brand">
     <img src="/profile.jpg" alt="Sahil">
-    <div class="logo">
-      SAHIL <i>TRADING</i>
-    </div>
+    <span>SAHIL TRADING</span>
   </div>
 
-  <div class="search">
-    <input
-      id="symSearch"
-      placeholder="Search symbol e.g. EUR/USD"
-      autocomplete="off">
+  <div class="topRight">
+    <span id="marketStatus" class="status">● MARKET OFFLINE</span>
+    <button id="logout" class="btn red" style="display:none">Logout</button>
   </div>
-
-  <div id="marketStatus" class="live">
-    ● MARKET OFFLINE
-  </div>
-
-  <button class="small" id="logout">
-    Logout
-  </button>
-
 </header>
 
-
+<!-- AUTH -->
 <section id="auth" class="auth">
+  <div class="authBox">
 
-  <h2 id="authTitle">
-    Sahil Trading Account
-  </h2>
+    <h2 id="authTitle">Create Account</h2>
 
-  <div id="nameWrap">
-    <input
-      id="name"
-      placeholder="Full name">
+    <div id="nameWrap" class="field">
+      <label>Name</label>
+      <input id="name" type="text" placeholder="Your name">
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="Email">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input id="pass" type="password" placeholder="Password">
+    </div>
+
+    <button id="authBtn" class="btn green authBtn">Create Account</button>
+
+    <div id="switch" class="switch">
+      Already have an account? Login
+    </div>
+
+    <div id="err" class="err"></div>
   </div>
-
-  <input
-    id="email"
-    type="email"
-    placeholder="Email">
-
-  <input
-    id="pass"
-    type="password"
-    placeholder="Password (6+ characters)">
-
-  <button class="primary" id="authBtn">
-    Create Demo Account
-  </button>
-
-  <p
-    id="switch"
-    class="muted"
-    style="cursor:pointer;text-align:center">
-
-    Already have an account? Login
-
-  </p>
-
-  <div id="err" class="err"></div>
-
 </section>
 
-
+<!-- APP -->
 <section id="app" class="app">
 
-<div class="layout">
+  <div class="grid">
 
+    <!-- LEFT -->
+    <aside class="leftCol panel">
 
-<!-- LEFT SIDEBAR -->
-<aside class="side">
+      <div class="panelHead">
+        Watchlist
+        <button id="addWatch" class="btn" style="padding:4px 7px">+</button>
+      </div>
 
-  <div class="muted">
-    WATCHLIST
-  </div>
+      <div class="watchSearch">
+        <input id="symSearch" class="search" placeholder="Search symbol...">
+      </div>
 
-  <div id="watchlist"></div>
+      <div id="watchlist"></div>
 
-  <button
-    class="toolbtn"
-    style="width:100%;margin-top:10px"
-    id="addWatch">
+    </aside>
 
-    + Add symbol
+    <!-- CENTER -->
+    <main class="chartPanel panel" id="chart">
 
-  </button>
+      <div class="panelHead">
+        <span>Trading Chart</span>
 
-  <div
-    class="box"
-    style="margin-top:10px">
+        <div>
+          <button class="btn" onclick="toggleChartMax()">⛶</button>
+        </div>
+      </div>
 
-    <div class="muted">
-      Chart Tools
-    </div>
-
-    <div
-      style="font-size:12px;line-height:1.55;margin-top:5px">
-
-      TradingView chart provides drawing tools such as
-      trendline, horizontal line, vertical line, rectangle,
-      Fibonacci and measurement tools where supported.
-
-    </div>
-
-  </div>
-
-</aside>
-
-
-<!-- MAIN CHART -->
-<main class="main">
-
-  <div class="toolbar">
-
-    <button onclick="setTVInterval('1')">
-      1m
-    </button>
-
-    <button onclick="setTVInterval('5')">
-      5m
-    </button>
-
-    <button onclick="setTVInterval('15')">
-      15m
-    </button>
-
-    <button onclick="setTVInterval('60')">
-      1H
-    </button>
-
-    <button onclick="setTVInterval('240')">
-      4H
-    </button>
-
-    <button onclick="setTVInterval('D')">
-      1D
-    </button>
-
-    <button onclick="openIndicators()">
-      Indicators
-    </button>
-
-    <button onclick="showAsianRange()">
-      Asian Range
-    </button>
-
-    <button onclick="toggleChartMax()">
-      ⛶ Maximize
-    </button>
-
-  </div>
-
-
-  <div
-    class="chart"
-    id="chart">
-
-    <div class="overlayBadge">
-      TradingView Chart • Live Market Feed
-    </div>
-
-    <div
-      id="tvbox"
-      class="tvbox">
-    </div>
-
-  </div>
-
-</main>
-
-
-<!-- RIGHT PANEL -->
-<aside class="right">
-
-
-  <!-- CURRENT SYMBOL -->
-  <div class="box">
-
-    <div class="section-head">
-
-      <div>
-
-        <b id="current">
+      <div id="current" class="current">
+        <div class="currentSymbol" id="currentSymbol">
           EUR/USD
-        </b>
+        </div>
 
-        <span class="paper">
-          PAPER
-        </span>
+        <div class="currentPrice" id="currentPrice">
+          --
+        </div>
+      </div>
+
+      <div class="chartTools">
+
+        <button onclick="setTVInterval('1')">1m</button>
+        <button onclick="setTVInterval('5')">5m</button>
+        <button onclick="setTVInterval('15')">15m</button>
+        <button onclick="setTVInterval('30')">30m</button>
+        <button onclick="setTVInterval('60')">1H</button>
+        <button onclick="setTVInterval('240')">4H</button>
+        <button onclick="setTVInterval('D')">1D</button>
+
+        <button onclick="openIndicators()">Indicators</button>
+        <button onclick="showAsianRange()">Asian Range</button>
+        <button onclick="showLongShortInfo()">Long/Short</button>
+
+        <button onclick="toggleChartMax()">Maximize</button>
 
       </div>
 
-      <button
-        class="small"
-        onclick="toggleAccount()">
+      <div id="tvbox" class="tvWrap"></div>
 
-        Account ▾
+    </main>
 
-      </button>
+    <!-- RIGHT -->
+    <aside class="rightCol">
 
-    </div>
+      <!-- ORDER -->
+      <div class="panel">
 
+        <div class="panelHead">
+          Order Ticket
+        </div>
 
-    <div
-      id="currentPrice"
-      style="font-size:25px;font-weight:800;margin:8px 0">
+        <div class="panelBody">
 
-      —
+          <div class="order">
 
-    </div>
+            <div class="full">
+              <label>Symbol</label>
+              <select id="orderSym"></select>
+            </div>
 
-    <div class="muted">
-      Latest demo market quote
-    </div>
+            <div>
+              <label>Lots</label>
+              <input id="lots" type="number" value="0.01" min="0.01" step="0.01">
+            </div>
+
+            <div>
+              <label>Leverage</label>
+              <select id="leverage">
+                <option value="10">1:10</option>
+                <option value="20">1:20</option>
+                <option value="50">1:50</option>
+                <option value="100" selected>1:100</option>
+                <option value="200">1:200</option>
+                <option value="500">1:500</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Stop Loss</label>
+              <input id="sl" type="number" step="any" placeholder="Optional">
+            </div>
+
+            <div>
+              <label>Take Profit</label>
+              <input id="tp" type="number" step="any" placeholder="Optional">
+            </div>
+
+            <div class="full orderBtns">
+              <button id="buy" class="buy">BUY</button>
+              <button id="sell" class="sell">SELL</button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <div id="accountBox" class="panel section">
+
+        <div class="panelHead">
+          Account
+          <button class="btn" onclick="toggleAccount()">−</button>
+        </div>
+
+        <div class="panelBody accountDetails">
+
+          <div class="accountRow">
+            <span>Balance</span>
+            <span id="balance" class="accountValue">$10,000.00</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Equity</span>
+            <span id="equity" class="accountValue">$10,000.00</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Margin</span>
+            <span id="margin">$0.00</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Free Margin</span>
+            <span id="freeMargin">$10,000.00</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Margin Level</span>
+            <span id="marginLevel">∞</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Floating P/L</span>
+            <span id="float">$0.00</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Spread</span>
+            <span id="spread">--</span>
+          </div>
+
+          <div class="accountRow">
+            <span>Leverage</span>
+            <span id="accountLeverage">1:100</span>
+          </div>
+
+        </div>
+      </div>
+
+    </aside>
 
   </div>
 
+  <!-- POSITIONS -->
+  <div class="panel section">
 
-  <!-- ORDER TICKET -->
-  <div class="ticket">
-
-    <b>
-      Order
-    </b>
-
-    <select
-      id="orderSym"
-      style="margin-top:8px">
-
-      <option>EUR/USD</option>
-      <option>GBP/USD</option>
-      <option>USD/JPY</option>
-      <option>XAU/USD</option>
-      <option>AUD/USD</option>
-      <option>USD/CAD</option>
-
-    </select>
-
-
-    <div class="row">
-
-      <div>
-
-        <div class="muted">
-          Lots
-        </div>
-
-        <input
-          id="lots"
-          value=".10"
-          type="number"
-          min=".01"
-          step=".01">
-
-      </div>
-
-
-      <div>
-
-        <div class="muted">
-          Leverage
-        </div>
-
-        <select id="leverage">
-
-          <option value="30">
-            30x
-          </option>
-
-          <option value="50">
-            50x
-          </option>
-
-          <option value="100">
-            100x
-          </option>
-
-        </select>
-
-      </div>
-
+    <div class="panelHead">
+      Open Positions
     </div>
 
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th>Lots</th>
+            <th>Entry</th>
+            <th>Current</th>
+            <th>SL</th>
+            <th>TP</th>
+            <th>Pips</th>
+            <th>P/L</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-    <div class="row">
-
-      <div>
-
-        <div class="muted">
-          Stop Loss
-        </div>
-
-        <input
-          id="sl"
-          placeholder="Optional">
-
-      </div>
-
-
-      <div>
-
-        <div class="muted">
-          Take Profit
-        </div>
-
-        <input
-          id="tp"
-          placeholder="Optional">
-
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <button
-        class="buy"
-        id="buy">
-
-        BUY
-
-      </button>
-
-      <button
-        class="sell"
-        id="sell">
-
-        SELL
-
-      </button>
-
+        <tbody id="positions"></tbody>
+      </table>
     </div>
 
   </div>
-
-
-  <!-- ACCOUNT -->
-  <div
-    id="accountBox"
-    class="box">
-
-    <b>
-      Paper Trading Account
-    </b>
-
-
-    <div class="stat">
-      <span>Balance</span>
-      <b id="balance">$10,000.00</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Equity</span>
-      <b id="equity">$10,000.00</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Margin</span>
-      <b id="margin">$0.00</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Free Margin</span>
-      <b id="freeMargin">$10,000.00</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Margin Level</span>
-      <b id="marginLevel">∞</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Floating P/L</span>
-      <b id="float">$0.00</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Spread</span>
-      <b id="spread">—</b>
-    </div>
-
-
-    <div class="stat">
-      <span>Leverage</span>
-      <b id="accountLeverage">30x</b>
-    </div>
-
-  </div>
-
-
-  <!-- OPEN POSITIONS -->
-  <div class="box">
-
-    <div class="section-head">
-
-      <b>
-        Open Positions
-      </b>
-
-      <button
-        class="small"
-        onclick="showLongShortInfo()">
-
-        Long/Short
-
-      </button>
-
-    </div>
-
-    <div id="positions"></div>
-
-  </div>
-
 
   <!-- HISTORY -->
-  <div class="box">
+  <div class="panel section">
 
-    <b>
+    <div class="panelHead">
       Trade History
-    </b>
+    </div>
 
-    <div id="history"></div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th>Lots</th>
+            <th>Entry</th>
+            <th>Exit</th>
+            <th>Pips</th>
+            <th>P/L</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+
+        <tbody id="history"></tbody>
+      </table>
+    </div>
 
   </div>
-
 
   <!-- NOTES -->
-  <div class="box notes">
+  <div class="panel section notes">
 
-    <div class="section-head">
-
-      <b>
-        Trade Plan / Notes
-      </b>
-
-      <button
-        class="small"
-        onclick="clearNotes()">
-
-        Clear
-
-      </button>
-
+    <div class="panelHead">
+      Trade Plan / Notes
     </div>
 
+    <div class="panelBody">
 
-    <textarea
-      id="notes"
-      placeholder="Write your setup, entry reason, SL/TP, risk and observations...">
-    </textarea>
+      <textarea id="notes" placeholder="Write your trade plan, analysis, entry rules, SL/TP plan, psychology notes..."></textarea>
 
+      <div class="noteBtns">
+        <button id="saveNotes" class="btn green">Save Notes</button>
+        <button id="editNotes" class="btn">Edit</button>
+        <button id="deleteNotes" class="btn red">Delete</button>
+      </div>
 
-    <div class="note-actions">
-
-      <button
-        class="small"
-        id="saveNotes">
-
-        Save
-
-      </button>
-
-      <button
-        class="small"
-        id="editNotes">
-
-        Edit
-
-      </button>
-
-      <button
-        class="small"
-        id="deleteNotes">
-
-        Delete
-
-      </button>
-
-    </div>
-
-
-    <div
-      id="noteStatus"
-      class="muted"
-      style="margin-top:7px">
+      <div id="noteStatus" class="noteStatus"></div>
 
     </div>
 
   </div>
-
-</aside>
-
-</div>
 
 </section>
 
-
 <!-- MODAL -->
-<div
-  class="modal"
-  id="modal">
+<div id="modal" class="modal">
 
-  <div>
+  <div class="modalBox">
 
-    <h3 id="modalTitle">
-      Tool
-    </h3>
+    <button class="closeModal" onclick="closeModal()">×</button>
 
-    <p
-      id="modalText"
-      class="muted">
-    </p>
+    <h3 id="modalTitle">Information</h3>
 
-    <button
-      class="primary"
-      onclick="closeModal()">
-
-      Close
-
-    </button>
+    <div id="modalText" class="info"></div>
 
   </div>
 
 </div>
 
+<script>
 
-<script src="https://s3.tradingview.com/tv.js"></script>
+/* =========================
+   GLOBAL VARIABLES
+========================= */
+
+let signup=true;
+
+let prices={};
+
+let balance=10000;
+
+let positions=[];
+
+let history=[];
+
+let watch=[
+  "EUR/USD",
+  "GBP/USD",
+  "USD/JPY",
+  "XAU/USD"
+];
+
+let selected="EUR/USD";
+
+let tvWidget=null;
+
+let tvInterval="15";
+
+let chartMax=false;
+
+let accountCompact=false;
+
+
+/* =========================
+   HELPERS
+========================= */
+
+const $=id=>document.getElementById(id);
+
+const tv={
+  "EUR/USD":"OANDA:EURUSD",
+  "GBP/USD":"OANDA:GBPUSD",
+  "USD/JPY":"OANDA:USDJPY",
+  "XAU/USD":"OANDA:XAUUSD",
+  "AUD/USD":"OANDA:AUDUSD",
+  "USD/CAD":"OANDA:USDCAD"
+};
+
+
+/* =========================
+   SYMBOL NORMALIZATION
+========================= */
+
+function normalizeSymbol(value){
+
+  if(!value)return null;
+
+  let s=String(value)
+    .toUpperCase()
+    .replace(/\s/g,"")
+    .replace(/_/g,"/")
+    .replace(/-/g,"/");
+
+  const map={
+    EURUSD:"EUR/USD",
+    "EUR/USD":"EUR/USD",
+
+    GBPUSD:"GBP/USD",
+    "GBP/USD":"GBP/USD",
+
+    USDJPY:"USD/JPY",
+    "USD/JPY":"USD/JPY",
+
+    XAUUSD:"XAU/USD",
+    "XAU/USD":"XAU/USD",
+    GOLD:"XAU/USD",
+
+    AUDUSD:"AUD/USD",
+    "AUD/USD":"AUD/USD",
+
+    USDCAD:"USD/CAD",
+    "USD/CAD":"USD/CAD"
+  };
+
+  return map[s]||null;
+}
+
+
+/* =========================
+   AUTH MODE
+========================= */
+
+$("switch").onclick=()=>{
+
+  signup=!signup;
+
+  $("authTitle").textContent=
+    signup ? "Create Account":"Login";
+
+  $("nameWrap").style.display=
+    signup ? "block":"none";
+
+  $("authBtn").textContent=
+    signup ? "Create Account":"Login";
+
+  $("switch").textContent=
+    signup
+    ? "Already have an account? Login"
+    : "Don't have an account? Create one";
+
+  $("err").textContent="";
+};
+
+
+/* =========================
+   AUTH SUBMIT
+========================= */
+
+$("authBtn").onclick=async()=>{
+
+  const name=$("name").value.trim();
+
+  const email=$("email").value.trim();
+
+  const password=$("pass").value;
+
+  $("err").textContent="";
+
+  if(!email||!password){
+
+    $("err").textContent="Enter email and password.";
+
+    return;
+  }
+
+  if(signup&&!name){
+
+    $("err").textContent="Enter your name.";
+
+    return;
+  }
+
+  try{
+
+    const endpoint=
+      signup ? "/api/signup":"/api/login";
+
+    const body=signup
+      ? {name,email,password}
+      : {email,password};
+
+    const r=await fetch(endpoint,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body)
+    });
+
+    const data=await r.json().catch(()=>({}));
+
+    if(!r.ok){
+
+      $("err").textContent=
+        data.error||"Authentication failed.";
+
+      return;
+    }
+
+    $("auth").style.display="none";
+
+    $("app").style.display="block";
+
+    $("logout").style.display="block";
+
+    await load();
+
+    render();
+
+    renderTV();
+
+  }catch(e){
+
+    $("err").textContent=
+      "Connection error. Try again.";
+
+    console.log(e);
+  }
+};
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+$("logout").onclick=async()=>{
+
+  try{
+    await fetch("/api/logout",{
+      method:"POST"
+    });
+  }catch(e){}
+
+  location.reload();
+};
+
+
+/* =========================
+   SAVE STATE
+========================= */
+
+async function save(){
+
+  try{
+
+    await fetch("/api/state",{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+
+        balance,
+        positions,
+        history,
+        watchlist:watch,
+        notes:$("notes")?.value||""
+
+      })
+
+    });
+
+  }catch(e){
+
+    console.log("save error",e);
+
+  }
+}
+
+
+/* =========================
+   LOAD STATE
+========================= */
+
+async function load(){
+
+  try{
+
+    const r=await fetch("/api/me");
+
+    if(!r.ok)return;
+
+    const data=await r.json();
+
+    if(typeof data.balance==="number")
+      balance=data.balance;
+
+    if(Array.isArray(data.positions))
+      positions=data.positions;
+
+    if(Array.isArray(data.history))
+      history=data.history;
+
+    if(Array.isArray(data.watchlist)&&data.watchlist.length)
+      watch=data.watchlist;
+
+    loadNotes();
+
+    renderWatchlist();
+
+    fillOrderSymbols();
+
+    updateCurrent();
+
+    render();
+
+  }catch(e){
+
+    console.log("load error",e);
+
+  }
+}
+
+
+/* =========================
+   WATCHLIST
+========================= */
+
+function renderWatchlist(){
+
+  const box=$("watchlist");
+
+  box.innerHTML="";
+
+  const search=
+    $("symSearch").value.trim().toUpperCase();
+
+  watch
+    .filter(s=>s.includes(search))
+    .forEach(symbol=>{
+
+      const row=document.createElement("div");
+
+      row.className=
+        "watchItem"+
+        (symbol===selected?" active":"");
+
+      const price=
+        prices[symbol]!==undefined
+        ? formatPrice(symbol,prices[symbol])
+        :"--";
+
+      row.innerHTML=`
+
+        <div onclick="selectSymbol('${symbol}')">
+
+          <div class="watchName">
+            ${symbol}
+          </div>
+
+          <div class="watchPrice">
+            ${price}
+          </div>
+
+        </div>
+
+        <div
+          class="removeWatch"
+          onclick="removeWatch('${symbol}',event)"
+        >
+          ×
+        </div>
+
+      `;
+
+      box.appendChild(row);
+
+    });
+}
+
+
+$("symSearch").addEventListener(
+  "input",
+  renderWatchlist
+);
+
+
+/* =========================
+   ADD WATCH
+========================= */
+
+$("addWatch").onclick=()=>{
+
+  const symbol=prompt(
+    "Enter symbol: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD or USD/CAD"
+  );
+
+  if(!symbol)return;
+
+  const normalized=normalizeSymbol(symbol);
+
+  if(!normalized){
+
+    alert("Supported symbols only.");
+
+    return;
+  }
+
+  if(!watch.includes(normalized)){
+
+    watch.push(normalized);
+
+    save();
+
+  }
+
+  selected=normalized;
+
+  renderWatchlist();
+
+  fillOrderSymbols();
+
+  updateCurrent();
+
+  renderTV();
+
+};
+
+
+/* =========================
+   REMOVE WATCH
+========================= */
+
+function removeWatch(symbol,event){
+
+  if(event)event.stopPropagation();
+
+  if(watch.length<=1){
+
+    alert("At least one symbol must remain.");
+
+    return;
+  }
+
+  watch=watch.filter(x=>x!==symbol);
+
+  if(selected===symbol)
+    selected=watch[0];
+
+  save();
+
+  renderWatchlist();
+
+  fillOrderSymbols();
+
+  updateCurrent();
+
+  renderTV();
+}
+
+
+/* =========================
+   SELECT SYMBOL
+========================= */
+
+function selectSymbol(symbol){
+
+  selected=symbol;
+
+  renderWatchlist();
+
+  fillOrderSymbols();
+
+  $("orderSym").value=symbol;
+
+  updateCurrent();
+
+  renderTV();
+
+}
+
+
+/* =========================
+   ORDER SYMBOLS
+========================= */
+
+function fillOrderSymbols(){
+
+  const select=$("orderSym");
+
+  select.innerHTML="";
+
+  watch.forEach(symbol=>{
+
+    const option=document.createElement("option");
+
+    option.value=symbol;
+
+    option.textContent=symbol;
+
+    select.appendChild(option);
+
+  });
+
+  select.value=selected;
+}
+
+
+$("orderSym").onchange=()=>{
+
+  selected=$("orderSym").value;
+
+  updateCurrent();
+
+  renderWatchlist();
+
+  renderTV();
+
+};
+
+
+/* =========================
+   PRICE FORMAT
+========================= */
+
+function formatPrice(symbol,price){
+
+  if(price===undefined||price===null||
+     isNaN(price))return "--";
+
+  if(symbol==="USD/JPY")
+    return Number(price).toFixed(3);
+
+  if(symbol==="XAU/USD")
+    return Number(price).toFixed(2);
+
+  return Number(price).toFixed(5);
+}
+
+
+/* =========================
+   CURRENT PRICE
+========================= */
+
+function updateCurrent(){
+
+  $("currentSymbol").textContent=selected;
+
+  $("currentPrice").textContent=
+    prices[selected]!==undefined
+    ? formatPrice(selected,prices[selected])
+    : "--";
+
+  $("orderSym").value=selected;
+
+}
+
+
+/* =========================
+   PIP SIZE
+========================= */
+
+function pipSize(symbol){
+
+  if(symbol==="USD/JPY")
+    return 0.01;
+
+  /*
+    Gold convention used by this demo:
+    0.01 price movement = 1 pip
+  */
+
+  if(symbol==="XAU/USD")
+    return 0.01;
+
+  return 0.0001;
+}
+
+
+/* =========================
+   PIPS
+========================= */
+
+function calculatePips(symbol,side,entry,current){
+
+  if(entry===undefined||
+     current===undefined||
+     isNaN(entry)||
+     isNaN(current))
+    return 0;
+
+  const diff=
+    side==="BUY"
+    ? current-entry
+    : entry-current;
+
+  return diff/pipSize(symbol);
+}
+
+
+/* =========================
+   P/L
+========================= */
+
+function calculatePL(symbol,side,entry,current,lots){
+
+  if(entry===undefined||
+     current===undefined)
+    return 0;
+
+  let multiplier=
+    symbol==="XAU/USD"
+    ? 100
+    : 100000;
+
+  const diff=
+    side==="BUY"
+    ? current-entry
+    : entry-current;
+
+  return diff*lots*multiplier;
+}
+
+
+/* =========================
+   OPEN TRADE
+========================= */
+
+async function openTrade(side){
+
+  const symbol=$("orderSym").value;
+
+  const price=prices[symbol];
+
+  const lots=Number($("lots").value);
+
+  const leverage=Number($("leverage").value);
+
+  const sl=
+    $("sl").value===""
+    ? null
+    : Number($("sl").value);
+
+  const tp=
+    $("tp").value===""
+    ? null
+    : Number($("tp").value);
+
+  if(!price){
+
+    alert("Live price is not available.");
+
+    return;
+  }
+
+  if(!lots||lots<=0){
+
+    alert("Enter valid lot size.");
+
+    return;
+  }
+
+  if(sl!==null){
+
+    if(side==="BUY"&&sl>=price){
+
+      alert("BUY Stop Loss should be below entry.");
+
+      return;
+    }
+
+    if(side==="SELL"&&sl<=price){
+
+      alert("SELL Stop Loss should be above entry.");
+
+      return;
+    }
+  }
+
+  if(tp!==null){
+
+    if(side==="BUY"&&tp<=price){
+
+      alert("BUY Take Profit should be above entry.");
+
+      return;
+    }
+
+    if(side==="SELL"&&tp>=price){
+
+      alert("SELL Take Profit should be below entry.");
+
+      return;
+    }
+  }
+
+  const marginRequired=
+    symbol==="XAU/USD"
+    ? price*lots*100/leverage
+    : price*lots*100000/leverage;
+
+  if(marginRequired>freeMargin()){
+
+    alert("Not enough free margin.");
+
+    return;
+  }
+
+  const trade={
+
+    id:Date.now()+Math.random(),
+
+    symbol,
+
+    side,
+
+    lots,
+
+    leverage,
+
+    entry:Number(price),
+
+    sl,
+
+    tp,
+
+    openTime:new Date().toISOString()
+
+  };
+
+  positions.push(trade);
+
+  await save();
+
+  render();
+
+}
+
+
+/* =========================
+   CLOSE TRADE
+========================= */
+
+async function closeTrade(id){
+
+  const index=
+    positions.findIndex(x=>x.id===id);
+
+  if(index===-1)return;
+
+  const trade=positions[index];
+
+  const exit=prices[trade.symbol];
+
+  if(exit===undefined){
+
+    alert("Live price unavailable.");
+
+    return;
+  }
+
+  const pips=
+    calculatePips(
+      trade.symbol,
+      trade.side,
+      trade.entry,
+      exit
+    );
+
+  const pl=
+    calculatePL(
+      trade.symbol,
+      trade.side,
+      trade.entry,
+      exit,
+      trade.lots
+    );
+
+  balance+=pl;
+
+  history.unshift({
+
+    ...trade,
+
+    exit:Number(exit),
+
+    pips:Number(pips),
+
+    pl:Number(pl),
+
+    closeTime:new Date().toISOString()
+
+  });
+
+  positions.splice(index,1);
+
+  await save();
+
+  render();
+}
+
+
+/* =========================
+   BUY / SELL
+========================= */
+
+$("buy").onclick=()=>openTrade("BUY");
+
+$("sell").onclick=()=>openTrade("SELL");
+
+
+/* =========================
+   FREE MARGIN
+========================= */
+
+function marginUsed(){
+
+  let total=0;
+
+  positions.forEach(p=>{
+
+    const price=
+      prices[p.symbol]||p.entry;
+
+    const m=
+      p.symbol==="XAU/USD"
+      ? price*p.lots*100/p.leverage
+      : price*p.lots*100000/p.leverage;
+
+    total+=m;
+
+  });
+
+  return total;
+}
+
+function floatingPL(){
+
+  let total=0;
+
+  positions.forEach(p=>{
+
+    const price=prices[p.symbol];
+
+    if(price!==undefined){
+
+      total+=calculatePL(
+        p.symbol,
+        p.side,
+        p.entry,
+        price,
+        p.lots
+      );
+
+    }
+
+  });
+
+  return total;
+}
+
+function equity(){
+
+  return balance+floatingPL();
+}
+
+function freeMargin(){
+
+  return equity()-marginUsed();
+}
+
+
+/* =========================
+   STOP / TP CHECK
+========================= */
+
+async function checkStops(){
+
+  let changed=false;
+
+  const toClose=[];
+
+  positions.forEach(p=>{
+
+    const price=prices[p.symbol];
+
+    if(price===undefined)return;
+
+    if(p.side==="BUY"){
+
+      if(p.sl!==null&&price<=p.sl)
+        toClose.push(p.id);
+
+      else if(p.tp!==null&&price>=p.tp)
+        toClose.push(p.id);
+
+    }else{
+
+      if(p.sl!==null&&price>=p.sl)
+        toClose.push(p.id);
+
+      else if(p.tp!==null&&price<=p.tp)
+        toClose.push(p.id);
+
+    }
+
+  });
+
+  for(const id of toClose){
+
+    await closeTrade(id);
+
+    changed=true;
+
+  }
+
+  if(changed)render();
+}
+
+
+/* =========================
+   RENDER ACCOUNT
+========================= */
+
+function money(value){
+
+  return "$"+
+    Number(value||0).toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+}
+
+function renderAccount(){
+
+  const eq=equity();
+
+  const margin=marginUsed();
+
+  const free=eq-margin;
+
+  $("balance").textContent=money(balance);
+
+  $("equity").textContent=money(eq);
+
+  $("margin").textContent=money(margin);
+
+  $("freeMargin").textContent=money(free);
+
+  $("float").textContent=money(floatingPL());
+
+  if(margin>0)
+    $("marginLevel").textContent=
+      ((eq/margin)*100).toFixed(2)+"%";
+  else
+    $("marginLevel").textContent="∞";
+
+  $("accountLeverage").textContent=
+    "1:"+$("leverage").value;
+
+}
+
+
+/* =========================
+   RENDER POSITIONS
+========================= */
+
+function renderPositions(){
+
+  const body=$("positions");
+
+  body.innerHTML="";
+
+  if(!positions.length){
+
+    body.innerHTML=`
+      <tr>
+        <td colspan="10" style="text-align:center;color:#71877e">
+          No open positions
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  positions.forEach(p=>{
+
+    const current=
+      prices[p.symbol]!==undefined
+      ? prices[p.symbol]
+      : p.entry;
+
+    const pips=
+      calculatePips(
+        p.symbol,
+        p.side,
+        p.entry,
+        current
+      );
+
+    const pl=
+      calculatePL(
+        p.symbol,
+        p.side,
+        p.entry,
+        current,
+        p.lots
+      );
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>${p.symbol}</td>
+
+      <td class="${p.side==="BUY"?"positive":"negative"}">
+        ${p.side}
+      </td>
+
+      <td>${p.lots}</td>
+
+      <td>${formatPrice(p.symbol,p.entry)}</td>
+
+      <td>${formatPrice(p.symbol,current)}</td>
+
+      <td>${p.sl===null?"--":formatPrice(p.symbol,p.sl)}</td>
+
+      <td>${p.tp===null?"--":formatPrice(p.symbol,p.tp)}</td>
+
+      <td class="${pips>=0?"positive":"negative"}">
+        ${pips.toFixed(1)}
+      </td>
+
+      <td class="${pl>=0?"positive":"negative"}">
+        ${money(pl)}
+      </td>
+
+      <td>
+        <button
+          class="tradeBtn"
+          onclick="closeTrade('${p.id}')"
+        >
+          Close
+        </button>
+      </td>
+
+    `;
+
+    body.appendChild(tr);
+
+  });
+}
+
+
+/* =========================
+   RENDER HISTORY
+========================= */
+
+function renderHistory(){
+
+  const body=$("history");
+
+  body.innerHTML="";
+
+  if(!history.length){
+
+    body.innerHTML=`
+      <tr>
+        <td colspan="8" style="text-align:center;color:#71877e">
+          No trade history
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  history.forEach(h=>{
+
+    const tr=document.createElement("tr");
+
+    const time=
+      h.closeTime
+      ? new Date(h.closeTime).toLocaleString()
+      : "--";
+
+    tr.innerHTML=`
+
+      <td>${h.symbol}</td>
+
+      <td class="${h.side==="BUY"?"positive":"negative"}">
+        ${h.side}
+      </td>
+
+      <td>${h.lots}</td>
+
+      <td>${formatPrice(h.symbol,h.entry)}</td>
+
+      <td>${formatPrice(h.symbol,h.exit)}</td>
+
+      <td class="${h.pips>=0?"positive":"negative"}">
+        ${Number(h.pips||0).toFixed(1)}
+      </td>
+
+      <td class="${h.pl>=0?"positive":"negative"}">
+        ${money(h.pl)}
+      </td>
+
+      <td>${time}</td>
+
+    `;
+
+    body.appendChild(tr);
+
+  });
+}
+
+
+/* =========================
+   RENDER EVERYTHING
+========================= */
+
+function render(){
+
+  renderWatchlist();
+
+  updateCurrent();
+
+  renderPositions();
+
+  renderHistory();
+
+  renderAccount();
+
+}
+
+
+/* =========================
+   TRADINGVIEW
+========================= */
+
+function renderTV(){
+
+  if(!window.TradingView){
+
+    setTimeout(renderTV,300);
+
+    return;
+  }
+
+  $("tvbox").innerHTML="";
+
+  tvWidget=
+    new TradingView.widget({
+
+      autosize:true,
+
+      symbol:
+        tv[selected]||
+        "OANDA:EURUSD",
+
+      interval:tvInterval,
+
+      timezone:"Etc/UTC",
+
+      theme:"dark",
+
+      style:"1",
+
+      locale:"en",
+
+      enable_publishing:false,
+
+      hide_top_toolbar:false,
+
+      hide_side_toolbar:false,
+
+      allow_symbol_change:true,
+
+      save_image:true,
+
+      withdateranges:true,
+
+      details:false,
+
+      hotlist:false,
+
+      calendar:false,
+
+      studies:[
+
+        "RSI@tv-basicstudies",
+
+        "MACD@tv-basicstudies",
+
+        "MASimple@tv-basicstudies"
+
+      ],
+
+      container_id:"tvbox"
+
+    });
+
+}
+
+
+/* =========================
+   TIMEFRAME
+========================= */
+
+function setTVInterval(interval){
+
+  tvInterval=interval;
+
+  renderTV();
+
+}
+
+
+/* =========================
+   INDICATORS
+========================= */
+
+function openIndicators(){
+
+  showModal(
+    "Indicators",
+    `
+    <p>
+      TradingView chart ke <b>Indicators</b> button se
+      hundreds of available indicators open kar sakte ho.
+    </p>
+
+    <p>
+      Default chart mein RSI, MACD aur Moving Average
+      already enabled hain.
+    </p>
+
+    <p>
+      Aap EMA, Bollinger Bands, Stochastic, ATR,
+      Volume aur doosre built-in indicators bhi add kar sakte ho.
+    </p>
+    `
+  );
+
+}
+
+
+/* =========================
+   ASIAN RANGE
+========================= */
+
+function showAsianRange(){
+
+  showModal(
+    "Asian Range",
+    `
+    <p>
+      Asian session range ko chart par manually mark
+      karne ke liye TradingView drawing tools use karo.
+    </p>
+
+    <p>
+      Common Asian session analysis mein session ka
+      High aur Low mark kiya jata hai.
+    </p>
+
+    <p>
+      TradingView ke built-in session indicators bhi
+      Indicators menu se search kiye ja sakte hain.
+    </p>
+    `
+  );
+
+}
+
+
+/* =========================
+   LONG / SHORT INFO
+========================= */
+
+function showLongShortInfo(){
+
+  showModal(
+    "Long / Short Position",
+    `
+    <p>
+      <b>Long / Buy:</b> Price increase expect karne par.
+    </p>
+
+    <p>
+      <b>Short / Sell:</b> Price decrease expect karne par.
+    </p>
+
+    <p>
+      TradingView ke drawing toolbar mein
+      Long Position aur Short Position tools available
+      hon to unka use chart par risk/reward calculate
+      karne ke liye kar sakte ho.
+    </p>
+
+    <p>
+      Order Ticket ka BUY/SELL button actual demo
+      position open karta hai.
+    </p>
+    `
+  );
+
+}
+
+
+/* =========================
+   CHART MAXIMIZE
+========================= */
+
+function toggleChartMax(){
+
+  chartMax=!chartMax;
+
+  $("chart").classList.toggle(
+    "maximized",
+    chartMax
+  );
+
+  setTimeout(()=>{
+
+    try{
+
+      if(tvWidget&&tvWidget.resize)
+        tvWidget.resize();
+
+    }catch(e){}
+
+  },100);
+
+}
+
+
+/* =========================
+   ACCOUNT COMPACT
+========================= */
+
+function toggleAccount(){
+
+  accountCompact=!accountCompact;
+
+  $("accountBox").classList.toggle(
+    "accountCompact",
+    accountCompact
+  );
+
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+function showModal(title,text){
+
+  $("modalTitle").textContent=title;
+
+  $("modalText").innerHTML=text;
+
+  $("modal").style.display="flex";
+
+}
+
+function closeModal(){
+
+  $("modal").style.display="none";
+
+}
+
+$("modal").addEventListener(
+  "click",
+  e=>{
+
+    if(e.target===$("modal"))
+      closeModal();
+
+  }
+);
+
+
+/* =========================
+   NOTES
+========================= */
+
+function noteKey(){
+
+  const email=
+    $("email").value.trim().toLowerCase();
+
+  return "sahil_trading_notes_"+email;
+}
+
+
+function loadNotes(){
+
+  const saved=
+    localStorage.getItem(noteKey());
+
+  if(saved!==null){
+
+    $("notes").value=saved;
+
+    $("noteStatus").textContent=
+      "Notes loaded.";
+
+  }
+
+}
+
+
+$("saveNotes").onclick=async()=>{
+
+  const value=$("notes").value;
+
+  localStorage.setItem(
+    noteKey(),
+    value
+  );
+
+  try{
+    await save();
+  }catch(e){}
+
+  $("noteStatus").textContent=
+    "Notes saved.";
+
+};
+
+
+$("editNotes").onclick=()=>{
+
+  $("notes").focus();
+
+  $("noteStatus").textContent=
+    "Editing notes...";
+
+};
+
+
+function clearNotes(){
+
+  $("notes").value="";
+
+  localStorage.removeItem(noteKey());
+
+  $("noteStatus").textContent=
+    "Notes deleted.";
+
+  save();
+
+}
+
+$("deleteNotes").onclick=clearNotes;
+
+
+/* =========================
+   WEBSOCKET LIVE MARKET
+========================= */
+
+let ws;
+
+try{
+
+  ws=new WebSocket(
+    (location.protocol==="https:"
+      ?"wss://"
+      :"ws://")+
+    location.host
+  );
+
+  ws.onopen=()=>{
+
+    $("marketStatus").textContent=
+      "● LIVE MARKET";
+
+  };
+
+  ws.onmessage=e=>{
+
+    try{
+
+      const m=JSON.parse(e.data);
+
+      if(m.type==="status"){
+
+        $("marketStatus").textContent=
+          m.connected
+          ?"● LIVE MARKET"
+          :"● MARKET OFFLINE";
+
+      }
+
+      if(
+        m.type==="price" &&
+        m.data?.symbol &&
+        m.data?.price
+      ){
+
+        const normalized=
+          normalizeSymbol(
+            m.data.symbol
+          );
+
+        if(normalized){
+
+          prices[normalized]=
+            Number(m.data.price);
+
+        }
+
+        checkStops();
+
+        render();
+
+      }
+
+    }catch(err){
+
+      console.log(
+        "WS message error",
+        err
+      );
+
+    }
+
+  };
+
+  ws.onclose=()=>{
+
+    $("marketStatus").textContent=
+      "● MARKET OFFLINE";
+
+  };
+
+  ws.onerror=()=>{
+
+    $("marketStatus").textContent=
+      "● MARKET OFFLINE";
+
+  };
+
+}catch(e){
+
+  console.log(
+    "WebSocket error",
+    e
+  );
+
+}
+
+
+/* =========================
+   PERIODIC STOP CHECK
+========================= */
+
+setInterval(
+  checkStops,
+  5000
+);
+
+
+/* =========================
+   AUTO LOGIN
+========================= */
+
+fetch("/api/me")
+.then(r=>{
+
+  if(r.ok){
+
+    $("auth").style.display="none";
+
+    $("app").style.display="block";
+
+    $("logout").style.display="block";
+
+    load().then(()=>{
+
+      render();
+
+      renderTV();
+
+    });
+
+  }
+
+})
+.catch(e=>{
+
+  console.log(
+    "session check error",
+    e
+  );
+
+});
+
+
+/* =========================
+   INITIAL UI
+========================= */
+
+renderWatchlist();
+
+fillOrderSymbols();
+
+render();
+
+</script>
+
+</body>
+</html>

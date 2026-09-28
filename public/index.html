@@ -9,58 +9,292 @@
 *{box-sizing:border-box}
 body{margin:0;background:#060c0a;color:#e8fff1;font-family:Arial,sans-serif}
 button,input,select{font:inherit}
-.top{height:58px;background:#0a1511;border-bottom:1px solid #193328;display:flex;align-items:center;padding:0 14px;gap:15px}
-.logo{font-weight:900;font-size:22px}.logo i{font-style:normal;color:#36e28a}
+
+.top{
+height:58px;background:#0a1511;border-bottom:1px solid #193328;
+display:flex;align-items:center;padding:0 14px;gap:15px
+}
+
+.brand{display:flex;align-items:center;gap:9px}
+
+.brand img{
+width:40px;
+height:40px;
+border-radius:50%;
+object-fit:cover;
+border:2px solid #36e28a
+}
+
+.logo{font-weight:900;font-size:22px}
+.logo i{font-style:normal;color:#36e28a}
+
 .search{flex:1;max-width:360px}
-.search input{width:100%;background:#101d17;border:1px solid #294536;border-radius:7px;color:white;padding:9px}
+
+.search input{
+width:100%;
+background:#101d17;
+border:1px solid #294536;
+border-radius:7px;
+color:white;
+padding:9px
+}
+
 .live{font-size:12px;color:#55eb9a}
-.auth{max-width:410px;margin:60px auto;padding:20px;background:#0c1712;border:1px solid #203b2e;border-radius:14px}
+
+.auth{
+max-width:410px;
+margin:60px auto;
+padding:20px;
+background:#0c1712;
+border:1px solid #203b2e;
+border-radius:14px
+}
+
 .auth h2{margin-top:0}
-.auth input{width:100%;padding:11px;margin:6px 0 12px;background:#07110d;color:white;border:1px solid #284738;border-radius:7px}
-.primary{width:100%;padding:12px;background:#17864e;color:#fff;border:0;border-radius:7px;font-weight:bold}
+
+.auth input{
+width:100%;
+padding:11px;
+margin:6px 0 12px;
+background:#07110d;
+color:white;
+border:1px solid #284738;
+border-radius:7px
+}
+
+.primary{
+width:100%;
+padding:12px;
+background:#17864e;
+color:#fff;
+border:0;
+border-radius:7px;
+font-weight:bold
+}
+
 .err{color:#ff7c86;font-size:13px;margin-top:8px}
 .app{display:none}
-.layout{display:grid;grid-template-columns:220px 1fr 320px;height:calc(100vh - 58px)}
-.side,.right{background:#0a1511;border-right:1px solid #193328;padding:12px;overflow:auto}
-.right{border-right:0;border-left:1px solid #193328}
-.watch{padding:9px;border-radius:6px;cursor:pointer}.watch:hover,.watch.sel{background:#173426}
-.main{min-width:0;display:flex;flex-direction:column}
-.toolbar{height:46px;display:flex;gap:6px;align-items:center;padding:6px 9px;border-bottom:1px solid #193328;overflow:auto}
-.toolbar button,.toolbtn{background:#0d1b15;color:#cce5d7;border:1px solid #294638;border-radius:5px;padding:7px 9px;white-space:nowrap}
-.toolbar button:hover{background:#193426}
-.chart{flex:1;min-height:380px;padding:8px}
-.chart iframe{width:100%;height:100%;min-height:380px;border:0;border-radius:7px}
-.ticket,.box{background:#0c1914;border:1px solid #1d392b;border-radius:9px;padding:12px;margin-bottom:12px}
-.row{display:flex;gap:7px}.row>*{flex:1}
-.ticket input,.ticket select{width:100%;padding:9px;margin:4px 0 8px;background:#07110d;color:white;border:1px solid #284738;border-radius:6px}
-.buy,.sell{border:0;color:white;padding:11px;border-radius:6px;font-weight:bold;cursor:pointer}
-.buy{background:#14804a}.sell{background:#b73e4c}
-.muted{color:#8ca69a;font-size:12px}
-.stat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #183226;font-size:13px}
-.pos{padding:9px 0;border-bottom:1px solid #183226;font-size:12px}
-.green{color:#42e997}.red{color:#ff7882}
-.small{padding:6px 8px;background:#111f18;color:white;border:1px solid #294638;border-radius:5px;font-size:11px}
-.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:20}
-.modal>div{width:min(500px,92%);background:#0c1914;border:1px solid #294638;border-radius:12px;padding:18px}
-.paper{display:inline-block;padding:4px 8px;border:1px solid #296244;border-radius:5px;font-size:11px;color:#55eb9a;margin-left:6px}
-@media(max-width:950px){.layout{grid-template-columns:180px 1fr}.right{display:block}}
-@media(max-width:750px){.layout{grid-template-columns:1fr}.side{display:none}.right{border-left:0;border-top:1px solid #193328;height:auto;max-height:none}.chart{min-height:420px}.chart iframe{min-height:420px}}
-@media(max-width:650px){.top{gap:7px;padding:0 8px}.logo{font-size:17px}.search{max-width:none}.live{font-size:10px}.chart{min-height:360px}.chart iframe{min-height:360px}}
+
+.layout{
+display:grid;
+grid-template-columns:220px 1fr 320px;
+height:calc(100vh - 58px)
+}
+
+.side,.right{
+background:#0a1511;
+border-right:1px solid #193328;
+padding:12px;
+overflow:auto
+}
+
+.right{
+border-right:0;
+border-left:1px solid #193328
+}
+
+.watch{
+padding:9px;
+border-radius:6px;
+cursor:pointer
+}
+
+.watch:hover,.watch.sel{
+background:#173426
+}
+
+.main{
+min-width:0;
+display:flex;
+flex-direction:column
+}
+
+.toolbar{
+height:46px;
+display:flex;
+gap:6px;
+align-items:center;
+padding:6px 9px;
+border-bottom:1px solid #193328;
+overflow:auto
+}
+
+.toolbar button,.toolbtn{
+background:#0d1b15;
+color:#cce5d7;
+border:1px solid #294638;
+border-radius:5px;
+padding:7px 9px;
+white-space:nowrap
+}
+
+.toolbar button:hover{
+background:#193426
+}
+
+.chart{
+flex:1;
+min-height:380px;
+padding:8px
+}
+
+.chart iframe{
+width:100%;
+height:100%;
+min-height:380px;
+border:0;
+border-radius:7px
+}
+
+.ticket,.box{
+background:#0c1914;
+border:1px solid #1d392b;
+border-radius:9px;
+padding:12px;
+margin-bottom:12px
+}
+
+.row{
+display:flex;
+gap:7px
+}
+
+.row>*{flex:1}
+
+.ticket input,.ticket select{
+width:100%;
+padding:9px;
+margin:4px 0 8px;
+background:#07110d;
+color:white;
+border:1px solid #284738;
+border-radius:6px
+}
+
+.buy,.sell{
+border:0;
+color:white;
+padding:11px;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer
+}
+
+.buy{background:#14804a}
+.sell{background:#b73e4c}
+
+.muted{
+color:#8ca69a;
+font-size:12px
+}
+
+.stat{
+display:flex;
+justify-content:space-between;
+padding:7px 0;
+border-bottom:1px solid #183226;
+font-size:13px
+}
+
+.pos{
+padding:9px 0;
+border-bottom:1px solid #183226;
+font-size:12px
+}
+
+.green{color:#42e997}
+.red{color:#ff7882}
+
+.small{
+padding:6px 8px;
+background:#111f18;
+color:white;
+border:1px solid #294638;
+border-radius:5px;
+font-size:11px
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:#0009;
+display:none;
+align-items:center;
+justify-content:center;
+z-index:20
+}
+
+.modal>div{
+width:min(500px,92%);
+background:#0c1914;
+border:1px solid #294638;
+border-radius:12px;
+padding:18px
+}
+
+.paper{
+display:inline-block;
+padding:4px 8px;
+border:1px solid #296244;
+border-radius:5px;
+font-size:11px;
+color:#55eb9a;
+margin-left:6px
+}
+
+@media(max-width:950px){
+.layout{grid-template-columns:180px 1fr}
+.right{display:block}
+}
+
+@media(max-width:750px){
+.layout{grid-template-columns:1fr}
+.side{display:none}
+.right{
+border-left:0;
+border-top:1px solid #193328;
+height:auto;
+max-height:none
+}
+.chart{min-height:420px}
+.chart iframe{min-height:420px}
+}
+
+@media(max-width:650px){
+.top{
+gap:7px;
+padding:0 8px
+}
+.logo{font-size:17px}
+.search{max-width:none}
+.live{font-size:10px}
+.chart{min-height:360px}
+.chart iframe{min-height:360px}
+}
 </style>
 </head>
 
 <body>
 
 <header class="top">
+
+<div class="brand">
+<img src="/profile.jpg" alt="Sahil">
 <div class="logo">SAHIL <i>TRADING</i></div>
+</div>
 
 <div class="search">
 <input id="symSearch" placeholder="Search symbol e.g. EURUSD">
 </div>
 
-<div id="marketStatus" class="live">● MARKET OFFLINE</div>
+<div id="marketStatus" class="live">
+● MARKET OFFLINE
+</div>
+
 <button class="small" id="logout">Logout</button>
+
 </header>
+
 
 <section id="auth" class="auth">
 
@@ -71,27 +305,48 @@ button,input,select{font:inherit}
 </div>
 
 <input id="email" type="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Password (6+ characters)">
 
-<button class="primary" id="authBtn">Create Demo Account</button>
+<input
+id="pass"
+type="password"
+placeholder="Password (6+ characters)"
+>
 
-<p id="switch" class="muted" style="cursor:pointer;text-align:center">
+<button class="primary" id="authBtn">
+Create Demo Account
+</button>
+
+<p
+id="switch"
+class="muted"
+style="cursor:pointer;text-align:center"
+>
 Already have an account? Login
 </p>
 
 <div id="err" class="err"></div>
+
 </section>
+
 
 <section id="app" class="app">
 
 <div class="layout">
 
+
 <aside class="side">
 
-<div class="muted">WATCHLIST</div>
+<div class="muted">
+WATCHLIST
+</div>
+
 <div id="watchlist"></div>
 
-<button class="toolbtn" style="width:100%;margin-top:10px" id="addWatch">
+<button
+class="toolbtn"
+style="width:100%;margin-top:10px"
+id="addWatch"
+>
 + Add symbol
 </button>
 
@@ -101,130 +356,264 @@ Demo market symbols. Prices are for paper trading only.
 
 </aside>
 
+
 <main class="main">
 
 <div class="toolbar">
+
 <button id="tf1">1m</button>
 <button>5m</button>
 <button>15m</button>
 <button>1H</button>
 <button>4H</button>
 <button>1D</button>
+
 <button id="ind">Indicators</button>
 <button id="alert">🔔 Alert</button>
 <button id="draw">✏️ Drawing</button>
+
 </div>
 
 <div class="chart" id="chart"></div>
 
 </main>
 
+
 <aside class="right">
 
+
 <div class="box">
+
 <b id="current">EUR/USD</b>
-<span class="paper">PAPER TRADING</span>
 
-<div id="currentPrice" style="font-size:25px;font-weight:800;margin:8px 0">—</div>
+<span class="paper">
+PAPER TRADING
+</span>
 
-<div class="muted">Latest demo market quote</div>
+<div
+id="currentPrice"
+style="font-size:25px;font-weight:800;margin:8px 0"
+>
+—
 </div>
+
+<div class="muted">
+Latest demo market quote
+</div>
+
+</div>
+
 
 <div class="ticket">
 
 <b>Order</b>
 
 <select id="orderSym" style="margin-top:8px">
+
 <option>EUR/USD</option>
 <option>GBP/USD</option>
 <option>USD/JPY</option>
 <option>XAU/USD</option>
 <option>AUD/USD</option>
 <option>USD/CAD</option>
+
 </select>
+
 
 <div class="row">
 
 <div>
-<div class="muted">Lots</div>
-<input id="lots" value=".10" type="number" min=".01" step=".01">
+
+<div class="muted">
+Lots
 </div>
 
+<input
+id="lots"
+value=".10"
+type="number"
+min=".01"
+step=".01"
+>
+
+</div>
+
+
 <div>
-<div class="muted">Leverage</div>
+
+<div class="muted">
+Leverage
+</div>
+
 <select id="leverage">
+
 <option value="30">30x</option>
 <option value="50">50x</option>
 <option value="100">100x</option>
+
 </select>
+
 </div>
 
 </div>
+
 
 <div class="row">
 
 <div>
-<div class="muted">Stop Loss</div>
-<input id="sl" placeholder="Optional">
+
+<div class="muted">
+Stop Loss
 </div>
+
+<input
+id="sl"
+placeholder="Optional"
+>
+
+</div>
+
 
 <div>
-<div class="muted">Take Profit</div>
-<input id="tp" placeholder="Optional">
+
+<div class="muted">
+Take Profit
+</div>
+
+<input
+id="tp"
+placeholder="Optional"
+>
+
 </div>
 
 </div>
+
 
 <div class="row">
-<button class="buy" id="buy">BUY</button>
-<button class="sell" id="sell">SELL</button>
+
+<button class="buy" id="buy">
+BUY
+</button>
+
+<button class="sell" id="sell">
+SELL
+</button>
+
 </div>
 
 </div>
+
 
 <div class="box">
 
-<b>Paper Trading Account</b>
+<b>
+Paper Trading Account
+</b>
 
-<div class="stat"><span>Balance</span><b id="balance">$10,000.00</b></div>
-<div class="stat"><span>Equity</span><b id="equity">$10,000.00</b></div>
-<div class="stat"><span>Margin</span><b id="margin">$0.00</b></div>
-<div class="stat"><span>Free Margin</span><b id="freeMargin">$10,000.00</b></div>
-<div class="stat"><span>Margin Level</span><b id="marginLevel">∞</b></div>
-<div class="stat"><span>Floating P/L</span><b id="float">$0.00</b></div>
-<div class="stat"><span>Spread</span><b id="spread">—</b></div>
-<div class="stat"><span>Leverage</span><b id="accountLeverage">30x</b></div>
+<div class="stat">
+<span>Balance</span>
+<b id="balance">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Equity</span>
+<b id="equity">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Margin</span>
+<b id="margin">$0.00</b>
+</div>
+
+<div class="stat">
+<span>Free Margin</span>
+<b id="freeMargin">$10,000.00</b>
+</div>
+
+<div class="stat">
+<span>Margin Level</span>
+<b id="marginLevel">∞</b>
+</div>
+
+<div class="stat">
+<span>Floating P/L</span>
+<b id="float">$0.00</b>
+</div>
+
+<div class="stat">
+<span>Spread</span>
+<b id="spread">—</b>
+</div>
+
+<div class="stat">
+<span>Leverage</span>
+<b id="accountLeverage">30x</b>
+</div>
 
 </div>
 
+
 <div class="box">
-<b>Open Positions</b>
+
+<b>
+Open Positions
+</b>
+
 <div id="positions"></div>
+
 </div>
 
+
 <div class="box">
-<b>Trade History</b>
+
+<b>
+Trade History
+</b>
+
 <div id="history"></div>
+
 </div>
 
 </aside>
+
 </div>
+
 </section>
 
+
 <div class="modal" id="modal">
+
 <div>
-<h3 id="modalTitle">Tool</h3>
+
+<h3 id="modalTitle">
+Tool
+</h3>
+
 <p id="modalText" class="muted"></p>
-<button class="primary" onclick="closeModal()">Close</button>
+
+<button
+class="primary"
+onclick="closeModal()"
+>
+Close
+</button>
+
 </div>
+
 </div>
+
 
 <script>
 
 let signup=true;
+
 let prices={};
+
 let balance=10000;
+
 let positions=[];
+
 let history=[];
 
 let watch=[
@@ -236,7 +625,9 @@ let watch=[
 
 let selected="EUR/USD";
 
+
 const $=x=>document.getElementById(x);
+
 
 const tv={
 "EUR/USD":"OANDA:EURUSD",
@@ -247,12 +638,6 @@ const tv={
 "USD/CAD":"OANDA:USDCAD"
 };
 
-
-/* =========================================
-   SYMBOL NORMALIZER
-   This allows EURUSD, EUR/USD, EUR-USD,
-   GBPUSD, XAUUSD etc.
-========================================= */
 
 function normalizeSymbol(value){
 
@@ -270,39 +655,51 @@ if(tv[s])return s;
 let clean=s.replace(/\//g,"");
 
 const pairs={
+
 "EURUSD":"EUR/USD",
 "GBPUSD":"GBP/USD",
 "USDJPY":"USD/JPY",
 "XAUUSD":"XAU/USD",
 "AUDUSD":"AUD/USD",
 "USDCAD":"USD/CAD"
+
 };
 
 if(pairs[clean])return pairs[clean];
 
-/* Automatically split a normal 6-letter currency pair */
 if(clean.length===6){
-let candidate=clean.slice(0,3)+"/"+clean.slice(3);
 
-if(tv[candidate])return candidate;
+let candidate=
+clean.slice(0,3)+"/"+clean.slice(3);
+
+if(tv[candidate])
+return candidate;
+
 }
 
-/* Gold */
-if(clean==="GOLD")return "XAU/USD";
+if(clean==="GOLD")
+return "XAU/USD";
 
 return "";
+
 }
 
 
 function show(m,t){
+
 $("modalTitle").textContent=m;
+
 $("modalText").textContent=t;
+
 $("modal").style.display="flex";
+
 }
 
 
 function closeModal(){
+
 $("modal").style.display="none";
+
 }
 
 
@@ -314,10 +711,14 @@ $("nameWrap").style.display=
 signup?"block":"none";
 
 $("authTitle").textContent=
-signup?"Sahil Trading Account":"Login";
+signup
+?"Sahil Trading Account"
+:"Login";
 
 $("authBtn").textContent=
-signup?"Create Demo Account":"Login";
+signup
+?"Create Demo Account"
+:"Login";
 
 $("switch").textContent=
 signup
@@ -334,7 +735,8 @@ email:$("email").value,
 password:$("pass").value
 };
 
-if(signup)b.name=$("name").value;
+if(signup)
+b.name=$("name").value;
 
 let r=await fetch(
 signup?"/api/signup":"/api/login",
@@ -361,24 +763,38 @@ async function load(){
 
 let r=await fetch("/api/me");
 
-if(!r.ok)return;
+if(!r.ok)
+return;
 
 let u=await r.json();
 
 balance=u.balance;
+
 positions=u.positions||[];
+
 history=u.history||[];
+
 watch=u.watchlist||watch;
 
 $("auth").style.display="none";
+
 $("app").style.display="block";
 
+
 $("logout").onclick=async()=>{
-await fetch("/api/logout",{method:"POST"});
+
+await fetch(
+"/api/logout",
+{method:"POST"}
+);
+
 location.reload();
+
 };
 
+
 renderWatch();
+
 selectSymbol(selected);
 
 }
@@ -386,7 +802,9 @@ selectSymbol(selected);
 
 async function save(){
 
-fetch("/api/state",{
+fetch(
+"/api/state",
+{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -397,7 +815,8 @@ positions,
 history,
 watchlist:watch
 })
-});
+}
+);
 
 }
 
@@ -408,13 +827,17 @@ $("watchlist").innerHTML=
 
 watch.map(s=>`
 
-<div class="watch ${s===selected?"sel":""}"
-onclick="selectSymbol('${s}')">
+<div
+class="watch ${s===selected?"sel":""}"
+onclick="selectSymbol('${s}')"
+>
 
 <b>${s}</b><br>
 
 <span class="green">
+
 ${prices[s]?fmt(s,prices[s]):"—"}
+
 </span>
 
 </div>
@@ -462,9 +885,11 @@ function pnl(t){
 
 let p=prices[t.symbol];
 
-if(!p)return 0;
+if(!p)
+return 0;
 
-let spread=spreadValue(t.symbol);
+let spread=
+spreadValue(t.symbol);
 
 let current=
 t.side==="BUY"
@@ -509,13 +934,20 @@ s=normalizeSymbol(s);
 if(!s)
 s="EUR/USD";
 
+if(!tv[s])
+s="EUR/USD";
+
 selected=s;
 
 $("current").textContent=s;
+
 $("orderSym").value=s;
 
 $("currentPrice").textContent=
-prices[s]?fmt(s,prices[s]):"—";
+prices[s]
+?fmt(s,prices[s])
+:"—";
+
 
 $("chart").innerHTML=`
 
@@ -526,6 +958,7 @@ src="https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(tv[s])
 `;
 
 renderWatch();
+
 render();
 
 }
@@ -541,7 +974,8 @@ let raw=prompt(
 "Symbol: EURUSD, GBPUSD, USDJPY, XAUUSD, AUDUSD, USDCAD"
 );
 
-if(!raw)return;
+if(!raw)
+return;
 
 let s=normalizeSymbol(raw);
 
@@ -551,7 +985,9 @@ if(!watch.includes(s))
 watch.push(s);
 
 selectSymbol(s);
+
 renderWatch();
+
 save();
 
 }else{
@@ -590,16 +1026,6 @@ $("tf1").onclick=()=>show(
 );
 
 
-/* =========================================
-   SEARCH
-   Now users can type:
-   EURUSD
-   EUR/USD
-   EUR-USD
-   GBPUSD
-   XAUUSD
-========================================= */
-
 $("symSearch").onkeydown=e=>{
 
 if(e.key!=="Enter")
@@ -634,22 +1060,23 @@ openTrade("SELL");
 
 function openTrade(side){
 
-if(!prices[selected]){
-
+if(!prices[selected])
 return show(
 "Market Price",
 "Waiting for the latest demo market price."
 );
 
-}
 
-let lot=Math.max(
+let lot=
+Math.max(
 0.01,
 Number($("lots").value)||0.1
 );
 
+
 let leverage=
 Number($("leverage").value)||30;
+
 
 let temp={
 symbol:selected,
@@ -659,8 +1086,10 @@ entry:prices[selected],
 leverage:leverage
 };
 
+
 let requiredMargin=
 marginFor(temp);
+
 
 let usedMargin=
 positions.reduce(
@@ -668,26 +1097,28 @@ positions.reduce(
 0
 );
 
+
 let floating=
 positions.reduce(
 (a,t)=>a+pnl(t),
 0
 );
 
+
 let equity=
 balance+floating;
+
 
 let freeMargin=
 equity-usedMargin;
 
-if(requiredMargin>freeMargin){
 
+if(requiredMargin>freeMargin)
 return show(
 "Order Rejected",
 "Not enough free margin for this demo order."
 );
 
-}
 
 positions.push({
 
@@ -702,10 +1133,12 @@ time:new Date().toISOString()
 
 });
 
+
 $("accountLeverage").textContent=
 leverage+"x";
 
 render();
+
 save();
 
 show(
@@ -735,6 +1168,7 @@ closed:new Date().toISOString()
 });
 
 render();
+
 save();
 
 }
@@ -742,15 +1176,23 @@ save();
 
 function checkStops(){
 
-for(let i=positions.length-1;i>=0;i--){
+for(
+let i=positions.length-1;
+i>=0;
+i--
+){
 
 let t=positions[i];
+
 let p=prices[t.symbol];
 
-if(!p)continue;
+if(!p)
+continue;
 
 let stop=Number(t.sl);
+
 let take=Number(t.tp);
+
 
 if(t.side==="BUY"){
 
@@ -787,8 +1229,10 @@ function render(){
 
 let floating=
 positions.reduce(
-(a,t)=>a+pnl(t),0
+(a,t)=>a+pnl(t),
+0
 );
+
 
 let usedMargin=
 positions.reduce(
@@ -796,16 +1240,20 @@ positions.reduce(
 0
 );
 
+
 let equity=
 balance+floating;
 
+
 let freeMargin=
 equity-usedMargin;
+
 
 let marginLevel=
 usedMargin>0
 ?(equity/usedMargin)*100
 :Infinity;
+
 
 $("balance").textContent=
 money(balance);
@@ -824,21 +1272,27 @@ marginLevel===Infinity
 ?"∞"
 :marginLevel.toFixed(2)+"%";
 
+
 $("float").textContent=
 money(floating);
 
 $("float").className=
-floating>=0?"green":"red";
+floating>=0
+?"green"
+:"red";
+
 
 $("spread").textContent=
 prices[selected]
 ?fmt(selected,spreadValue(selected))
 :"—";
 
+
 $("currentPrice").textContent=
 prices[selected]
 ?fmt(selected,prices[selected])
 :"—";
+
 
 $("positions").innerHTML=
 
@@ -865,14 +1319,17 @@ Leverage ${t.leverage}x
 <br>
 
 <span class="${
-pnl(t)>=0?"green":"red"
+pnl(t)>=0
+?"green"
+:"red"
 }">
 ${money(pnl(t))}
 </span>
 
 <button
 class="small"
-onclick="closeTrade(${i})">
+onclick="closeTrade(${i})"
+>
 Close
 </button>
 
@@ -882,14 +1339,13 @@ Close
 
 ||
 
-`
-
-<div class="muted"
-style="margin-top:8px">
+`<div
+class="muted"
+style="margin-top:8px"
+>
 No open positions
-</div>
+</div>`;
 
-`;
 
 $("history").innerHTML=
 
@@ -903,7 +1359,6 @@ history
 
 ${t.symbol}
 ${t.side}
-
 · ${money(t.pnl)}
 
 <br>
@@ -918,42 +1373,35 @@ Closed ${new Date(t.closed).toLocaleString()}
 
 ||
 
-`
-
-<div class="muted"
-style="margin-top:8px">
+`<div
+class="muted"
+style="margin-top:8px"
+>
 No trades yet
-</div>
+</div>`;
 
-`;
 
 renderWatch();
 
 }
 
 
-/* =========================================
-   EXISTING MARKET WEBSOCKET
-   DO NOT CHANGE
-========================================= */
-
 let ws;
 
 try{
 
 ws=new WebSocket(
-
 (location.protocol==="https:"
 ?"wss://"
 :"ws://")
 +location.host
-
 );
 
 
 ws.onmessage=e=>{
 
 let m=JSON.parse(e.data);
+
 
 if(m.type==="status"){
 
@@ -964,22 +1412,22 @@ m.connected
 
 }
 
+
 if(
 m.type==="price" &&
 m.data?.symbol &&
 m.data?.price
 ){
 
-let normalized=normalizeSymbol(m.data.symbol);
+let normalized=
+normalizeSymbol(m.data.symbol);
 
-if(normalized){
-
+if(normalized)
 prices[normalized]=
 Number(m.data.price);
 
-}
-
 checkStops();
+
 render();
 
 }
@@ -987,9 +1435,7 @@ render();
 };
 
 }catch(e){
-
 console.log("WebSocket error",e);
-
 }
 
 

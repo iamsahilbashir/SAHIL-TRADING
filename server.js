@@ -49,6 +49,7 @@ if (!DATABASE_URL) {
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
+
   ssl:
     process.env.NODE_ENV === "production"
       ? { rejectUnauthorized: false }
@@ -734,16 +735,11 @@ app.post(
           });
       }
 
-      // =========================
-      // BUILD UPDATE
-      // =========================
-
       const updates = [];
       const values = [];
 
       let index = 1;
 
-      // Balance
       if (
         body.balance !== undefined
       ) {
@@ -769,7 +765,6 @@ app.post(
         }
       }
 
-      // Positions
       if (
         Array.isArray(
           body.positions
@@ -787,7 +782,6 @@ app.post(
         );
       }
 
-      // History
       if (
         Array.isArray(
           body.history
@@ -805,7 +799,6 @@ app.post(
         );
       }
 
-      // Watchlist
       if (
         Array.isArray(
           body.watchlist
@@ -823,7 +816,6 @@ app.post(
         );
       }
 
-      // Notes
       if (
         typeof body.notes ===
         "string"
@@ -838,7 +830,6 @@ app.post(
         );
       }
 
-      // Updated timestamp
       updates.push(
         `updated_at = NOW()`
       );
@@ -894,10 +885,16 @@ app.use(
 // MARKET DATA
 // ===============================
 
-let clients =
+const clients =
   new Set();
 
-let latestPrices =
+const latestPrices =
+  {};
+
+const latestVolumes =
+  {};
+
+const latestQuotes =
   {};
 
 // ===============================
@@ -930,25 +927,34 @@ const send = data => {
 const symbols = [
 
   "EUR/USD",
-
   "GBP/USD",
-
   "USD/JPY",
-
+  "USD/CHF",
   "AUD/USD",
-
   "USD/CAD",
+  "NZD/USD",
 
-  "XAU/USD"
+  "EUR/GBP",
+  "EUR/JPY",
+  "GBP/JPY",
+  "EUR/CHF",
+
+  "AUD/JPY",
+  "CAD/JPY",
+  "NZD/JPY",
+
+  "XAU/USD",
+  "XAG/USD",
+
+  "BTC/USD",
+  "ETH/USD"
 ];
 
 // ===============================
-// GET ONE PRICE
+// GET ONE QUOTE
 // ===============================
 
-async function updatePrice(
-  symbol
-) {
+async function updateQuote(symbol) {
 
   if (!KEY) {
 
@@ -962,7 +968,7 @@ async function updatePrice(
   try {
 
     const url =
-      "https://api.twelvedata.com/price?symbol=" +
+      "https://api.twelvedata.com/quote?symbol=" +
       encodeURIComponent(symbol) +
       "&apikey=" +
       encodeURIComponent(KEY);
@@ -974,64 +980,104 @@ async function updatePrice(
       await response.json();
 
     if (
-      data &&
-      data.price
+      !data ||
+      data.status === "error"
     ) {
 
-      const price =
-        Number(
-          data.price
-        );
-
-      if (
-        !Number.isFinite(
-          price
-        )
-      ) {
-
-        console.log(
-          "Invalid price:",
-          symbol,
-          data.price
-        );
-
-        return;
-      }
-
-      latestPrices[symbol] =
-        price;
-
-      send({
-
-        type:
-          "price",
-
-        data: {
-
-          symbol,
-
-          price
-        }
-      });
-
       console.log(
-        symbol,
-        price
-      );
-
-    } else {
-
-      console.log(
-        "Price error:",
+        "Quote error:",
         symbol,
         data
       );
+
+      return;
     }
+
+    const price =
+      Number(
+        data.close ??
+        data.price ??
+        data.last
+      );
+
+    if (
+      !Number.isFinite(price)
+    ) {
+
+      console.log(
+        "Invalid quote price:",
+        symbol,
+        data
+      );
+
+      return;
+    }
+
+    let volume = null;
+
+    if (
+      data.volume !== undefined &&
+      data.volume !== null &&
+      data.volume !== ""
+    ) {
+
+      const parsedVolume =
+        Number(data.volume);
+
+      if (
+        Number.isFinite(
+          parsedVolume
+        )
+      ) {
+
+        volume =
+          parsedVolume;
+      }
+    }
+
+    latestPrices[symbol] =
+      price;
+
+    latestVolumes[symbol] =
+      volume;
+
+    latestQuotes[symbol] = {
+      symbol,
+      price,
+      volume,
+      change:
+        Number(
+          data.change
+        ) || 0,
+      percent_change:
+        Number(
+          data.percent_change
+        ) || 0,
+      timestamp:
+        Date.now()
+    };
+
+    send({
+
+      type:
+        "market",
+
+      data:
+        latestQuotes[symbol]
+    });
+
+    console.log(
+      symbol,
+      "price:",
+      price,
+      "volume:",
+      volume
+    );
 
   } catch (err) {
 
     console.log(
-      "Price request failed:",
+      "Quote request failed:",
       symbol,
       err.message
     );
@@ -1039,21 +1085,58 @@ async function updatePrice(
 }
 
 // ===============================
-// UPDATE ALL PRICES
+// UPDATE ALL MARKET DATA
 // ===============================
 
 async function updateAllPrices() {
 
   console.log(
-    "Updating all market prices..."
+    "Updating market prices and volume..."
   );
 
-  await Promise.all(
-    symbols.map(
-      symbol =>
-        updatePrice(symbol)
-    )
-  );
+  if (!KEY) {
+
+    console.log(
+      "TWELVE_DATA_API_KEY is missing."
+    );
+
+    send({
+
+      type:
+        "status",
+
+      connected:
+        false
+    });
+
+    return;
+  }
+
+  /*
+   * Small batches prevent sending
+   * all API requests at exactly
+   * the same moment.
+   */
+
+  for (
+    let i = 0;
+    i < symbols.length;
+    i += 4
+  ) {
+
+    const batch =
+      symbols.slice(
+        i,
+        i + 4
+      );
+
+    await Promise.all(
+      batch.map(
+        symbol =>
+          updateQuote(symbol)
+      )
+    );
+  }
 
   send({
 
@@ -1063,11 +1146,19 @@ async function updateAllPrices() {
     connected:
       Object.keys(
         latestPrices
-      ).length > 0
+      ).length > 0,
+
+    symbols:
+      Object.keys(
+        latestPrices
+      ).length,
+
+    updatedAt:
+      Date.now()
   });
 
   console.log(
-    "Market price update complete."
+    "Market update complete."
   );
 }
 
@@ -1085,12 +1176,29 @@ wss.on(
       "WebSocket client connected."
     );
 
-    // Send current prices
+    // Send current market data
     for (
       const symbol of symbols
     ) {
 
       if (
+        latestQuotes[symbol]
+      ) {
+
+        client.send(
+          JSON.stringify({
+
+            type:
+              "market",
+
+            data:
+              latestQuotes[
+                symbol
+              ]
+          })
+        );
+
+      } else if (
         latestPrices[symbol]
       ) {
 
@@ -1098,7 +1206,7 @@ wss.on(
           JSON.stringify({
 
             type:
-              "price",
+              "market",
 
             data: {
 
@@ -1107,14 +1215,19 @@ wss.on(
               price:
                 latestPrices[
                   symbol
-                ]
+                ],
+
+              volume:
+                latestVolumes[
+                  symbol
+                ] ?? null
             }
           })
         );
       }
     }
 
-    // Send market status
+    // Market status
     client.send(
       JSON.stringify({
 
@@ -1124,7 +1237,12 @@ wss.on(
         connected:
           Object.keys(
             latestPrices
-          ).length > 0
+          ).length > 0,
+
+        symbols:
+          Object.keys(
+            latestPrices
+          ).length
       })
     );
 
@@ -1175,12 +1293,17 @@ async function startServer() {
 
     await migrateOldUsers();
 
-    // Market data
-    updateAllPrices();
+    // Initial market update
+    await updateAllPrices();
 
+    /*
+     * Refresh market data every 60 seconds.
+     * This is much faster than the old
+     * 12 minute interval.
+     */
     setInterval(
       updateAllPrices,
-      12 * 60 * 1000
+      60 * 1000
     );
 
     server.listen(

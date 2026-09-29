@@ -5,10 +5,14 @@ const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({
-  server
-});
+
+const server =
+  http.createServer(app);
+
+const wss =
+  new WebSocket.Server({
+    server
+  });
 
 
 /* =====================================================
@@ -944,12 +948,24 @@ const latestTimestamps = {};
    RATE LIMIT SAFE SETTINGS
 ===================================================== */
 
-const BATCH_SIZE = 8;
+/*
+   Twelve Data limit shown in your Render log:
+   8 API credits per minute.
+
+   One quote symbol can consume one API credit.
+
+   Therefore we request only 6 symbols per batch,
+   leaving safety room under the 8-credit limit.
+*/
+
+const BATCH_SIZE = 6;
 
 const BATCH_INTERVAL =
   70 * 1000;
 
 let marketBatchIndex = 0;
+
+let marketUpdateRunning = false;
 
 
 /* =====================================================
@@ -1028,9 +1044,20 @@ function broadcastStatus() {
         WebSocket.OPEN
       ) {
 
-        client.send(
-          message
-        );
+        try {
+
+          client.send(
+            message
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Status send error:",
+            error.message
+          );
+
+        }
 
       }
 
@@ -1102,9 +1129,20 @@ function broadcastMarket(
         WebSocket.OPEN
       ) {
 
-        client.send(
-          message
-        );
+        try {
+
+          client.send(
+            message
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Market send error:",
+            error.message
+          );
+
+        }
 
       }
 
@@ -1153,9 +1191,20 @@ function broadcastOldPrice(
         WebSocket.OPEN
       ) {
 
-        client.send(
-          message
-        );
+        try {
+
+          client.send(
+            message
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Price send error:",
+            error.message
+          );
+
+        }
 
       }
 
@@ -1172,6 +1221,19 @@ function broadcastOldPrice(
 async function updateMarketBatch() {
 
   if (
+    marketUpdateRunning
+  ) {
+
+    console.log(
+      "Market update already running. Skipping."
+    );
+
+    return;
+
+  }
+
+
+  if (
     !TWELVE_DATA_API_KEY
   ) {
 
@@ -1182,6 +1244,10 @@ async function updateMarketBatch() {
     return;
 
   }
+
+
+  marketUpdateRunning =
+    true;
 
 
   const symbols =
@@ -1214,14 +1280,26 @@ async function updateMarketBatch() {
       );
 
 
+    if (!response.ok) {
+
+      console.error(
+        "Twelve Data HTTP error:",
+        response.status,
+        response.statusText
+      );
+
+      return;
+
+    }
+
+
     const result =
       await response.json();
 
 
     if (
       result &&
-      result.status === "error" &&
-      !result[symbols[0]]
+      result.status === "error"
     ) {
 
       console.error(
@@ -1243,6 +1321,12 @@ async function updateMarketBatch() {
           ? result[symbol]
           : null;
 
+
+      /*
+        If Twelve Data returns a single
+        object instead of a symbol map,
+        support that response too.
+      */
 
       if (
         symbols.length === 1 &&
@@ -1301,10 +1385,22 @@ async function updateMarketBatch() {
         !Number.isFinite(price)
       ) {
 
+        console.log(
+          "Invalid price:",
+          symbol
+        );
+
         continue;
 
       }
 
+
+      /*
+        Volume is only stored when Twelve Data
+        actually provides a numeric value.
+
+        We do NOT invent/fake volume.
+      */
 
       let volume = null;
 
@@ -1393,6 +1489,11 @@ async function updateMarketBatch() {
       );
 
 
+      /*
+        Keep the old price message so the
+        existing index.html continues working.
+      */
+
       broadcastOldPrice(
         symbol,
         price,
@@ -1416,6 +1517,11 @@ async function updateMarketBatch() {
       "Market update error:",
       error.message
     );
+
+  } finally {
+
+    marketUpdateRunning =
+      false;
 
   }
 
@@ -1451,24 +1557,35 @@ wss.on(
     );
 
 
-    ws.send(
-      JSON.stringify({
+    try {
 
-        type: "status",
+      ws.send(
+        JSON.stringify({
 
-        connected: true,
+          type: "status",
 
-        symbols:
-          MARKET_SYMBOLS.length,
+          connected: true,
 
-        updatedAt:
-          Date.now(),
+          symbols:
+            MARKET_SYMBOLS.length,
 
-        message:
-          "Market connected"
+          updatedAt:
+            Date.now(),
 
-      })
-    );
+          message:
+            "Market connected"
+
+        })
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Initial WS send error:",
+        error.message
+      );
+
+    }
 
 
     Object.keys(
@@ -1510,49 +1627,65 @@ wss.on(
           Date.now();
 
 
-        ws.send(
-          JSON.stringify({
+        try {
 
-            type: "market",
+          ws.send(
+            JSON.stringify({
 
-            data: {
+              type: "market",
 
-              symbol,
+              data: {
 
-              price,
+                symbol,
 
-              volume,
+                price,
 
-              change,
+                volume,
 
-              percent_change:
-                percentChange,
+                change,
 
-              timestamp
+                percent_change:
+                  percentChange,
 
-            }
+                timestamp
 
-          })
-        );
+              }
+
+            })
+          );
 
 
-        ws.send(
-          JSON.stringify({
+          /*
+            Backward compatibility with
+            current frontend.
+          */
 
-            type: "price",
+          ws.send(
+            JSON.stringify({
 
-            data: {
+              type: "price",
 
-              symbol,
+              data: {
 
-              price,
+                symbol,
 
-              volume
+                price,
 
-            }
+                volume
 
-          })
-        );
+              }
+
+            })
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Cached market send error:",
+            error.message
+          );
+
+        }
 
       }
     );
@@ -1589,6 +1722,17 @@ wss.on(
 /* =====================================================
    RATE-LIMIT SAFE MARKET LOOP
 ===================================================== */
+
+/*
+   First batch immediately.
+
+   Then one batch every 70 seconds.
+
+   18 symbols / 6 symbols per batch = 3 batches.
+
+   Therefore each complete cycle takes
+   approximately 3.5 minutes.
+*/
 
 updateAllPrices();
 

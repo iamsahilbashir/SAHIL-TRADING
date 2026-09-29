@@ -1,8 +1,18 @@
 {
-  "name":"sahil-trading-pro-platform",
-  "version":"1.0.0",
-  "private":true,
-  "type":"module",
-  "scripts":{"start":"node server.js"},
-  "dependencies":{"bcryptjs":"^3.0.2","dotenv":"^16.6.1","express":"^5.1.0","express-session":"^1.18.2","ws":"^8.18.3"}
+  "name": "sahil-trading-pro-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "pg": "^8.16.3",
+    "ws": "^8.18.3"
+  }
 }

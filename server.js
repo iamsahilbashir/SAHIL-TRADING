@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const { Pool } = require("pg");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const server = http.createServer(app);
@@ -944,22 +944,6 @@ const latestTimestamps = {};
    RATE LIMIT SAFE SETTINGS
 ===================================================== */
 
-/*
-  Your current Twelve Data limit:
-  8 credits / minute.
-
-  We therefore request maximum 8 symbols
-  per API call.
-
-  18 symbols are divided into:
-
-  Batch 1 = 8
-  Batch 2 = 8
-  Batch 3 = 2
-
-  We wait 70 seconds between batches.
-*/
-
 const BATCH_SIZE = 8;
 
 const BATCH_INTERVAL =
@@ -1212,10 +1196,6 @@ async function updateMarketBatch() {
 
   try {
 
-    /*
-      Twelve Data batch quote request.
-    */
-
     const url =
       "https://api.twelvedata.com/quote" +
       "?symbol=" +
@@ -1238,11 +1218,6 @@ async function updateMarketBatch() {
       await response.json();
 
 
-    /*
-      If Twelve Data returns a
-      global error.
-    */
-
     if (
       result &&
       result.status === "error" &&
@@ -1259,10 +1234,6 @@ async function updateMarketBatch() {
     }
 
 
-    /*
-      Process each symbol.
-    */
-
     for (
       const symbol of symbols
     ) {
@@ -1272,10 +1243,6 @@ async function updateMarketBatch() {
           ? result[symbol]
           : null;
 
-
-      /*
-        Single-symbol fallback.
-      */
 
       if (
         symbols.length === 1 &&
@@ -1426,12 +1393,6 @@ async function updateMarketBatch() {
       );
 
 
-      /*
-        Keep the old message so
-        existing HTML functionality
-        continues working.
-      */
-
       broadcastOldPrice(
         symbol,
         price,
@@ -1490,10 +1451,6 @@ wss.on(
     );
 
 
-    /*
-      Send connection status.
-    */
-
     ws.send(
       JSON.stringify({
 
@@ -1513,10 +1470,6 @@ wss.on(
       })
     );
 
-
-    /*
-      Send cached prices immediately.
-    */
 
     Object.keys(
       latestQuotes
@@ -1583,10 +1536,6 @@ wss.on(
         );
 
 
-        /*
-          Backward compatibility.
-        */
-
         ws.send(
           JSON.stringify({
 
@@ -1641,22 +1590,8 @@ wss.on(
    RATE-LIMIT SAFE MARKET LOOP
 ===================================================== */
 
-/*
-  First update immediately.
-*/
-
 updateAllPrices();
 
-
-/*
-  Then update one batch every 70 seconds.
-
-  18 symbols:
-  8 + 8 + 2
-
-  This keeps us below the
-  8-credit/minute limit.
-*/
 
 setInterval(
   async () => {

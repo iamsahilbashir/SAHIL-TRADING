@@ -2,7 +2,7 @@
   "name": "sahil-trading-pro-platform",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js"
   },

@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,12 +9,14 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:#07100d;
   color:#fff;
 }
+
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 
@@ -206,12 +207,13 @@ button{cursor:pointer}
 }
 
 .watchItem{
-  padding:12px;
+  padding:10px 12px;
   border-bottom:1px solid #14291f;
   display:flex;
   justify-content:space-between;
   align-items:center;
   cursor:pointer;
+  gap:8px;
 }
 
 .watchItem:hover{background:#10231b}
@@ -223,11 +225,24 @@ button{cursor:pointer}
 .watchPrice{
   font-size:12px;
   color:#a9beb6;
+  margin-top:3px;
+}
+
+.volumeMeta{
+  font-size:10px;
+  color:#728b81;
+  margin-top:3px;
+}
+
+.volumeValue{
+  color:#8fa99f;
 }
 
 .removeWatch{
   color:#ff6874;
   margin-left:7px;
+  font-size:17px;
+  flex:0 0 auto;
 }
 
 .chartPanel{
@@ -301,6 +316,11 @@ button{cursor:pointer}
   justify-content:space-between;
   align-items:center;
   border-bottom:1px solid #19352a;
+  gap:10px;
+}
+
+.currentLeft{
+  min-width:0;
 }
 
 .currentSymbol{
@@ -311,6 +331,13 @@ button{cursor:pointer}
 .currentPrice{
   color:#36e28a;
   font-weight:800;
+}
+
+.currentVolume{
+  font-size:11px;
+  color:#7f988e;
+  margin-top:3px;
+  text-align:right;
 }
 
 .order{
@@ -465,7 +492,7 @@ th{
 
 .modalBox{
   width:100%;
-  max-width:480px;
+  max-width:520px;
   max-height:85vh;
   overflow:auto;
   background:#0c1915;
@@ -491,6 +518,57 @@ th{
   color:#a9beb6;
   line-height:1.6;
   font-size:14px;
+}
+
+.indicatorSearch{
+  margin:10px 0;
+}
+
+.indicatorList{
+  max-height:390px;
+  overflow:auto;
+  border:1px solid #19352a;
+  border-radius:8px;
+}
+
+.indicatorItem{
+  padding:10px;
+  border-bottom:1px solid #14291f;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.indicatorItem:last-child{
+  border-bottom:0;
+}
+
+.indicatorItem:hover{
+  background:#10231b;
+}
+
+.indicatorName{
+  font-weight:700;
+  font-size:13px;
+}
+
+.indicatorCategory{
+  font-size:10px;
+  color:#71877e;
+  margin-top:3px;
+}
+
+.indicatorAdd{
+  padding:6px 9px;
+  font-size:11px;
+  flex:0 0 auto;
+}
+
+.noResults{
+  padding:15px;
+  text-align:center;
+  color:#71877e;
 }
 
 @media(max-width:1100px){
@@ -577,6 +655,14 @@ th{
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
+  }
+
+  .current{
+    align-items:flex-start;
+  }
+
+  .currentPrice{
+    font-size:14px;
   }
 }
 </style>
@@ -703,11 +789,22 @@ th{
 
       <div id="current" class="current">
 
-        <div
-          class="currentSymbol"
-          id="currentSymbol"
-        >
-          EUR/USD
+        <div class="currentLeft">
+
+          <div
+            class="currentSymbol"
+            id="currentSymbol"
+          >
+            EUR/USD
+          </div>
+
+          <div
+            class="currentVolume"
+            id="currentVolume"
+          >
+            Volume: --
+          </div>
+
         </div>
 
         <div
@@ -998,11 +1095,8 @@ th{
   <div class="panel section">
 
     <div class="panelHead">
-
       <span>Open Positions</span>
-
     </div>
-
 
     <div class="tableWrap">
 
@@ -1041,7 +1135,6 @@ th{
     <div class="panelHead">
       <span>Trade History</span>
     </div>
-
 
     <div class="tableWrap">
 
@@ -1179,6 +1272,10 @@ let signup=true;
 
 let prices={};
 
+let volumes={};
+
+let quoteMeta={};
+
 let balance=10000;
 
 let positions=[];
@@ -1189,7 +1286,21 @@ let watch=[
   "EUR/USD",
   "GBP/USD",
   "USD/JPY",
-  "XAU/USD"
+  "USD/CHF",
+  "AUD/USD",
+  "USD/CAD",
+  "NZD/USD",
+  "EUR/GBP",
+  "EUR/JPY",
+  "GBP/JPY",
+  "EUR/CHF",
+  "AUD/JPY",
+  "CAD/JPY",
+  "NZD/JPY",
+  "XAU/USD",
+  "XAG/USD",
+  "BTC/USD",
+  "ETH/USD"
 ];
 
 let selected="EUR/USD";
@@ -1216,13 +1327,34 @@ let tradeLineBusy=false;
 const $=id=>document.getElementById(id);
 
 
+/* =====================================================
+   TRADINGVIEW SYMBOL MAP
+===================================================== */
+
 const tv={
+
   "EUR/USD":"OANDA:EURUSD",
   "GBP/USD":"OANDA:GBPUSD",
   "USD/JPY":"OANDA:USDJPY",
-  "XAU/USD":"OANDA:XAUUSD",
+  "USD/CHF":"OANDA:USDCHF",
   "AUD/USD":"OANDA:AUDUSD",
-  "USD/CAD":"OANDA:USDCAD"
+  "USD/CAD":"OANDA:USDCAD",
+  "NZD/USD":"OANDA:NZDUSD",
+
+  "EUR/GBP":"OANDA:EURGBP",
+  "EUR/JPY":"OANDA:EURJPY",
+  "GBP/JPY":"OANDA:GBPJPY",
+  "EUR/CHF":"OANDA:EURCHF",
+  "AUD/JPY":"OANDA:AUDJPY",
+  "CAD/JPY":"OANDA:CADJPY",
+  "NZD/JPY":"OANDA:NZDJPY",
+
+  "XAU/USD":"OANDA:XAUUSD",
+  "XAG/USD":"OANDA:XAGUSD",
+
+  "BTC/USD":"COINBASE:BTCUSD",
+  "ETH/USD":"COINBASE:ETHUSD"
+
 };
 
 
@@ -1240,6 +1372,7 @@ function normalizeSymbol(value){
     .replace(/_/g,"/")
     .replace(/-/g,"/");
 
+
   const map={
 
     EURUSD:"EUR/USD",
@@ -1251,19 +1384,58 @@ function normalizeSymbol(value){
     USDJPY:"USD/JPY",
     "USD/JPY":"USD/JPY",
 
-    XAUUSD:"XAU/USD",
-    "XAU/USD":"XAU/USD",
-    GOLD:"XAU/USD",
+    USDCHF:"USD/CHF",
+    "USD/CHF":"USD/CHF",
 
     AUDUSD:"AUD/USD",
     "AUD/USD":"AUD/USD",
 
     USDCAD:"USD/CAD",
-    "USD/CAD":"USD/CAD"
+    "USD/CAD":"USD/CAD",
+
+    NZDUSD:"NZD/USD",
+    "NZD/USD":"NZD/USD",
+
+    EURGBP:"EUR/GBP",
+    "EUR/GBP":"EUR/GBP",
+
+    EURJPY:"EUR/JPY",
+    "EUR/JPY":"EUR/JPY",
+
+    GBPJPY:"GBP/JPY",
+    "GBP/JPY":"GBP/JPY",
+
+    EURCHF:"EUR/CHF",
+    "EUR/CHF":"EUR/CHF",
+
+    AUDJPY:"AUD/JPY",
+    "AUD/JPY":"AUD/JPY",
+
+    CADJPY:"CAD/JPY",
+    "CAD/JPY":"CAD/JPY",
+
+    NZDJPY:"NZD/JPY",
+    "NZD/JPY":"NZD/JPY",
+
+    XAUUSD:"XAU/USD",
+    "XAU/USD":"XAU/USD",
+
+    XAGUSD:"XAG/USD",
+    "XAG/USD":"XAG/USD",
+
+    BTCUSD:"BTC/USD",
+    "BTC/USD":"BTC/USD",
+
+    ETHUSD:"ETH/USD",
+    "ETH/USD":"ETH/USD",
+
+    GOLD:"XAU/USD"
 
   };
 
+
   return map[s]||null;
+
 }
 
 
@@ -1501,8 +1673,14 @@ async function load(){
     if(
       Array.isArray(data.watchlist)&&
       data.watchlist.length
-    )
-      watch=data.watchlist;
+    ){
+
+      watch=
+        data.watchlist
+          .map(normalizeSymbol)
+          .filter(Boolean);
+
+    }
 
 
     if(
@@ -1524,6 +1702,14 @@ async function load(){
     }
 
 
+    if(!watch.length)
+      watch=["EUR/USD"];
+
+
+    if(!watch.includes(selected))
+      selected=watch[0];
+
+
     renderWatchlist();
 
     fillOrderSymbols();
@@ -1540,6 +1726,47 @@ async function load(){
     );
 
   }
+
+}
+
+
+/* =====================================================
+   VOLUME FORMAT
+===================================================== */
+
+function formatVolume(value){
+
+  if(
+    value===undefined||
+    value===null||
+    value===""||
+    isNaN(Number(value))
+  ){
+
+    return "No volume data";
+
+  }
+
+
+  const n=Number(value);
+
+
+  if(n>=1000000000)
+    return (n/1000000000)
+      .toFixed(2)+"B";
+
+
+  if(n>=1000000)
+    return (n/1000000)
+      .toFixed(2)+"M";
+
+
+  if(n>=1000)
+    return (n/1000)
+      .toFixed(2)+"K";
+
+
+  return n.toLocaleString();
 
 }
 
@@ -1593,10 +1820,17 @@ function renderWatchlist(){
         :"--";
 
 
+      const volume=
+        formatVolume(
+          volumes[symbol]
+        );
+
+
       row.innerHTML=`
 
         <div
           onclick="selectSymbol('${symbol}')"
+          style="min-width:0;flex:1"
         >
 
           <div class="watchName">
@@ -1605,6 +1839,13 @@ function renderWatchlist(){
 
           <div class="watchPrice">
             ${price}
+          </div>
+
+          <div class="volumeMeta">
+            Volume:
+            <span class="volumeValue">
+              ${volume}
+            </span>
           </div>
 
         </div>
@@ -1623,6 +1864,22 @@ function renderWatchlist(){
 
     });
 
+
+  if(!box.children.length){
+
+    box.innerHTML=`
+      <div style="
+        padding:15px;
+        text-align:center;
+        color:#71877e;
+        font-size:12px;
+      ">
+        No symbol found
+      </div>
+    `;
+
+  }
+
 }
 
 
@@ -1640,7 +1897,7 @@ $("addWatch").onclick=()=>{
 
   const symbol=
     prompt(
-      "Enter symbol: EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD or USD/CAD"
+      "Enter symbol:\nEUR/USD, GBP/USD, USD/JPY, USD/CHF, AUD/USD, USD/CAD, NZD/USD, EUR/GBP, EUR/JPY, GBP/JPY, EUR/CHF, AUD/JPY, CAD/JPY, NZD/JPY, XAU/USD, XAG/USD, BTC/USD or ETH/USD"
     );
 
 
@@ -1818,14 +2075,41 @@ function formatPrice(
     return "--";
 
 
-  if(symbol==="USD/JPY")
+  if(
+    symbol==="USD/JPY"||
+    symbol==="EUR/JPY"||
+    symbol==="GBP/JPY"||
+    symbol==="AUD/JPY"||
+    symbol==="CAD/JPY"||
+    symbol==="NZD/JPY"
+  ){
+
     return Number(price)
       .toFixed(3);
 
+  }
 
-  if(symbol==="XAU/USD")
+
+  if(
+    symbol==="XAU/USD"||
+    symbol==="XAG/USD"
+  ){
+
     return Number(price)
       .toFixed(2);
+
+  }
+
+
+  if(
+    symbol==="BTC/USD"||
+    symbol==="ETH/USD"
+  ){
+
+    return Number(price)
+      .toFixed(2);
+
+  }
 
 
   return Number(price)
@@ -1835,7 +2119,7 @@ function formatPrice(
 
 
 /* =====================================================
-   CURRENT PRICE
+   CURRENT PRICE + VOLUME
 ===================================================== */
 
 function updateCurrent(){
@@ -1855,6 +2139,14 @@ function updateCurrent(){
       :"--";
 
 
+  $("currentVolume")
+    .textContent=
+      "Volume: "+
+      formatVolume(
+        volumes[selected]
+      );
+
+
   $("orderSym").value=
     selected;
 
@@ -1867,15 +2159,57 @@ function updateCurrent(){
 
 function pipSize(symbol){
 
-  if(symbol==="USD/JPY")
+  if(
+    symbol==="USD/JPY"||
+    symbol==="EUR/JPY"||
+    symbol==="GBP/JPY"||
+    symbol==="AUD/JPY"||
+    symbol==="CAD/JPY"||
+    symbol==="NZD/JPY"
+  )
     return 0.01;
 
 
-  if(symbol==="XAU/USD")
+  if(
+    symbol==="XAU/USD"||
+    symbol==="XAG/USD"
+  )
     return 0.01;
+
+
+  if(
+    symbol==="BTC/USD"||
+    symbol==="ETH/USD"
+  )
+    return 1;
 
 
   return 0.0001;
+
+}
+
+
+/* =====================================================
+   CONTRACT MULTIPLIER
+===================================================== */
+
+function contractMultiplier(symbol){
+
+  if(
+    symbol==="XAU/USD"||
+    symbol==="XAG/USD"
+  )
+    return 100;
+
+
+  if(
+    symbol==="BTC/USD"||
+    symbol==="ETH/USD"
+  )
+    return 1;
+
+
+  return 100000;
 
 }
 
@@ -1932,9 +2266,7 @@ function calculatePL(
 
 
   const multiplier=
-    symbol==="XAU/USD"
-    ?100
-    :100000;
+    contractMultiplier(symbol);
 
 
   const diff=
@@ -2069,9 +2401,10 @@ async function openTrade(side){
 
 
   const marginRequired=
-    symbol==="XAU/USD"
-    ?price*lots*100/leverage
-    :price*lots*100000/leverage;
+    Number(price)*
+    lots*
+    contractMultiplier(symbol)/
+    leverage;
 
 
   if(
@@ -2247,9 +2580,10 @@ function marginUsed(){
 
 
     const m=
-      p.symbol==="XAU/USD"
-      ?price*p.lots*100/p.leverage
-      :price*p.lots*100000/p.leverage;
+      Number(price)*
+      p.lots*
+      contractMultiplier(p.symbol)/
+      p.leverage;
 
 
     total+=m;
@@ -2806,7 +3140,8 @@ function renderTV(){
       studies:[
         "RSI@tv-basicstudies",
         "MACD@tv-basicstudies",
-        "MASimple@tv-basicstudies"
+        "MASimple@tv-basicstudies",
+        "Volume@tv-basicstudies"
       ],
 
       container_id:
@@ -2822,11 +3157,6 @@ function renderTV(){
     700
   );
 
-
-  /*
-    Try to create trade lines after
-    the chart is ready.
-  */
 
   setTimeout(
     ()=>{
@@ -2874,7 +3204,124 @@ function updateTFButtons(){
 
 
 /* =====================================================
-   INDICATORS
+   INDICATOR CATALOG
+===================================================== */
+
+const INDICATORS=[
+
+  {
+    name:"Volume",
+    id:"Volume@tv-basicstudies",
+    category:"Volume"
+  },
+
+  {
+    name:"Relative Strength Index",
+    id:"RSI@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"MACD",
+    id:"MACD@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"Moving Average",
+    id:"MASimple@tv-basicstudies",
+    category:"Trend"
+  },
+
+  {
+    name:"Exponential Moving Average",
+    id:"MAExp@tv-basicstudies",
+    category:"Trend"
+  },
+
+  {
+    name:"Bollinger Bands",
+    id:"BB@tv-basicstudies",
+    category:"Volatility"
+  },
+
+  {
+    name:"Stochastic",
+    id:"Stochastic@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"Average True Range",
+    id:"ATR@tv-basicstudies",
+    category:"Volatility"
+  },
+
+  {
+    name:"Commodity Channel Index",
+    id:"CCI@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"Average Directional Index",
+    id:"ADX@tv-basicstudies",
+    category:"Trend"
+  },
+
+  {
+    name:"Williams %R",
+    id:"WilliamsR@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"Rate Of Change",
+    id:"ROC@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"On Balance Volume",
+    id:"OBV@tv-basicstudies",
+    category:"Volume"
+  },
+
+  {
+    name:"Money Flow Index",
+    id:"MFI@tv-basicstudies",
+    category:"Volume"
+  },
+
+  {
+    name:"Awesome Oscillator",
+    id:"AO@tv-basicstudies",
+    category:"Momentum"
+  },
+
+  {
+    name:"Parabolic SAR",
+    id:"PSAR@tv-basicstudies",
+    category:"Trend"
+  },
+
+  {
+    name:"Ichimoku Cloud",
+    id:"IchimokuCloud@tv-basicstudies",
+    category:"Trend"
+  },
+
+  {
+    name:"VWAP",
+    id:"VWAP@tv-basicstudies",
+    category:"Volume"
+  }
+
+];
+
+
+/* =====================================================
+   OPEN INDICATORS
 ===================================================== */
 
 function openIndicators(){
@@ -2882,24 +3329,193 @@ function openIndicators(){
   showModal(
     "Indicators",
     `
-      <p>
-        TradingView chart ke
-        <b>Indicators</b> button se
-        indicators open kar sakte ho.
-      </p>
+      <div>
+        <p style="margin-top:0">
+          Search any indicator below and press
+          <b>Add</b>.
+        </p>
 
-      <p>
-        Default:
-        <b>RSI, MACD aur Moving Average</b>
-        enabled hain.
-      </p>
+        <input
+          id="indicatorSearch"
+          class="search indicatorSearch"
+          placeholder="Search indicator..."
+        >
 
-      <p>
-        EMA, Bollinger Bands, Stochastic,
-        ATR, Volume aur doosre supported
-        indicators bhi use kar sakte ho.
-      </p>
+        <div
+          id="indicatorList"
+          class="indicatorList"
+        ></div>
+
+        <p style="
+          font-size:11px;
+          color:#71877e;
+          margin-bottom:0;
+        ">
+          TradingView may use its own supported
+          indicator library. If a specific indicator
+          is not exposed by the embedded chart API,
+          use the native TradingView Indicators button.
+        </p>
+      </div>
     `
+  );
+
+
+  renderIndicatorList();
+
+
+  const input=
+    $("indicatorSearch");
+
+
+  if(input){
+
+    input.focus();
+
+    input.addEventListener(
+      "input",
+      renderIndicatorList
+    );
+
+  }
+
+}
+
+
+function renderIndicatorList(){
+
+  const box=
+    $("indicatorList");
+
+
+  if(!box)return;
+
+
+  const search=
+    ($("indicatorSearch")?.value||"")
+      .trim()
+      .toLowerCase();
+
+
+  const list=
+    INDICATORS.filter(
+      item=>
+        item.name
+          .toLowerCase()
+          .includes(search)||
+        item.category
+          .toLowerCase()
+          .includes(search)
+    );
+
+
+  if(!list.length){
+
+    box.innerHTML=`
+      <div class="noResults">
+        No indicator found.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  box.innerHTML=
+    list.map(
+      (item,index)=>`
+
+        <div class="indicatorItem">
+
+          <div>
+
+            <div class="indicatorName">
+              ${item.name}
+            </div>
+
+            <div class="indicatorCategory">
+              ${item.category}
+            </div>
+
+          </div>
+
+          <button
+            class="btn indicatorAdd"
+            onclick="addIndicator(${INDICATORS.indexOf(item)})"
+          >
+            Add
+          </button>
+
+        </div>
+
+      `
+    ).join("");
+
+}
+
+
+/* =====================================================
+   ADD INDICATOR
+===================================================== */
+
+function addIndicator(index){
+
+  const item=
+    INDICATORS[index];
+
+
+  if(!item){
+
+    alert(
+      "Indicator not found."
+    );
+
+    return;
+  }
+
+
+  try{
+
+    if(
+      tvWidget&&
+      tvWidget.activeChart
+    ){
+
+      const chart=
+        tvWidget.activeChart();
+
+
+      if(
+        chart.createStudy
+      ){
+
+        chart.createStudy(
+          item.name,
+          false,
+          false
+        );
+
+
+        return;
+
+      }
+
+    }
+
+  }catch(e){
+
+    console.log(
+      "Indicator add error",
+      e
+    );
+
+  }
+
+
+  alert(
+    item.name+
+    " ko TradingView ke native Indicators menu se add kar sakte ho."
   );
 
 }
@@ -3067,11 +3683,6 @@ async function createTradeLines(){
     removeTradeLines();
 
 
-    /*
-      Use current visible time so that
-      horizontal line has a valid chart point.
-    */
-
     let time=
       Math.floor(
         Date.now()/1000
@@ -3090,10 +3701,6 @@ async function createTradeLines(){
 
     }catch(e){}
 
-
-    /*
-      ENTRY
-    */
 
     if(trade.entry){
 
@@ -3143,10 +3750,6 @@ async function createTradeLines(){
     }
 
 
-    /*
-      STOP LOSS
-    */
-
     if(trade.sl!==null){
 
       try{
@@ -3194,10 +3797,6 @@ async function createTradeLines(){
 
     }
 
-
-    /*
-      TAKE PROFIT
-    */
 
     if(trade.tp!==null){
 
@@ -3247,12 +3846,6 @@ async function createTradeLines(){
     }
 
 
-    /*
-      If the widget exposes drawing
-      events, moving a line will update
-      the corresponding trade field.
-    */
-
     try{
 
       if(
@@ -3270,9 +3863,7 @@ async function createTradeLines(){
             id,
             eventType
           )=>{
-            syncTradeLine(
-              id
-            );
+            syncTradeLine(id);
           }
         );
 
@@ -3349,11 +3940,6 @@ async function syncTradeLine(id){
     if(
       id===tradeLineIds.entry
     ){
-
-      /*
-        Entry is display-only for
-        the demo position.
-      */
 
     }
 
@@ -3714,10 +4300,81 @@ $("deleteNotes")
 
 
 /* =====================================================
-   WEBSOCKET
+   MARKET WEBSOCKET
 ===================================================== */
 
 let ws;
+
+
+function handleMarketData(data){
+
+  if(!data)return;
+
+
+  const normalized=
+    normalizeSymbol(
+      data.symbol
+    );
+
+
+  if(!normalized)
+    return;
+
+
+  if(
+    data.price!==undefined&&
+    data.price!==null&&
+    !isNaN(Number(data.price))
+  ){
+
+    prices[normalized]=
+      Number(data.price);
+
+  }
+
+
+  /*
+    Real provider volume only.
+    null/undefined means the provider
+    did not return volume.
+  */
+
+  if(
+    data.volume!==undefined&&
+    data.volume!==null&&
+    data.volume!==""
+  ){
+
+    const numericVolume=
+      Number(data.volume);
+
+
+    if(!isNaN(numericVolume)){
+
+      volumes[normalized]=
+        numericVolume;
+
+    }
+
+  }else{
+
+    volumes[normalized]=null;
+
+  }
+
+
+  quoteMeta[normalized]={
+    change:
+      data.change??null,
+
+    percent_change:
+      data.percent_change??null,
+
+    timestamp:
+      data.timestamp??null
+  };
+
+}
 
 
 try{
@@ -3767,27 +4424,39 @@ try{
       }
 
 
+      /*
+        NEW SERVER FORMAT
+      */
+
       if(
-        m.type==="price"&&
-        m.data?.symbol&&
-        m.data?.price
+        m.type==="market"&&
+        m.data
       ){
 
-        const normalized=
-          normalizeSymbol(
-            m.data.symbol
-          );
+        handleMarketData(
+          m.data
+        );
+
+        checkStops();
+
+        render();
+
+      }
 
 
-        if(normalized){
+      /*
+        OLD SERVER FORMAT
+        Kept for backward compatibility.
+      */
 
-          prices[normalized]=
-            Number(
-              m.data.price
-            );
+      if(
+        m.type==="price"&&
+        m.data
+      ){
 
-        }
-
+        handleMarketData(
+          m.data
+        );
 
         checkStops();
 
@@ -3842,6 +4511,18 @@ try{
 setInterval(
   checkStops,
   5000
+);
+
+
+/* =====================================================
+   PERIODIC UI REFRESH
+===================================================== */
+
+setInterval(
+  ()=>{
+    render();
+  },
+  2000
 );
 
 
@@ -3912,4 +4593,3 @@ updateTFButtons();
 
 </body>
 </html>
-```

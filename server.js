@@ -6,6 +6,8 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { Pool } from "pg";
 import { WebSocketServer, WebSocket } from "ws";
 import dotenv from "dotenv";
 
@@ -20,95 +22,50 @@ const __dirname = path.dirname(
 );
 
 const app = express();
-
 const server = http.createServer(app);
 
 const wss = new WebSocketServer({
   server
 });
 
-const PORT =
-  process.env.PORT || 3000;
-
-const KEY =
-  process.env.TWELVE_DATA_API_KEY;
-
-const DB =
-  path.join(__dirname, "users.json");
+const PORT = process.env.PORT || 3000;
+const KEY = process.env.TWELVE_DATA_API_KEY;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 // ===============================
-// DATABASE
+// DATABASE CHECK
 // ===============================
 
-if (!fs.existsSync(DB)) {
-  fs.writeFileSync(
-    DB,
-    JSON.stringify(
-      { users: [] },
-      null,
-      2
-    )
+if (!DATABASE_URL) {
+  console.error(
+    "ERROR: DATABASE_URL is missing in Render Environment Variables."
   );
+  process.exit(1);
 }
 
-const read = () => {
-  try {
-    const data = fs.readFileSync(
-      DB,
-      "utf8"
-    );
+// ===============================
+// POSTGRES DATABASE
+// ===============================
 
-    const parsed = JSON.parse(data);
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false
+});
 
-    if (
-      !parsed ||
-      !Array.isArray(parsed.users)
-    ) {
-      return {
-        users: []
-      };
-    }
+// ===============================
+// SESSION STORE
+// ===============================
 
-    return parsed;
+const PgStore = connectPgSimple(session);
 
-  } catch (err) {
-
-    console.log(
-      "Database read error:",
-      err.message
-    );
-
-    return {
-      users: []
-    };
-  }
-};
-
-const write = data => {
-
-  try {
-
-    fs.writeFileSync(
-      DB,
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
-
-    return true;
-
-  } catch (err) {
-
-    console.log(
-      "Database write error:",
-      err.message
-    );
-
-    return false;
-  }
-};
+const sessionStore = new PgStore({
+  pool,
+  tableName: "session",
+  createTableIfMissing: true
+});
 
 // ===============================
 // MIDDLEWARE
@@ -120,13 +77,12 @@ app.use(
   })
 );
 
-app.set(
-  "trust proxy",
-  1
-);
+app.set("trust proxy", 1);
 
 app.use(
   session({
+    store: sessionStore,
+
     secret:
       process.env.SESSION_SECRET ||
       "CHANGE_THIS_SESSION_SECRET",
@@ -140,7 +96,9 @@ app.use(
 
       sameSite: "lax",
 
-      // Keep user logged in for 30 days
+      secure:
+        process.env.NODE_ENV === "production",
+
       maxAge:
         1000 *
         60 *
@@ -150,6 +108,176 @@ app.use(
     }
   })
 );
+
+// ===============================
+// CREATE DATABASE TABLE
+// ===============================
+
+async function createTables() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+
+      balance DOUBLE PRECISION NOT NULL DEFAULT 10000,
+
+      positions JSONB NOT NULL DEFAULT '[]'::jsonb,
+
+      history JSONB NOT NULL DEFAULT '[]'::jsonb,
+
+      watchlist JSONB NOT NULL DEFAULT
+        '["EUR/USD","GBP/USD","USD/JPY","XAU/USD"]'::jsonb,
+
+      notes TEXT NOT NULL DEFAULT '',
+
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  console.log("PostgreSQL tables ready.");
+}
+
+// ===============================
+// OLD users.json MIGRATION
+// ===============================
+
+const OLD_DB = path.join(
+  __dirname,
+  "users.json"
+);
+
+async function migrateOldUsers() {
+  if (!fs.existsSync(OLD_DB)) {
+    console.log("No old users.json found.");
+    return;
+  }
+
+  try {
+    const raw = fs.readFileSync(
+      OLD_DB,
+      "utf8"
+    );
+
+    const parsed = JSON.parse(raw);
+
+    if (
+      !parsed ||
+      !Array.isArray(parsed.users)
+    ) {
+      return;
+    }
+
+    for (const oldUser of parsed.users) {
+      if (
+        !oldUser ||
+        !oldUser.email ||
+        !oldUser.password
+      ) {
+        continue;
+      }
+
+      await pool.query(
+        `
+        INSERT INTO users (
+          id,
+          name,
+          email,
+          password_hash,
+          balance,
+          positions,
+          history,
+          watchlist,
+          notes
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9
+        )
+        ON CONFLICT (email)
+        DO NOTHING
+        `,
+        [
+          oldUser.id ||
+            crypto.randomUUID(),
+
+          oldUser.name ||
+            "Trader",
+
+          String(
+            oldUser.email
+          )
+            .trim()
+            .toLowerCase(),
+
+          oldUser.password,
+
+          typeof oldUser.balance ===
+          "number"
+            ? oldUser.balance
+            : 10000,
+
+          JSON.stringify(
+            Array.isArray(
+              oldUser.positions
+            )
+              ? oldUser.positions
+              : []
+          ),
+
+          JSON.stringify(
+            Array.isArray(
+              oldUser.history
+            )
+              ? oldUser.history
+              : []
+          ),
+
+          JSON.stringify(
+            Array.isArray(
+              oldUser.watchlist
+            )
+              ? oldUser.watchlist
+              : [
+                  "EUR/USD",
+                  "GBP/USD",
+                  "USD/JPY",
+                  "XAU/USD"
+                ]
+          ),
+
+          typeof oldUser.notes ===
+          "string"
+            ? oldUser.notes
+            : ""
+        ]
+      );
+    }
+
+    console.log(
+      "Old users.json migration checked."
+    );
+
+  } catch (err) {
+    console.log(
+      "Old users migration error:",
+      err.message
+    );
+  }
+}
+
+// ===============================
+// DEFAULT USER DATA
+// ===============================
+
+const defaultWatchlist = [
+  "EUR/USD",
+  "GBP/USD",
+  "USD/JPY",
+  "XAU/USD"
+];
 
 // ===============================
 // AUTH MIDDLEWARE
@@ -201,9 +329,6 @@ app.post(
       password =
         String(password || "");
 
-      const db = read();
-
-      // Basic validation
       if (
         !name ||
         !email ||
@@ -219,14 +344,19 @@ app.post(
           });
       }
 
-      // Check duplicate email
-      const exists =
-        db.users.some(
-          user =>
-            user.email === email
+      const existing =
+        await pool.query(
+          `
+          SELECT id
+          FROM users
+          WHERE email = $1
+          `,
+          [email]
         );
 
-      if (exists) {
+      if (
+        existing.rows.length > 0
+      ) {
 
         return res
           .status(409)
@@ -236,62 +366,65 @@ app.post(
           });
       }
 
-      // Secure password hash
       const hashedPassword =
         await bcrypt.hash(
           password,
           12
         );
 
-      const user = {
+      const userId =
+        crypto.randomUUID();
 
-        id:
-          crypto.randomUUID(),
+      await pool.query(
+        `
+        INSERT INTO users (
+          id,
+          name,
+          email,
+          password_hash,
+          balance,
+          positions,
+          history,
+          watchlist,
+          notes
+        )
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7,
+          $8,
+          $9
+        )
+        `,
+        [
+          userId,
 
-        name,
+          name,
 
-        email,
+          email,
 
-        password:
           hashedPassword,
 
-        // Demo account balance
-        balance:
           10000,
 
-        positions: [],
+          JSON.stringify([]),
 
-        history: [],
+          JSON.stringify([]),
 
-        watchlist: [
-          "EUR/USD",
-          "GBP/USD",
-          "USD/JPY",
-          "XAU/USD"
-        ],
+          JSON.stringify(
+            defaultWatchlist
+          ),
 
-        // Persistent notes
-        notes: ""
-      };
+          ""
+        ]
+      );
 
-      db.users.push(user);
-
-      const saved =
-        write(db);
-
-      if (!saved) {
-
-        return res
-          .status(500)
-          .json({
-            error:
-              "Account could not be saved."
-          });
-      }
-
-      // Automatically login
       req.session.user =
-        user.id;
+        userId;
 
       req.session.save(
         err => {
@@ -360,19 +493,24 @@ app.post(
       password =
         String(password || "");
 
-      const db = read();
+      const result =
+        await pool.query(
+          `
+          SELECT *
+          FROM users
+          WHERE email = $1
+          `,
+          [email]
+        );
 
       const user =
-        db.users.find(
-          u =>
-            u.email === email
-        );
+        result.rows[0];
 
       if (
         !user ||
         !(await bcrypt.compare(
           password,
-          user.password
+          user.password_hash
         ))
       ) {
 
@@ -383,54 +521,6 @@ app.post(
               "Invalid email or password."
           });
       }
-
-      // Make sure old accounts
-      // also have these fields
-      if (
-        typeof user.balance !==
-        "number"
-      ) {
-        user.balance = 10000;
-      }
-
-      if (
-        !Array.isArray(
-          user.positions
-        )
-      ) {
-        user.positions = [];
-      }
-
-      if (
-        !Array.isArray(
-          user.history
-        )
-      ) {
-        user.history = [];
-      }
-
-      if (
-        !Array.isArray(
-          user.watchlist
-        )
-      ) {
-        user.watchlist = [
-          "EUR/USD",
-          "GBP/USD",
-          "USD/JPY",
-          "XAU/USD"
-        ];
-      }
-
-      if (
-        typeof user.notes !==
-        "string"
-      ) {
-        user.notes = "";
-      }
-
-      // Save migrated user data
-      write(db);
 
       req.session.user =
         user.id;
@@ -527,99 +617,84 @@ app.post(
 app.get(
   "/api/me",
   auth,
-  (req, res) => {
+  async (req, res) => {
 
-    const db = read();
+    try {
 
-    const user =
-      db.users.find(
-        u =>
-          u.id ===
-          req.session.user
+      const result =
+        await pool.query(
+          `
+          SELECT
+            id,
+            name,
+            email,
+            balance,
+            positions,
+            history,
+            watchlist,
+            notes
+          FROM users
+          WHERE id = $1
+          `,
+          [req.session.user]
+        );
+
+      const user =
+        result.rows[0];
+
+      if (!user) {
+
+        req.session.destroy(
+          () => {}
+        );
+
+        return res
+          .status(401)
+          .json({
+            error:
+              "User account not found."
+          });
+      }
+
+      res.json({
+
+        name:
+          user.name,
+
+        email:
+          user.email,
+
+        balance:
+          Number(user.balance),
+
+        positions:
+          user.positions || [],
+
+        history:
+          user.history || [],
+
+        watchlist:
+          user.watchlist ||
+          defaultWatchlist,
+
+        notes:
+          user.notes || ""
+      });
+
+    } catch (err) {
+
+      console.log(
+        "Current user error:",
+        err.message
       );
 
-    if (!user) {
-
-      req.session.destroy(
-        () => {}
-      );
-
-      return res
-        .status(401)
+      res
+        .status(500)
         .json({
           error:
-            "User account not found."
+            "Unable to load account."
         });
     }
-
-    // Make sure old accounts
-    // have all fields
-    if (
-      typeof user.balance !==
-      "number"
-    ) {
-      user.balance = 10000;
-    }
-
-    if (
-      !Array.isArray(
-        user.positions
-      )
-    ) {
-      user.positions = [];
-    }
-
-    if (
-      !Array.isArray(
-        user.history
-      )
-    ) {
-      user.history = [];
-    }
-
-    if (
-      !Array.isArray(
-        user.watchlist
-      )
-    ) {
-      user.watchlist = [
-        "EUR/USD",
-        "GBP/USD",
-        "USD/JPY",
-        "XAU/USD"
-      ];
-    }
-
-    if (
-      typeof user.notes !==
-      "string"
-    ) {
-      user.notes = "";
-    }
-
-    res.json({
-
-      name:
-        user.name,
-
-      email:
-        user.email,
-
-      balance:
-        user.balance,
-
-      positions:
-        user.positions,
-
-      history:
-        user.history,
-
-      watchlist:
-        user.watchlist,
-
-      notes:
-        user.notes
-    });
   }
 );
 
@@ -630,20 +705,26 @@ app.get(
 app.post(
   "/api/state",
   auth,
-  (req, res) => {
+  async (req, res) => {
 
     try {
 
-      const db = read();
+      const body =
+        req.body || {};
 
-      const user =
-        db.users.find(
-          u =>
-            u.id ===
-            req.session.user
+      const result =
+        await pool.query(
+          `
+          SELECT id
+          FROM users
+          WHERE id = $1
+          `,
+          [req.session.user]
         );
 
-      if (!user) {
+      if (
+        result.rows.length === 0
+      ) {
 
         return res
           .status(401)
@@ -653,104 +734,127 @@ app.post(
           });
       }
 
-      const body =
-        req.body || {};
-
       // =========================
-      // BALANCE
+      // BUILD UPDATE
       // =========================
 
+      const updates = [];
+      const values = [];
+
+      let index = 1;
+
+      // Balance
       if (
         body.balance !== undefined
       ) {
 
-        const newBalance =
+        const balance =
           Number(
             body.balance
           );
 
         if (
           Number.isFinite(
-            newBalance
+            balance
           )
         ) {
 
-          user.balance =
-            newBalance;
+          updates.push(
+            `balance = $${index++}`
+          );
+
+          values.push(
+            balance
+          );
         }
       }
 
-      // =========================
-      // OPEN POSITIONS
-      // =========================
-
+      // Positions
       if (
         Array.isArray(
           body.positions
         )
       ) {
 
-        user.positions =
-          body.positions;
+        updates.push(
+          `positions = $${index++}::jsonb`
+        );
+
+        values.push(
+          JSON.stringify(
+            body.positions
+          )
+        );
       }
 
-      // =========================
-      // TRADE HISTORY
-      // =========================
-
+      // History
       if (
         Array.isArray(
           body.history
         )
       ) {
 
-        user.history =
-          body.history;
+        updates.push(
+          `history = $${index++}::jsonb`
+        );
+
+        values.push(
+          JSON.stringify(
+            body.history
+          )
+        );
       }
 
-      // =========================
-      // WATCHLIST
-      // =========================
-
+      // Watchlist
       if (
         Array.isArray(
           body.watchlist
         )
       ) {
 
-        user.watchlist =
-          body.watchlist;
+        updates.push(
+          `watchlist = $${index++}::jsonb`
+        );
+
+        values.push(
+          JSON.stringify(
+            body.watchlist
+          )
+        );
       }
 
-      // =========================
-      // NOTES
-      // =========================
-
+      // Notes
       if (
         typeof body.notes ===
         "string"
       ) {
 
-        user.notes =
-          body.notes;
+        updates.push(
+          `notes = $${index++}`
+        );
+
+        values.push(
+          body.notes
+        );
       }
 
-      // =========================
-      // SAVE EVERYTHING
-      // =========================
+      // Updated timestamp
+      updates.push(
+        `updated_at = NOW()`
+      );
 
-      const saved =
-        write(db);
+      values.push(
+        req.session.user
+      );
 
-      if (!saved) {
-
-        return res
-          .status(500)
-          .json({
-            error:
-              "User state could not be saved."
-          });
-      }
+      await pool.query(
+        `
+        UPDATE users
+        SET ${updates.join(", ")}
+        WHERE id = $${index}
+        `,
+        values
+      );
 
       res.json({
         ok: true
@@ -796,7 +900,10 @@ let clients =
 let latestPrices =
   {};
 
-// Send message to connected users
+// ===============================
+// SEND WEBSOCKET MESSAGE
+// ===============================
+
 const send = data => {
 
   const message =
@@ -816,7 +923,10 @@ const send = data => {
   }
 };
 
-// Demo market symbols
+// ===============================
+// MARKET SYMBOLS
+// ===============================
+
 const symbols = [
 
   "EUR/USD",
@@ -869,7 +979,9 @@ async function updatePrice(
     ) {
 
       const price =
-        Number(data.price);
+        Number(
+          data.price
+        );
 
       if (
         !Number.isFinite(
@@ -889,7 +1001,6 @@ async function updatePrice(
       latestPrices[symbol] =
         price;
 
-      // Send new price
       send({
 
         type:
@@ -937,8 +1048,6 @@ async function updateAllPrices() {
     "Updating all market prices..."
   );
 
-  // Get all 6 symbols
-  // together
   await Promise.all(
     symbols.map(
       symbol =>
@@ -946,7 +1055,6 @@ async function updateAllPrices() {
     )
   );
 
-  // Market status
   send({
 
     type:
@@ -977,8 +1085,7 @@ wss.on(
       "WebSocket client connected."
     );
 
-    // Send already available
-    // prices immediately
+    // Send current prices
     for (
       const symbol of symbols
     ) {
@@ -1049,30 +1156,54 @@ wss.on(
 );
 
 // ===============================
-// START MARKET DATA
-// ===============================
-
-// Get all prices immediately
-updateAllPrices();
-
-// Refresh every 12 minutes
-setInterval(
-  updateAllPrices,
-  12 * 60 * 1000
-);
-
-// ===============================
 // START SERVER
 // ===============================
 
-server.listen(
-  PORT,
-  "0.0.0.0",
-  () => {
+async function startServer() {
+
+  try {
+
+    await pool.query(
+      "SELECT NOW()"
+    );
 
     console.log(
-      "Sahil Trading Pro running on port " +
-      PORT
+      "PostgreSQL connected."
     );
+
+    await createTables();
+
+    await migrateOldUsers();
+
+    // Market data
+    updateAllPrices();
+
+    setInterval(
+      updateAllPrices,
+      12 * 60 * 1000
+    );
+
+    server.listen(
+      PORT,
+      "0.0.0.0",
+      () => {
+
+        console.log(
+          "Sahil Trading Pro running on port " +
+          PORT
+        );
+      }
+    );
+
+  } catch (err) {
+
+    console.error(
+      "SERVER START ERROR:",
+      err
+    );
+
+    process.exit(1);
   }
-);
+}
+
+startServer();

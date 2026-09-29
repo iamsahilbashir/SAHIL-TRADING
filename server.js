@@ -1,310 +1,322 @@
-import express from "express";
-import http from "http";
-import fs from "fs";
-import path from "path";
-import crypto from "crypto";
-import { fileURLToPath } from "url";
-import bcrypt from "bcryptjs";
-import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import { Pool } from "pg";
-import { WebSocketServer, WebSocket } from "ws";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-// ===============================
-// BASIC SETUP
-// ===============================
-
-const __dirname = path.dirname(
-  fileURLToPath(import.meta.url)
-);
+const express = require("express");
+const http = require("http");
+const WebSocket = require("ws");
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const server = http.createServer(app);
-
-const wss = new WebSocketServer({
+const wss = new WebSocket.Server({
   server
 });
 
-const PORT = process.env.PORT || 3000;
-const KEY = process.env.TWELVE_DATA_API_KEY;
-const DATABASE_URL = process.env.DATABASE_URL;
 
-// ===============================
-// DATABASE CHECK
-// ===============================
+/* =====================================================
+   ENVIRONMENT
+===================================================== */
 
-if (!DATABASE_URL) {
-  console.error(
-    "ERROR: DATABASE_URL is missing in Render Environment Variables."
-  );
-  process.exit(1);
-}
+const PORT =
+  process.env.PORT || 10000;
 
-// ===============================
-// POSTGRES DATABASE
-// ===============================
+const DATABASE_URL =
+  process.env.DATABASE_URL;
 
-const pool = new Pool({
-  connectionString: DATABASE_URL,
+const TWELVE_DATA_API_KEY =
+  process.env.TWELVE_DATA_API_KEY;
 
-  ssl:
-    process.env.NODE_ENV === "production"
-      ? { rejectUnauthorized: false }
-      : false
-});
 
-// ===============================
-// SESSION STORE
-// ===============================
+/* =====================================================
+   POSTGRESQL
+===================================================== */
 
-const PgStore = connectPgSimple(session);
+const pool =
+  new Pool({
+    connectionString:
+      DATABASE_URL,
 
-const sessionStore = new PgStore({
-  pool,
-  tableName: "session",
-  createTableIfMissing: true
-});
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? {
+            rejectUnauthorized: false
+          }
+        : false
+  });
 
-// ===============================
-// MIDDLEWARE
-// ===============================
+
+/* =====================================================
+   EXPRESS
+===================================================== */
 
 app.use(
   express.json({
-    limit: "1mb"
+    limit: "2mb"
   })
 );
-
-app.set("trust proxy", 1);
 
 app.use(
-  session({
-    store: sessionStore,
-
-    secret:
-      process.env.SESSION_SECRET ||
-      "CHANGE_THIS_SESSION_SECRET",
-
-    resave: false,
-
-    saveUninitialized: false,
-
-    cookie: {
-      httpOnly: true,
-
-      sameSite: "lax",
-
-      secure:
-        process.env.NODE_ENV === "production",
-
-      maxAge:
-        1000 *
-        60 *
-        60 *
-        24 *
-        30
-    }
+  express.urlencoded({
+    extended: true
   })
 );
 
-// ===============================
-// CREATE DATABASE TABLE
-// ===============================
 
-async function createTables() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
+/* =====================================================
+   SIMPLE SESSION STORE
+===================================================== */
 
-      balance DOUBLE PRECISION NOT NULL DEFAULT 10000,
+const sessions =
+  new Map();
 
-      positions JSONB NOT NULL DEFAULT '[]'::jsonb,
 
-      history JSONB NOT NULL DEFAULT '[]'::jsonb,
+function createSession(userId) {
 
-      watchlist JSONB NOT NULL DEFAULT
-        '["EUR/USD","GBP/USD","USD/JPY","XAU/USD"]'::jsonb,
+  const token =
+    require("crypto")
+      .randomBytes(32)
+      .toString("hex");
 
-      notes TEXT NOT NULL DEFAULT '',
+  sessions.set(
+    token,
+    {
+      userId,
+      createdAt: Date.now()
+    }
+  );
 
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-
-  console.log("PostgreSQL tables ready.");
+  return token;
 }
 
-// ===============================
-// OLD users.json MIGRATION
-// ===============================
 
-const OLD_DB = path.join(
-  __dirname,
-  "users.json"
-);
+function getSession(req) {
 
-async function migrateOldUsers() {
-  if (!fs.existsSync(OLD_DB)) {
-    console.log("No old users.json found.");
-    return;
+  const header =
+    req.headers.authorization;
+
+  if (
+    header &&
+    header.startsWith("Bearer ")
+  ) {
+
+    const token =
+      header.slice(7);
+
+    return sessions.get(token);
+
   }
 
-  try {
-    const raw = fs.readFileSync(
-      OLD_DB,
-      "utf8"
+
+  const cookie =
+    req.headers.cookie || "";
+
+  const match =
+    cookie.match(
+      /sahil_session=([^;]+)/
     );
 
-    const parsed = JSON.parse(raw);
+  if (!match)
+    return null;
 
-    if (
-      !parsed ||
-      !Array.isArray(parsed.users)
-    ) {
-      return;
+
+  return sessions.get(
+    match[1]
+  );
+}
+
+
+function setSessionCookie(
+  res,
+  token
+) {
+
+  res.setHeader(
+    "Set-Cookie",
+    [
+      "sahil_session=" +
+        token +
+        "; Path=/; HttpOnly; SameSite=Lax"
+    ]
+  );
+
+}
+
+
+function clearSessionCookie(res) {
+
+  res.setHeader(
+    "Set-Cookie",
+    [
+      "sahil_session=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax"
+    ]
+  );
+
+}
+
+
+async function requireAuth(
+  req,
+  res,
+  next
+) {
+
+  try {
+
+    const session =
+      getSession(req);
+
+    if (!session) {
+
+      return res
+        .status(401)
+        .json({
+          error:
+            "Not authenticated."
+        });
+
     }
 
-    for (const oldUser of parsed.users) {
-      if (
-        !oldUser ||
-        !oldUser.email ||
-        !oldUser.password
-      ) {
-        continue;
-      }
 
+    const result =
       await pool.query(
         `
-        INSERT INTO users (
+        SELECT
           id,
           name,
           email,
-          password_hash,
           balance,
           positions,
           history,
           watchlist,
           notes
-        )
-        VALUES (
-          $1,$2,$3,$4,$5,$6,$7,$8,$9
-        )
-        ON CONFLICT (email)
-        DO NOTHING
+        FROM users
+        WHERE id=$1
         `,
         [
-          oldUser.id ||
-            crypto.randomUUID(),
-
-          oldUser.name ||
-            "Trader",
-
-          String(
-            oldUser.email
-          )
-            .trim()
-            .toLowerCase(),
-
-          oldUser.password,
-
-          typeof oldUser.balance ===
-          "number"
-            ? oldUser.balance
-            : 10000,
-
-          JSON.stringify(
-            Array.isArray(
-              oldUser.positions
-            )
-              ? oldUser.positions
-              : []
-          ),
-
-          JSON.stringify(
-            Array.isArray(
-              oldUser.history
-            )
-              ? oldUser.history
-              : []
-          ),
-
-          JSON.stringify(
-            Array.isArray(
-              oldUser.watchlist
-            )
-              ? oldUser.watchlist
-              : [
-                  "EUR/USD",
-                  "GBP/USD",
-                  "USD/JPY",
-                  "XAU/USD"
-                ]
-          ),
-
-          typeof oldUser.notes ===
-          "string"
-            ? oldUser.notes
-            : ""
+          session.userId
         ]
       );
+
+
+    if (!result.rows.length) {
+
+      return res
+        .status(401)
+        .json({
+          error:
+            "User not found."
+        });
+
     }
 
-    console.log(
-      "Old users.json migration checked."
+
+    req.user =
+      result.rows[0];
+
+    req.userId =
+      session.userId;
+
+
+    next();
+
+  } catch (error) {
+
+    console.error(
+      "Auth middleware error:",
+      error
     );
 
-  } catch (err) {
-    console.log(
-      "Old users migration error:",
-      err.message
-    );
+    res
+      .status(500)
+      .json({
+        error:
+          "Authentication error."
+      });
+
   }
+
 }
 
-// ===============================
-// DEFAULT USER DATA
-// ===============================
 
-const defaultWatchlist = [
-  "EUR/USD",
-  "GBP/USD",
-  "USD/JPY",
-  "XAU/USD"
-];
+/* =====================================================
+   DATABASE SETUP
+===================================================== */
 
-// ===============================
-// AUTH MIDDLEWARE
-// ===============================
+async function setupDatabase() {
 
-const auth = (
-  req,
-  res,
-  next
-) => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
 
-  if (req.session.user) {
-    return next();
+      id SERIAL PRIMARY KEY,
+
+      name TEXT NOT NULL,
+
+      email TEXT UNIQUE NOT NULL,
+
+      password TEXT NOT NULL,
+
+      balance DOUBLE PRECISION
+        NOT NULL DEFAULT 10000,
+
+      positions JSONB
+        NOT NULL DEFAULT '[]'::jsonb,
+
+      history JSONB
+        NOT NULL DEFAULT '[]'::jsonb,
+
+      watchlist JSONB
+        NOT NULL DEFAULT '[]'::jsonb,
+
+      notes TEXT
+        NOT NULL DEFAULT '',
+
+      created_at TIMESTAMP
+        NOT NULL DEFAULT NOW()
+
+    );
+  `);
+
+
+  console.log(
+    "PostgreSQL tables ready"
+  );
+
+}
+
+
+/* =====================================================
+   HEALTH
+===================================================== */
+
+app.get(
+  "/health",
+  async (req, res) => {
+
+    try {
+
+      await pool.query(
+        "SELECT 1"
+      );
+
+      res.json({
+        ok: true
+      });
+
+    } catch (error) {
+
+      res
+        .status(500)
+        .json({
+          ok: false
+        });
+
+    }
+
   }
+);
 
-  return res
-    .status(401)
-    .json({
-      error:
-        "Login required"
-    });
-};
 
-// ===============================
-// CREATE ACCOUNT
-// ===============================
+/* =====================================================
+   SIGNUP
+===================================================== */
 
 app.post(
   "/api/signup",
@@ -312,28 +324,41 @@ app.post(
 
     try {
 
-      let {
-        name,
-        email,
-        password
-      } = req.body || {};
+      const name =
+        String(
+          req.body.name || ""
+        ).trim();
 
-      name =
-        String(name || "")
-          .trim();
+      const email =
+        String(
+          req.body.email || ""
+        )
+        .trim()
+        .toLowerCase();
 
-      email =
-        String(email || "")
-          .trim()
-          .toLowerCase();
+      const password =
+        String(
+          req.body.password || ""
+        );
 
-      password =
-        String(password || "");
 
       if (
         !name ||
         !email ||
-        !password ||
+        !password
+      ) {
+
+        return res
+          .status(400)
+          .json({
+            error:
+              "Name, email and password are required."
+          });
+
+      }
+
+
+      if (
         password.length < 6
       ) {
 
@@ -341,139 +366,138 @@ app.post(
           .status(400)
           .json({
             error:
-              "Enter name, email and 6+ character password."
+              "Password must be at least 6 characters."
           });
+
       }
+
 
       const existing =
         await pool.query(
           `
           SELECT id
           FROM users
-          WHERE email = $1
+          WHERE email=$1
           `,
           [email]
         );
 
+
       if (
-        existing.rows.length > 0
+        existing.rows.length
       ) {
 
         return res
           .status(409)
           .json({
             error:
-              "Email already registered. Please login."
+              "Email already registered."
           });
+
       }
 
-      const hashedPassword =
+
+      const hash =
         await bcrypt.hash(
           password,
-          12
+          10
         );
 
+
+      const defaultWatchlist = [
+        "EUR/USD",
+        "GBP/USD",
+        "USD/JPY",
+        "XAU/USD"
+      ];
+
+
+      const result =
+        await pool.query(
+          `
+          INSERT INTO users
+          (
+            name,
+            email,
+            password,
+            balance,
+            positions,
+            history,
+            watchlist,
+            notes
+          )
+          VALUES
+          (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8
+          )
+          RETURNING id
+          `,
+          [
+            name,
+            email,
+            hash,
+            10000,
+            JSON.stringify([]),
+            JSON.stringify([]),
+            JSON.stringify(
+              defaultWatchlist
+            ),
+            ""
+          ]
+        );
+
+
       const userId =
-        crypto.randomUUID();
+        result.rows[0].id;
 
-      await pool.query(
-        `
-        INSERT INTO users (
-          id,
-          name,
-          email,
-          password_hash,
-          balance,
-          positions,
-          history,
-          watchlist,
-          notes
-        )
-        VALUES (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5,
-          $6,
-          $7,
-          $8,
-          $9
-        )
-        `,
-        [
-          userId,
 
-          name,
+      const token =
+        createSession(
+          userId
+        );
 
-          email,
 
-          hashedPassword,
-
-          10000,
-
-          JSON.stringify([]),
-
-          JSON.stringify([]),
-
-          JSON.stringify(
-            defaultWatchlist
-          ),
-
-          ""
-        ]
+      setSessionCookie(
+        res,
+        token
       );
 
-      req.session.user =
-        userId;
 
-      req.session.save(
-        err => {
+      res.json({
+        success: true
+      });
 
-          if (err) {
 
-            console.log(
-              "Session save error:",
-              err.message
-            );
+    } catch (error) {
 
-            return res
-              .status(500)
-              .json({
-                error:
-                  "Account created but login session failed."
-              });
-          }
-
-          res.json({
-            ok: true,
-
-            message:
-              "Account created successfully."
-          });
-        }
-      );
-
-    } catch (err) {
-
-      console.log(
+      console.error(
         "Signup error:",
-        err.message
+        error
       );
 
       res
         .status(500)
         .json({
           error:
-            "Unable to create account."
+            "Signup failed."
         });
+
     }
+
   }
 );
 
-// ===============================
-// LOGIN
-// ===============================
+
+/* =====================================================
+   LOGIN
+===================================================== */
 
 app.post(
   "/api/login",
@@ -481,39 +505,46 @@ app.post(
 
     try {
 
-      let {
-        email,
-        password
-      } = req.body || {};
+      const email =
+        String(
+          req.body.email || ""
+        )
+        .trim()
+        .toLowerCase();
 
-      email =
-        String(email || "")
-          .trim()
-          .toLowerCase();
+      const password =
+        String(
+          req.body.password || ""
+        );
 
-      password =
-        String(password || "");
+
+      if (
+        !email ||
+        !password
+      ) {
+
+        return res
+          .status(400)
+          .json({
+            error:
+              "Email and password are required."
+          });
+
+      }
+
 
       const result =
         await pool.query(
           `
           SELECT *
           FROM users
-          WHERE email = $1
+          WHERE email=$1
           `,
           [email]
         );
 
-      const user =
-        result.rows[0];
 
-      if (
-        !user ||
-        !(await bcrypt.compare(
-          password,
-          user.password_hash
-        ))
-      ) {
+      if (!result.rows.length) {
 
         return res
           .status(401)
@@ -521,106 +552,133 @@ app.post(
             error:
               "Invalid email or password."
           });
+
       }
 
-      req.session.user =
-        user.id;
 
-      req.session.save(
-        err => {
+      const user =
+        result.rows[0];
 
-          if (err) {
 
-            console.log(
-              "Session save error:",
-              err.message
-            );
+      const valid =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
 
-            return res
-              .status(500)
-              .json({
-                error:
-                  "Login session could not be saved."
-              });
-          }
 
-          res.json({
-            ok: true,
+      if (!valid) {
 
-            message:
-              "Login successful."
+        return res
+          .status(401)
+          .json({
+            error:
+              "Invalid email or password."
           });
-        }
+
+      }
+
+
+      const token =
+        createSession(
+          user.id
+        );
+
+
+      setSessionCookie(
+        res,
+        token
       );
 
-    } catch (err) {
 
-      console.log(
+      res.json({
+        success: true
+      });
+
+
+    } catch (error) {
+
+      console.error(
         "Login error:",
-        err.message
+        error
       );
 
       res
         .status(500)
         .json({
           error:
-            "Unable to login."
+            "Login failed."
         });
+
     }
+
   }
 );
 
-// ===============================
-// LOGOUT
-// ===============================
+
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 app.post(
   "/api/logout",
   (req, res) => {
 
-    req.session.destroy(
-      err => {
+    const cookie =
+      req.headers.cookie || "";
 
-        if (err) {
+    const match =
+      cookie.match(
+        /sahil_session=([^;]+)/
+      );
 
-          console.log(
-            "Logout error:",
-            err.message
-          );
 
-          return res
-            .status(500)
-            .json({
-              error:
-                "Logout failed."
-            });
-        }
+    if (match) {
 
-        res.clearCookie(
-          "connect.sid"
-        );
+      sessions.delete(
+        match[1]
+      );
 
-        res.json({
-          ok: true,
+    }
 
-          message:
-            "Logged out successfully."
-        });
-      }
+
+    clearSessionCookie(
+      res
     );
+
+
+    res.json({
+      success: true
+    });
+
   }
 );
 
-// ===============================
-// CURRENT USER
-// ===============================
+
+/* =====================================================
+   CURRENT USER / STATE
+===================================================== */
 
 app.get(
   "/api/me",
-  auth,
   async (req, res) => {
 
     try {
+
+      const session =
+        getSession(req);
+
+
+      if (!session) {
+
+        return res
+          .status(401)
+          .json({
+            loggedIn: false
+          });
+
+      }
+
 
       const result =
         await pool.query(
@@ -635,58 +693,76 @@ app.get(
             watchlist,
             notes
           FROM users
-          WHERE id = $1
+          WHERE id=$1
           `,
-          [req.session.user]
+          [
+            session.userId
+          ]
         );
 
-      const user =
-        result.rows[0];
 
-      if (!user) {
-
-        req.session.destroy(
-          () => {}
-        );
+      if (!result.rows.length) {
 
         return res
           .status(401)
           .json({
-            error:
-              "User account not found."
+            loggedIn: false
           });
+
       }
+
+
+      const user =
+        result.rows[0];
+
 
       res.json({
 
-        name:
-          user.name,
+        loggedIn: true,
 
-        email:
-          user.email,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        },
 
         balance:
-          Number(user.balance),
+          Number(
+            user.balance
+          ),
 
         positions:
-          user.positions || [],
+          Array.isArray(
+            user.positions
+          )
+            ? user.positions
+            : [],
 
         history:
-          user.history || [],
+          Array.isArray(
+            user.history
+          )
+            ? user.history
+            : [],
 
         watchlist:
-          user.watchlist ||
-          defaultWatchlist,
+          Array.isArray(
+            user.watchlist
+          )
+            ? user.watchlist
+            : [],
 
         notes:
           user.notes || ""
+
       });
 
-    } catch (err) {
 
-      console.log(
-        "Current user error:",
-        err.message
+    } catch (error) {
+
+      console.error(
+        "Me error:",
+        error
       );
 
       res
@@ -695,241 +771,142 @@ app.get(
           error:
             "Unable to load account."
         });
+
     }
+
   }
 );
 
-// ===============================
-// SAVE USER STATE
-// ===============================
+
+/* =====================================================
+   SAVE STATE
+===================================================== */
 
 app.post(
   "/api/state",
-  auth,
+  requireAuth,
   async (req, res) => {
 
     try {
 
-      const body =
-        req.body || {};
-
-      const result =
-        await pool.query(
-          `
-          SELECT id
-          FROM users
-          WHERE id = $1
-          `,
-          [req.session.user]
+      const balance =
+        Number(
+          req.body.balance
         );
 
-      if (
-        result.rows.length === 0
-      ) {
 
-        return res
-          .status(401)
-          .json({
-            error:
-              "User not found."
-          });
-      }
-
-      const updates = [];
-      const values = [];
-
-      let index = 1;
-
-      if (
-        body.balance !== undefined
-      ) {
-
-        const balance =
-          Number(
-            body.balance
-          );
-
-        if (
-          Number.isFinite(
-            balance
-          )
-        ) {
-
-          updates.push(
-            `balance = $${index++}`
-          );
-
-          values.push(
-            balance
-          );
-        }
-      }
-
-      if (
+      const positions =
         Array.isArray(
-          body.positions
+          req.body.positions
         )
-      ) {
+          ? req.body.positions
+          : [];
 
-        updates.push(
-          `positions = $${index++}::jsonb`
-        );
 
-        values.push(
-          JSON.stringify(
-            body.positions
-          )
-        );
-      }
-
-      if (
+      const history =
         Array.isArray(
-          body.history
+          req.body.history
         )
-      ) {
+          ? req.body.history
+          : [];
 
-        updates.push(
-          `history = $${index++}::jsonb`
-        );
 
-        values.push(
-          JSON.stringify(
-            body.history
-          )
-        );
-      }
-
-      if (
+      const watchlist =
         Array.isArray(
-          body.watchlist
+          req.body.watchlist
         )
-      ) {
+          ? req.body.watchlist
+          : [];
 
-        updates.push(
-          `watchlist = $${index++}::jsonb`
-        );
 
-        values.push(
-          JSON.stringify(
-            body.watchlist
-          )
-        );
-      }
+      const notes =
+        typeof req.body.notes === "string"
+          ? req.body.notes
+          : "";
 
-      if (
-        typeof body.notes ===
-        "string"
-      ) {
-
-        updates.push(
-          `notes = $${index++}`
-        );
-
-        values.push(
-          body.notes
-        );
-      }
-
-      updates.push(
-        `updated_at = NOW()`
-      );
-
-      values.push(
-        req.session.user
-      );
 
       await pool.query(
         `
         UPDATE users
-        SET ${updates.join(", ")}
-        WHERE id = $${index}
+        SET
+          balance=$1,
+          positions=$2,
+          history=$3,
+          watchlist=$4,
+          notes=$5
+        WHERE id=$6
         `,
-        values
+        [
+          Number.isFinite(balance)
+            ? balance
+            : 10000,
+
+          JSON.stringify(
+            positions
+          ),
+
+          JSON.stringify(
+            history
+          ),
+
+          JSON.stringify(
+            watchlist
+          ),
+
+          notes,
+
+          req.userId
+        ]
       );
 
+
       res.json({
-        ok: true
+        success: true
       });
 
-    } catch (err) {
 
-      console.log(
-        "State save error:",
-        err.message
+    } catch (error) {
+
+      console.error(
+        "Save state error:",
+        error
       );
 
       res
         .status(500)
         .json({
           error:
-            "Unable to save account state."
+            "Unable to save state."
         });
+
     }
+
   }
 );
 
-// ===============================
-// PUBLIC WEBSITE
-// ===============================
+
+/* =====================================================
+   STATIC FRONTEND
+===================================================== */
 
 app.use(
   express.static(
-    path.join(
-      __dirname,
-      "public"
-    )
+    "public"
   )
 );
 
-// ===============================
-// MARKET DATA
-// ===============================
 
-const clients =
-  new Set();
+/* =====================================================
+   MARKET SYMBOLS
+===================================================== */
 
-const latestPrices =
-  {};
-
-const latestVolumes =
-  {};
-
-const latestQuotes =
-  {};
-
-// ===============================
-// SEND WEBSOCKET MESSAGE
-// ===============================
-
-const send = data => {
-
-  const message =
-    JSON.stringify(data);
-
-  for (
-    const client of clients
-  ) {
-
-    if (
-      client.readyState ===
-      WebSocket.OPEN
-    ) {
-
-      client.send(message);
-    }
-  }
-};
-
-// ===============================
-// MARKET SYMBOLS
-// ===============================
-
-const symbols = [
+const MARKET_SYMBOLS = [
 
   "EUR/USD",
   "GBP/USD",
   "USD/JPY",
   "USD/CHF",
+
   "AUD/USD",
   "USD/CAD",
   "NZD/USD",
@@ -937,8 +914,8 @@ const symbols = [
   "EUR/GBP",
   "EUR/JPY",
   "GBP/JPY",
-  "EUR/CHF",
 
+  "EUR/CHF",
   "AUD/JPY",
   "CAD/JPY",
   "NZD/JPY",
@@ -948,145 +925,545 @@ const symbols = [
 
   "BTC/USD",
   "ETH/USD"
+
 ];
 
-// ===============================
-// GET ONE QUOTE
-// ===============================
 
-async function updateQuote(symbol) {
+/* =====================================================
+   MARKET CACHE
+===================================================== */
 
-  if (!KEY) {
+const latestQuotes = {};
+const latestVolumes = {};
+const latestChanges = {};
+const latestPercentChanges = {};
+const latestTimestamps = {};
+
+
+/* =====================================================
+   RATE LIMIT SAFE SETTINGS
+===================================================== */
+
+/*
+  Your current Twelve Data limit:
+  8 credits / minute.
+
+  We therefore request maximum 8 symbols
+  per API call.
+
+  18 symbols are divided into:
+
+  Batch 1 = 8
+  Batch 2 = 8
+  Batch 3 = 2
+
+  We wait 70 seconds between batches.
+*/
+
+const BATCH_SIZE = 8;
+
+const BATCH_INTERVAL =
+  70 * 1000;
+
+let marketBatchIndex = 0;
+
+
+/* =====================================================
+   NEXT BATCH
+===================================================== */
+
+function getNextMarketBatch() {
+
+  const batch = [];
+
+
+  for (
+    let i = 0;
+    i < BATCH_SIZE;
+    i++
+  ) {
+
+    const index =
+      (
+        marketBatchIndex +
+        i
+      ) %
+      MARKET_SYMBOLS.length;
+
+
+    batch.push(
+      MARKET_SYMBOLS[index]
+    );
+
+  }
+
+
+  marketBatchIndex =
+    (
+      marketBatchIndex +
+      BATCH_SIZE
+    ) %
+    MARKET_SYMBOLS.length;
+
+
+  return batch;
+
+}
+
+
+/* =====================================================
+   BROADCAST STATUS
+===================================================== */
+
+function broadcastStatus() {
+
+  const message =
+    JSON.stringify({
+
+      type: "status",
+
+      connected: true,
+
+      symbols:
+        MARKET_SYMBOLS.length,
+
+      updatedAt:
+        Date.now(),
+
+      message:
+        "Market connected"
+
+    });
+
+
+  wss.clients.forEach(
+    client => {
+
+      if (
+        client.readyState ===
+        WebSocket.OPEN
+      ) {
+
+        client.send(
+          message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   BROADCAST MARKET
+===================================================== */
+
+function broadcastMarket(
+  symbol,
+  price,
+  volume,
+  change,
+  percentChange,
+  timestamp
+) {
+
+  const message =
+    JSON.stringify({
+
+      type: "market",
+
+      data: {
+
+        symbol,
+
+        price,
+
+        volume:
+          volume === null ||
+          volume === undefined ||
+          volume === ""
+            ? null
+            : Number(volume),
+
+        change:
+          change === null ||
+          change === undefined ||
+          change === ""
+            ? null
+            : Number(change),
+
+        percent_change:
+          percentChange === null ||
+          percentChange === undefined ||
+          percentChange === ""
+            ? null
+            : Number(percentChange),
+
+        timestamp:
+          timestamp ||
+          Date.now()
+
+      }
+
+    });
+
+
+  wss.clients.forEach(
+    client => {
+
+      if (
+        client.readyState ===
+        WebSocket.OPEN
+      ) {
+
+        client.send(
+          message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   BACKWARD COMPATIBILITY PRICE MESSAGE
+===================================================== */
+
+function broadcastOldPrice(
+  symbol,
+  price,
+  volume
+) {
+
+  const message =
+    JSON.stringify({
+
+      type: "price",
+
+      data: {
+
+        symbol,
+
+        price,
+
+        volume:
+          volume === undefined
+            ? null
+            : volume
+
+      }
+
+    });
+
+
+  wss.clients.forEach(
+    client => {
+
+      if (
+        client.readyState ===
+        WebSocket.OPEN
+      ) {
+
+        client.send(
+          message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   UPDATE ONE MARKET BATCH
+===================================================== */
+
+async function updateMarketBatch() {
+
+  if (
+    !TWELVE_DATA_API_KEY
+  ) {
 
     console.log(
-      "Twelve Data API key not configured."
+      "TWELVE_DATA_API_KEY is missing."
     );
 
     return;
+
   }
+
+
+  const symbols =
+    getNextMarketBatch();
+
+
+  console.log(
+    "Updating market batch:",
+    symbols.join(", ")
+  );
+
 
   try {
 
+    /*
+      Twelve Data batch quote request.
+    */
+
     const url =
-      "https://api.twelvedata.com/quote?symbol=" +
-      encodeURIComponent(symbol) +
+      "https://api.twelvedata.com/quote" +
+      "?symbol=" +
+      encodeURIComponent(
+        symbols.join(",")
+      ) +
       "&apikey=" +
-      encodeURIComponent(KEY);
+      encodeURIComponent(
+        TWELVE_DATA_API_KEY
+      );
+
 
     const response =
-      await fetch(url);
+      await fetch(
+        url
+      );
 
-    const data =
+
+    const result =
       await response.json();
 
+
+    /*
+      If Twelve Data returns a
+      global error.
+    */
+
     if (
-      !data ||
-      data.status === "error"
+      result &&
+      result.status === "error" &&
+      !result[symbols[0]]
     ) {
 
-      console.log(
-        "Quote error:",
-        symbol,
-        data
+      console.error(
+        "Twelve Data error:",
+        result
       );
 
       return;
+
     }
 
-    const price =
-      Number(
-        data.close ??
-        data.price ??
-        data.last
-      );
 
-    if (
-      !Number.isFinite(price)
+    /*
+      Process each symbol.
+    */
+
+    for (
+      const symbol of symbols
     ) {
 
-      console.log(
-        "Invalid quote price:",
-        symbol,
-        data
-      );
+      let data =
+        result
+          ? result[symbol]
+          : null;
 
-      return;
-    }
 
-    let volume = null;
-
-    if (
-      data.volume !== undefined &&
-      data.volume !== null &&
-      data.volume !== ""
-    ) {
-
-      const parsedVolume =
-        Number(data.volume);
+      /*
+        Single-symbol fallback.
+      */
 
       if (
-        Number.isFinite(
-          parsedVolume
-        )
+        symbols.length === 1 &&
+        result &&
+        !result[symbol]
       ) {
 
-        volume =
-          parsedVolume;
+        data = result;
+
       }
+
+
+      if (
+        !data ||
+        data.status === "error"
+      ) {
+
+        console.log(
+          "No market data:",
+          symbol
+        );
+
+        continue;
+
+      }
+
+
+      const rawPrice =
+        data.close ??
+        data.price ??
+        data.last;
+
+
+      if (
+        rawPrice === undefined ||
+        rawPrice === null
+      ) {
+
+        console.log(
+          "No price returned:",
+          symbol
+        );
+
+        continue;
+
+      }
+
+
+      const price =
+        Number(
+          rawPrice
+        );
+
+
+      if (
+        !Number.isFinite(price)
+      ) {
+
+        continue;
+
+      }
+
+
+      let volume = null;
+
+
+      if (
+        data.volume !== undefined &&
+        data.volume !== null &&
+        data.volume !== ""
+      ) {
+
+        const parsedVolume =
+          Number(
+            data.volume
+          );
+
+
+        if (
+          Number.isFinite(
+            parsedVolume
+          )
+        ) {
+
+          volume =
+            parsedVolume;
+
+        }
+
+      }
+
+
+      const change =
+        data.change ??
+        null;
+
+
+      const percentChange =
+        data.percent_change ??
+        null;
+
+
+      const timestamp =
+        data.timestamp ??
+        Date.now();
+
+
+      latestQuotes[symbol] =
+        price;
+
+
+      latestVolumes[symbol] =
+        volume;
+
+
+      latestChanges[symbol] =
+        change;
+
+
+      latestPercentChanges[symbol] =
+        percentChange;
+
+
+      latestTimestamps[symbol] =
+        timestamp;
+
+
+      console.log(
+        symbol +
+        " price: " +
+        price +
+        " volume: " +
+        (
+          volume === null
+            ? "null"
+            : volume
+        )
+      );
+
+
+      broadcastMarket(
+        symbol,
+        price,
+        volume,
+        change,
+        percentChange,
+        timestamp
+      );
+
+
+      /*
+        Keep the old message so
+        existing HTML functionality
+        continues working.
+      */
+
+      broadcastOldPrice(
+        symbol,
+        price,
+        volume
+      );
+
     }
 
-    latestPrices[symbol] =
-      price;
 
-    latestVolumes[symbol] =
-      volume;
+    broadcastStatus();
 
-    latestQuotes[symbol] = {
-      symbol,
-      price,
-      volume,
-      change:
-        Number(
-          data.change
-        ) || 0,
-      percent_change:
-        Number(
-          data.percent_change
-        ) || 0,
-      timestamp:
-        Date.now()
-    };
-
-    send({
-
-      type:
-        "market",
-
-      data:
-        latestQuotes[symbol]
-    });
 
     console.log(
-      symbol,
-      "price:",
-      price,
-      "volume:",
-      volume
+      "Market batch complete."
     );
 
-  } catch (err) {
 
-    console.log(
-      "Quote request failed:",
-      symbol,
-      err.message
+  } catch (error) {
+
+    console.error(
+      "Market update error:",
+      error.message
     );
+
   }
+
 }
 
-// ===============================
-// UPDATE ALL MARKET DATA
-// ===============================
+
+/* =====================================================
+   INITIAL MARKET UPDATE
+===================================================== */
 
 async function updateAllPrices() {
 
@@ -1094,188 +1471,206 @@ async function updateAllPrices() {
     "Updating market prices and volume..."
   );
 
-  if (!KEY) {
 
-    console.log(
-      "TWELVE_DATA_API_KEY is missing."
-    );
+  await updateMarketBatch();
 
-    send({
-
-      type:
-        "status",
-
-      connected:
-        false
-    });
-
-    return;
-  }
-
-  /*
-   * Small batches prevent sending
-   * all API requests at exactly
-   * the same moment.
-   */
-
-  for (
-    let i = 0;
-    i < symbols.length;
-    i += 4
-  ) {
-
-    const batch =
-      symbols.slice(
-        i,
-        i + 4
-      );
-
-    await Promise.all(
-      batch.map(
-        symbol =>
-          updateQuote(symbol)
-      )
-    );
-  }
-
-  send({
-
-    type:
-      "status",
-
-    connected:
-      Object.keys(
-        latestPrices
-      ).length > 0,
-
-    symbols:
-      Object.keys(
-        latestPrices
-      ).length,
-
-    updatedAt:
-      Date.now()
-  });
-
-  console.log(
-    "Market update complete."
-  );
 }
 
-// ===============================
-// WEBSOCKET CONNECTION
-// ===============================
+
+/* =====================================================
+   WEBSOCKET
+===================================================== */
 
 wss.on(
   "connection",
-  client => {
-
-    clients.add(client);
+  ws => {
 
     console.log(
       "WebSocket client connected."
     );
 
-    // Send current market data
-    for (
-      const symbol of symbols
-    ) {
 
-      if (
-        latestQuotes[symbol]
-      ) {
+    /*
+      Send connection status.
+    */
 
-        client.send(
+    ws.send(
+      JSON.stringify({
+
+        type: "status",
+
+        connected: true,
+
+        symbols:
+          MARKET_SYMBOLS.length,
+
+        updatedAt:
+          Date.now(),
+
+        message:
+          "Market connected"
+
+      })
+    );
+
+
+    /*
+      Send cached prices immediately.
+    */
+
+    Object.keys(
+      latestQuotes
+    ).forEach(
+      symbol => {
+
+        const price =
+          latestQuotes[
+            symbol
+          ];
+
+
+        const volume =
+          latestVolumes[
+            symbol
+          ] ??
+          null;
+
+
+        const change =
+          latestChanges[
+            symbol
+          ] ??
+          null;
+
+
+        const percentChange =
+          latestPercentChanges[
+            symbol
+          ] ??
+          null;
+
+
+        const timestamp =
+          latestTimestamps[
+            symbol
+          ] ??
+          Date.now();
+
+
+        ws.send(
           JSON.stringify({
 
-            type:
-              "market",
-
-            data:
-              latestQuotes[
-                symbol
-              ]
-          })
-        );
-
-      } else if (
-        latestPrices[symbol]
-      ) {
-
-        client.send(
-          JSON.stringify({
-
-            type:
-              "market",
+            type: "market",
 
             data: {
 
               symbol,
 
-              price:
-                latestPrices[
-                  symbol
-                ],
+              price,
 
-              volume:
-                latestVolumes[
-                  symbol
-                ] ?? null
+              volume,
+
+              change,
+
+              percent_change:
+                percentChange,
+
+              timestamp
+
             }
+
           })
         );
+
+
+        /*
+          Backward compatibility.
+        */
+
+        ws.send(
+          JSON.stringify({
+
+            type: "price",
+
+            data: {
+
+              symbol,
+
+              price,
+
+              volume
+
+            }
+
+          })
+        );
+
       }
-    }
-
-    // Market status
-    client.send(
-      JSON.stringify({
-
-        type:
-          "status",
-
-        connected:
-          Object.keys(
-            latestPrices
-          ).length > 0,
-
-        symbols:
-          Object.keys(
-            latestPrices
-          ).length
-      })
     );
 
-    client.on(
+
+    ws.on(
       "close",
       () => {
-
-        clients.delete(
-          client
-        );
 
         console.log(
           "WebSocket client disconnected."
         );
+
       }
     );
 
-    client.on(
+
+    ws.on(
       "error",
-      err => {
+      error => {
 
-        console.log(
-          "WebSocket client error:",
-          err.message
+        console.error(
+          "WebSocket error:",
+          error.message
         );
+
       }
     );
+
   }
 );
 
-// ===============================
-// START SERVER
-// ===============================
+
+/* =====================================================
+   RATE-LIMIT SAFE MARKET LOOP
+===================================================== */
+
+/*
+  First update immediately.
+*/
+
+updateAllPrices();
+
+
+/*
+  Then update one batch every 70 seconds.
+
+  18 symbols:
+  8 + 8 + 2
+
+  This keeps us below the
+  8-credit/minute limit.
+*/
+
+setInterval(
+  async () => {
+
+    await updateMarketBatch();
+
+  },
+  BATCH_INTERVAL
+);
+
+
+/* =====================================================
+   START SERVER
+===================================================== */
 
 async function startServer() {
 
@@ -1285,26 +1680,14 @@ async function startServer() {
       "SELECT NOW()"
     );
 
+
     console.log(
-      "PostgreSQL connected."
+      "PostgreSQL connected"
     );
 
-    await createTables();
 
-    await migrateOldUsers();
+    await setupDatabase();
 
-    // Initial market update
-    await updateAllPrices();
-
-    /*
-     * Refresh market data every 60 seconds.
-     * This is much faster than the old
-     * 12 minute interval.
-     */
-    setInterval(
-      updateAllPrices,
-      60 * 1000
-    );
 
     server.listen(
       PORT,
@@ -1315,18 +1698,56 @@ async function startServer() {
           "Sahil Trading Pro running on port " +
           PORT
         );
+
       }
     );
 
-  } catch (err) {
+
+  } catch (error) {
 
     console.error(
-      "SERVER START ERROR:",
-      err
+      "Server startup error:",
+      error
     );
 
-    process.exit(1);
+
+    process.exit(
+      1
+    );
+
   }
+
 }
 
+
 startServer();
+
+
+/* =====================================================
+   ERROR HANDLERS
+===================================================== */
+
+process.on(
+  "unhandledRejection",
+  error => {
+
+    console.error(
+      "Unhandled rejection:",
+      error
+    );
+
+  }
+);
+
+
+process.on(
+  "uncaughtException",
+  error => {
+
+    console.error(
+      "Uncaught exception:",
+      error
+    );
+
+  }
+);
